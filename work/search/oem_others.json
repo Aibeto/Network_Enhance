@@ -1,0 +1,74 @@
+[
+  {
+    "url": "https://stackoverflow.com/questions/8708886/connecting-to-wifi-using-adb-shell",
+    "name": "Connecting to WiFi using adb shell - Stack Overflow",
+    "snippet": "Mark the network private (not shared). How To Connect to adb via WiFi. Connect to password protected wifi network using How can I connect to Android with ADB over TCP? How to turn off Wifi via ADB? More results from stackoverflow.com",
+    "host_name": "stackoverflow.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://android.stackexchange.com/questions/225283/how-to-permanently-enable-adb-in-huawei-devices",
+    "name": "How to permanently enable ADB in Huawei devices?",
+    "snippet": "Dial *#*#2846579#*#* · Select background · Select USB mode · Select \"Google mode\" · Open settings · Find development options · Enable ADB over USB. How to change \"Preferred Network Mode\" using adb without reboot? Connecting to WiFi via ADB Shell - Android Enthusiasts Stack Exchange More results from android.stackexchange.com",
+    "host_name": "android.stackexchange.com",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.youtube.com/watch?v=VtCQHoSFP_U",
+    "name": "Connect to Android Phone Remotely Over Network Using ADB & No Cable",
+    "snippet": "Welcome to my channel! If you're looking to enhance your skills in Linux, tech, and more, you're in the right place!",
+    "host_name": "www.youtube.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/undergroundwires/privacy.sexy/discussions/359",
+    "name": "Android privacy: In search of possibilities using adb #359 - GitHub",
+    "snippet": "By setting the preferred network mode to a value that excludes 2G (GSM) networks, you effectively disable 2G communications. GSM = 2G; WCDMA , CDMA , EvDo = 3G ...",
+    "host_name": "github.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.reddit.com/r/Vivo/comments/1sr3gy5/vivo_have_removed_some_adb_commands_in_the_latest",
+    "name": "Vivo have removed some adb commands in the latest Origin 6",
+    "snippet": "I emailed the dev and we troubleshooted the issue. It turns out Vivo have removed the adb command to change the material theme colours via adb. Solution to get ALL notifications on stock AOD for CN Origin OS! : r/Vivo Does HarmonyOS Next have ADB since it's not android? : r/Huawei More results from www.reddit.com",
+    "host_name": "www.reddit.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://xdaforums.com/t/china-os-spyware-relevant-to-china-os-usage-as-on-x90-pro.4553333",
+    "name": "China OS spyware - relevant to China OS usage as on X90 Pro+",
+    "snippet": "ColorOS is not identical to OriginOS but pretty close. used for spyware on Color OS also exist on Origin OS. Origin OS is a spyware nightmare … ... Remove Huawei Bloatware Without Root Access - using ADB & USB ... [Tutorial] Turn on WiFi via adb! Locked out of phone with wifi off? More results from xdaforums.com",
+    "host_name": "xdaforums.com",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.hexnode.com/mobile-device-management/help/how-to-execute-adb-commands-on-android-devices-remotely",
+    "name": "How to execute ADB commands on Android devices remotely? - Hexnode",
+    "snippet": "On the Android device, go to Settings > System > About phone and tap on the build number 7 times. Go to Settings > Developer Options and enable Wireless ...",
+    "host_name": "www.hexnode.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://en.delphipraxis.net/topic/1122-android-adb-devices-offline-best-practices",
+    "name": "Android ADB devices offline, best practices - Delphi-PRAXiS [en]",
+    "snippet": "Revoking the USB debugging authorizations can sometimes be the trick. Then reconnect and accept the new debug connection when the authorize dialogue window ...",
+    "host_name": "en.delphipraxis.net",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  }
+]

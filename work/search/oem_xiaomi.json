@@ -1,0 +1,74 @@
+[
+  {
+    "url": "https://www.reddit.com/r/HyperOS/comments/1rfeknj/wifi_calling_in_control_panel_any_way_to_remove",
+    "name": "Wifi calling in control panel - Any way to remove this ? : r/HyperOS - Reddit",
+    "snippet": "Hi, anyone knowing how to remove those buttons ? It used to be possible with an adb command \"adb shell pm uninstall --user… Set a WiFi network as metered in MIUI 12. : r/Xiaomi [Help] Persistent WiFi bug on Xiaomi 15 (HyperOS 3.0.4.0) More results from www.reddit.com",
+    "host_name": "www.reddit.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.facebook.com/groups/xiaomisfanclub/posts/1540952627045968",
+    "name": "Hi everyone, I'd like to disable the MIUI optimization option. I followed",
+    "snippet": "Either use adb command \"setprop persist.sys.miui_optimization false\" via a PC to disable MIUI Optimization so you can go and use Vanced Manager ...",
+    "host_name": "www.facebook.com",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.youtube.com/watch?v=yI7lpBOgc0A",
+    "name": "How to remove Wifi Calling buttons on Poco/Xiaomi phones - YouTube",
+    "snippet": "Hello, here I am showing you how to remove those two Wifi Calling buttons on Poco/Xiaomi phones without changing your current internet ...",
+    "host_name": "www.youtube.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://new.c.mi.com/pk/post/87520",
+    "name": "10 Must-Enable Settings for MIUI & HyperOS Users - Xiaomi Community",
+    "snippet": "2. Set the Highest Screen Refresh Rate · 3. Show Real-Time Network Speed · 4. Notification Spotlight (HyperOS) · 5.",
+    "host_name": "new.c.mi.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.youtube.com/watch?v=Of6yfE-PCP0",
+    "name": "HyperOS After Update Network Problem 100% Solve - YouTube",
+    "snippet": "HyperOS After Update Network Problem 100% Solve | 5G Not Working hyper os network problem, hyper os update issue, hyper os network not ...",
+    "host_name": "www.youtube.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.tiktok.com/@19kenzus/video/7627523098224495904",
+    "name": "How to Enable Dual WiFi on HyperOS 3 - Xiaomi 15T Tutorial | TikTok",
+    "snippet": "2. Locate and select the 'Wi-Fi' or 'Network & Internet' option. 3. Within the Wi-Fi settings, look for an option related to 'Dual WiFi' or ' ...",
+    "host_name": "www.tiktok.com",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.facebook.com/XiaomiHyperOS.Official/videos/how-to-report-wifi-issues-with-the-tool-get-logs/3004235199867776",
+    "name": "【MIUI Class】WiFi can't work normally? Use the log tool in our",
+    "snippet": "... 【MIUI Class】WiFi can't work normally? Use the log tool in ... MIUI #Xiaomi #miuilife #iss | Xiaomi HyperOS. Log in · Video. 󱡘. Xiaomi ...",
+    "host_name": "www.facebook.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/MlgmXyysd/Xiaomi-HyperOS-BootLoader-Bypass/issues/188",
+    "name": "Fail to send request, check your internet connection #188 - GitHub",
+    "snippet": "Turn on USB tethering, and you can see the Android phone in the device manager(adb). Do not connect to the network through the Xiaomi phone, but use another ...",
+    "host_name": "github.com",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  }
+]

@@ -1,0 +1,92 @@
+[
+  {
+    "url": "https://xdaforums.com/t/guide-enable-4g-lte-a-carrier-aggregation-without-root-on-stock-rom.3894282/page-6",
+    "name": "[GUIDE] Enable 4g+/LTE-A Carrier Aggregation without Root on Stock",
+    "snippet": "Type adb devices and press enter. Type adb shell and press enter. Type su and press enter. Type setprop sys.usb.config diag,adb and press enter. LTE-Advanced Carrier Aggregation Enabler - XDA Forums How to Enable All Bands Through Service Menu on US/CA S22 series ... More results from xdaforums.com",
+    "host_name": "xdaforums.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/undergroundwires/privacy.sexy/discussions/359",
+    "name": "Android privacy: In search of possibilities using adb #359 - GitHub",
+    "snippet": "Disable transition animation scales, adb shell settings put global transition_animation_scale. By setting the preferred network mode … you effectively disable ...",
+    "host_name": "github.com",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.youtube.com/watch?v=onSiqiSU9sQ",
+    "name": "Carrier Aggregation Locking On Any Network | How To Lock 4G+ 5G+",
+    "snippet": "... carrier aggregation android what is carrier aggregation in lte lte carrier aggregation what does carrier aggregation mean? how does carrier ...",
+    "host_name": "www.youtube.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://confusedbird.com/archive/index.php?thread-383.html",
+    "name": "Accessing *#0011# service menu on newer Samsung phones",
+    "snippet": "To disable the Auto Blocker, go into Settings -> Security and privacy. Scroll down to Additional security settings and turn off the Auto ...",
+    "host_name": "confusedbird.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://stackoverflow.com/questions/25319129/how-to-change-preferred-network-type-over-adb-android",
+    "name": "how to change preferred network type over adb android? - Stack Overflow",
+    "snippet": "This is working for my devices: adb shell sqlite3 /data/data/com.android.providers.settings/databases/settings.db \"update global SET value ...",
+    "host_name": "stackoverflow.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.reddit.com/r/tasker/comments/4goz99/how_to_replace_some_secure_settings_actions_with",
+    "name": "[How to] Replace some Secure Settings actions with root Shell",
+    "snippet": "Here are some reference pages about the Global, Secure, and System settings that can be manipulated using shell commands in Tasker.",
+    "host_name": "www.reddit.com",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://mt-tech.fi/en/how-to-get-4g-supported-ca-combinations-from-your-android-phone",
+    "name": "How to get 4G/5G supported CA and ENDC Combinations from your",
+    "snippet": "Here i instruct how you could get 4G/LTE-A/4G+/LTE+/5G Carrier Aggregation (CA) and Dual Connectivity (ENDC) combinations support from your phone.",
+    "host_name": "mt-tech.fi",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://ubos.tech/news/how-to-force-android-phones-onto-lte%E2%80%91only-or-5g%E2%80%91only-networks-ubos-guide",
+    "name": "How to Force Android Phones onto LTE‑Only or 5G‑Only Networks",
+    "snippet": "You can force your Android phone onto LTE‑only or 5G‑only mode by adjusting hidden network settings, using ADB commands, or applying a simple ...",
+    "host_name": "ubos.tech",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://customer.cradlepoint.com/s/article/How-to-disable-Carrier-Aggregation",
+    "name": "How to Disable Carrier Aggregation - Cradlepoint",
+    "snippet": "(NCOS Version 6.5.4) Go to Devices · Select the modem that you wish to disable CA · Click on Edit · Select the Modem tab · Check the ...",
+    "host_name": "customer.cradlepoint.com",
+    "rank": 8,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.quora.com/How-do-I-stop-a-4G-Plus-network-and-use-a-normal-4G-network",
+    "name": "How to stop a 4G Plus network and use a normal 4G network - Quora",
+    "snippet": "Enable Developer options > Dial *#*#3646633#*#* Then go to LTE CA option Select OFF Then Press SET now 4G+ is disabled in your phone.",
+    "host_name": "www.quora.com",
+    "rank": 9,
+    "date": "",
+    "favicon": ""
+  }
+]

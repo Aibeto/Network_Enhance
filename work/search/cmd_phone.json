@@ -1,0 +1,92 @@
+[
+  {
+    "url": "https://stackoverflow.com/questions/25319129/how-to-change-preferred-network-type-over-adb-android",
+    "name": "how to change preferred network type over adb android? - Stack Overflow",
+    "snippet": "How can I change the preferred network type with ADB? Example: set Use only GSM, use only WCDMA, use only LTE or automatic. Preferred Network Mode not changing over ADB - Stack Overflow database - adb command - change preferred network mode LTE/GSM More results from stackoverflow.com",
+    "host_name": "stackoverflow.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://android.stackexchange.com/questions/111587/how-to-change-preferred-network-mode-using-adb-without-reboot",
+    "name": "How to change \"Preferred Network Mode\" using adb without reboot?",
+    "snippet": "I'm trying to change my phone's (CM 12, Stock 4.2, both rooted) preferred network mode from \"GSM/WCDMA\" (0) to \"WCDMA only\" (2) and vice versa. Preferred Network Mode not changing using ADB on Samsung S21 ... Android 11 ADB change preferred network mode More results from android.stackexchange.com",
+    "host_name": "android.stackexchange.com",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.reddit.com/r/GooglePixel/comments/1e0n4o6/where_has_preferred_network_type_menu_gone_in",
+    "name": "Where has \"Preferred Network Type\" menu gone in Android 14? - Reddit",
+    "snippet": "Go to settings>about phone> scroll to build number and click on that 7 times. Enter your passcode and back out and go back to preferred network ... Changing PREFERRED NETWORK TYPE not possible any more? [TIP] Change network type (2G, 3G) without root. : r/tasker More results from www.reddit.com",
+    "host_name": "www.reddit.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/undergroundwires/privacy.sexy/discussions/359",
+    "name": "Android privacy: In search of possibilities using adb #359 - GitHub",
+    "snippet": "By setting the preferred network mode to a value that excludes 2G (GSM) networks, you effectively disable 2G communications. Android 14. Note This protects the ...",
+    "host_name": "github.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://xdaforums.com/t/set-preferred-network-mode-through-hidden-menu.4313747",
+    "name": "How To Guide - Set Preferred Network Mode through Hidden Menu",
+    "snippet": "Under Set Preferred Network Type dropdown, select the network type you want. -- to get 4G/LTE and below, set to \"LTE/TDSCDMA/CDMA/EvDo/GSM/WCDMA ... General - [Tasker] Preferred Network Mode Profile (Switching to 3G/5G) How to change default preferred network type by ADB? - XDA Forums More results from xdaforums.com",
+    "host_name": "xdaforums.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.daniel-ritter.de/blog/change-preferred-network-mode-on-android-15-2g-3g-lte-4g-5g-with-shell-command",
+    "name": "Change Preferred Network Type Mode on Android 15 / 2G / 3G / LTE",
+    "snippet": "Numeric Codes for every preferred network setting you want to use (Settings -> Network -> Simcard -> Cogwheel -> Preferred Network mode). Use ...",
+    "host_name": "www.daniel-ritter.de",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://ubos.tech/news/how-to-force-android-phones-onto-lte%E2%80%91only-or-5g%E2%80%91only-networks-ubos-guide",
+    "name": "How to Force Android Phones onto LTE‑Only or 5G‑Only Networks",
+    "snippet": "You can force your Android phone onto LTE‑only or 5G‑only mode by adjusting hidden network settings, using ADB commands, or applying a simple ...",
+    "host_name": "ubos.tech",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://issuetracker.google.com/issues/293920483",
+    "name": "293920483 - Issue Tracker - Google",
+    "snippet": "Open the Phone app and dial *#*#4636#*#*. Tap Phone information. Note the line under Set Preferred Network Type,",
+    "host_name": "issuetracker.google.com",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://support.google.com/pixelphone/thread/228229984/restore-preferred-network-option-in-settings-menu?hl=en",
+    "name": "Restore preferred network option in Settings menu - Google Help",
+    "snippet": "Open the Phone app and dial *#*#4636#*#*. Tap Phone information. Note the line under Set Preferred Network Type, 5G is enabled if it starts with NR.",
+    "host_name": "support.google.com",
+    "rank": 8,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.youtube.com/watch?v=Zantc32oKRo",
+    "name": "How to Set Preferred Network Type as 5G in Android 15 - YouTube",
+    "snippet": "... Android 15 Change Network Mode on Android 15 Android 15 Preferred Network Settings Android 15 Network Mode Android 15 Android Phone Google",
+    "host_name": "www.youtube.com",
+    "rank": 9,
+    "date": "",
+    "favicon": ""
+  }
+]

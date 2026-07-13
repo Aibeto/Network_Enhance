@@ -1,0 +1,92 @@
+[
+  {
+    "url": "https://fahrez182.github.io/AxManager/plugin/what-is-plugin.html",
+    "name": "Plugin (Unrooted Module) | AxManager - GitHub Pages",
+    "snippet": "AxManager uses the BOOT_COMPLETED receiver and Hot Restart System approach to start post-fs-data.sh , system.prop , late_start service.sh , and all other files ...",
+    "host_name": "fahrez182.github.io",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/Androidacy/WebviewManager-Module/blob/master/post-fs-data.sh",
+    "name": "post-fs-data.sh - GitHub",
+    "snippet": "WebView Manager is a magisk module to change your webview and browser to one of your choice. - WebviewManager-Module/post-fs-data.sh at master ...",
+    "host_name": "github.com",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://xdaforums.com/t/issue-with-post-fs-data-mode-and-resetprop-can-anyone-help-me.3516623",
+    "name": "Issue with post-fs-data mode and resetprop. Can anyone help me",
+    "snippet": "What I'm trying to do is use post-fs-data for safe modification. What you're doing is replacing your entire build.prop for just 2 lines of code, ...",
+    "host_name": "xdaforums.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.youtube.com/watch?v=BytYXHBjCT0",
+    "name": "Turn ANY Low End Phone Into a Smooth 120FPS! (AxManager",
+    "snippet": "... AxManager combine with 120FPS Gaming Plugin! (1000% Working & No Root Riquired) ⚡ Device i used: • Poco X3 Pro (non root) • Android ...",
+    "host_name": "www.youtube.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.facebook.com/https.willy.jr.carnasa.gailo2026.2027/posts/module-plugin-performance-mode-httpsgithubcomwillygailo01monstermode_v31_finalzi/783295384815101",
+    "name": "Module plugin performance mode https://github.com  - Facebook",
+    "snippet": "zip DOWNLOAD AX MANAGER APK 🏷️ https://github. com/fahrez182/AxManager/releases/tag/v1.4.4 Non-rooted and rooted device ✓🗝️.",
+    "host_name": "www.facebook.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.youtube.com/watch?v=RfY4nwR0G3c",
+    "name": "How to Stop Lag & FIX FRAME DROPS | AX Manager  - YouTube",
+    "snippet": "FILES IN THE PINNED COMMENT Gaming on mobile doesn't always mean you need a flagship phone or root access. In this video, I explain what AX ...",
+    "host_name": "www.youtube.com",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.youtube.com/watch?v=cMkb2a7knQw",
+    "name": "Ax Manager Plugin Magisk Modules in Non Root No Shizuku - YouTube",
+    "snippet": "... root gaming, module magisk no root, non root android optimizer, module magisk hide props config, magisk hide props module, module magisk ...",
+    "host_name": "www.youtube.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/fahrez182/AxManager",
+    "name": "AxManager is an Android application designed to provide  - GitHub",
+    "snippet": "Axeron Manager (AxManager) is a Proof of Concept (POC) for a self-created environment on Android that leverages ADB permissions to provide system-level ...",
+    "host_name": "github.com",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://repo.magiskmodule.com/category/axmanager-plugin?page=3&sort=latest",
+    "name": "AxManager Plugins | Best Tweaks Collection - Magisk Module",
+    "snippet": "Discover the best AxManager Plugins collection. Safe, verified, and high-performance tweaks for your device.",
+    "host_name": "repo.magiskmodule.com",
+    "rank": 8,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://forum.sailfishos.org/t/aliendalvik-stops-starting-after-upgrade-to-4-0-1-48/5384",
+    "name": "Aliendalvik stops starting after upgrade to 4.0.1.48",
+    "snippet": "DESCRIPTION: aliendalvik stops starting after upgrade to 4.0.1.48. PRECONDITIONS: stop aliendalvik service and try than to restart… it fails, ...",
+    "host_name": "forum.sailfishos.org",
+    "rank": 9,
+    "date": "",
+    "favicon": ""
+  }
+]

@@ -1,0 +1,92 @@
+[
+  {
+    "url": "https://www.youtube.com/watch?v=BoK7RmxGPhY",
+    "name": "The Hidden Android Wi-Fi Command Nobody Talks About - YouTube",
+    "snippet": "YouTube Membership: https://www.youtube.com/channel/UC17VZx3ERdQsNvAvXQYjKKw/join Master your Android device's network settings with this ...",
+    "host_name": "www.youtube.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://stackoverflow.com/questions/75294766/android-device-how-to-connect-wifi-by-adb-shell-cmd-wifi-command",
+    "name": "Android device: How to connect wifi by \"Adb shell cmd wifi\" command?",
+    "snippet": "How to connect wifi by \"Adb shell cmd wifi\" command? Connect to a network. Mark the network metered. would be: Copy adb shell cmd wifi connect- ... Connecting to WiFi using adb shell - Stack Overflow How to turn off Wifi via ADB? - Stack Overflow More results from stackoverflow.com",
+    "host_name": "stackoverflow.com",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.reddit.com/r/tasker/comments/1ezzete/connect_to_wifi_issues_is_there_anyway_to_get",
+    "name": "Connect to WiFi Issues - Is there anyway to get this working  - Reddit",
+    "snippet": "I want to connect to a WiFi SSID in tasker automatically. The WiFi will be \"forgotten\" and not connected to before. I have installed tasker settings 1.7.1 via ... Android 14 Wi-Fi password file, different location/format ... Android 12 removed wifi quick toggle? : r/GooglePixel More results from www.reddit.com",
+    "host_name": "www.reddit.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://developer.android.com/develop/connectivity/network-ops/data-saver",
+    "name": "Optimize network data usage | Connectivity - Android Developers",
+    "snippet": "$ adb shell cmd netpolicy list wifi-networks: Lists all wifi networks, displaying whether they're metered. $ adb shell cmd netpolicy set ...",
+    "host_name": "developer.android.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://android.stackexchange.com/questions/222392/how-to-connect-and-disconnect-from-wifi-using-adb-not-a-root-user",
+    "name": "how to connect and disconnect from WiFi using ADB (not a root user)?",
+    "snippet": "You can use adb shell cmd -w wifi connect-network command followed by these parameters if needed : - connect-network open|owe|wpa2|wpa3",
+    "host_name": "android.stackexchange.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://a3nm.net/blog/android_cli.html",
+    "name": "Android from the command-line - a3nm's blog",
+    "snippet": "To do so, if you have an Internet connection, an easy way is: ntpd -p 64.90.182.55 . (Alternatively, substitute the IP of your favorite public ...",
+    "host_name": "a3nm.net",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://android.gadgethacks.com/how-to/send-adb-commands-over-wi-fi-android-0160216",
+    "name": "How to Send ADB Commands Over Wi-Fi on Android - Gadget Hacks",
+    "snippet": "From any computer connected to the same network as your Android device, launch an ADB command prompt. Type the \"Connect Command\" that Network ...",
+    "host_name": "android.gadgethacks.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.youtube.com/watch?v=lpLP8riNxS0",
+    "name": "Android Framework - adb commands to manage Wifi in Android - YouTube",
+    "snippet": "Hi All, In this video I explain different adb commands to manage the wifi module in android along with their importance and usage.",
+    "host_name": "www.youtube.com",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://android.googlesource.com/platform/prebuilts/fullsdk/sources/android-30/+/refs/heads/main/com/android/server/wifi/WifiShellCommand.java",
+    "name": "WifiShellCommand.java - Android GoogleSource",
+    "snippet": "\"reset-connected-score\", \"set-connected-score\", \"set-scan-always-available\", \"set-verbose-logging\", \"set-wifi-enabled\", \"start-scan\", \"status\"",
+    "host_name": "android.googlesource.com",
+    "rank": 8,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/pr4bh4sh/adb-wifi-setting-manager",
+    "name": "pr4bh4sh/adb-wifi-setting-manager - GitHub",
+    "snippet": "Control wifi connection with adb. Here are some use-cases. Switch between wifi networks when running automation tests without manual intervention.",
+    "host_name": "github.com",
+    "rank": 9,
+    "date": "",
+    "favicon": ""
+  }
+]

@@ -1,0 +1,74 @@
+[
+  {
+    "url": "https://www.reddit.com/r/tasker/comments/u3d6ow/mobile_network_switch_android_12",
+    "name": "Mobile network switch Android 12 : r/tasker - Reddit",
+    "snippet": "Hi, I was trying to change mobile network type, but I got an error saying that Google doesn't allow this on apps targeting android 10 and ... Changing PREFERRED NETWORK TYPE not possible any more? Where has \"Preferred Network Type\" menu gone in Android 14? More results from www.reddit.com",
+    "host_name": "www.reddit.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://android.stackexchange.com/questions/111587/how-to-change-preferred-network-mode-using-adb-without-reboot",
+    "name": "How to change \"Preferred Network Mode\" using adb without reboot?",
+    "snippet": "I'm trying to change my phone's (CM 12, Stock 4.2, both rooted) preferred network mode from \"GSM/WCDMA\" (0) to \"WCDMA only\" (2) and vice versa. How can I change preferred network type through a script (or terminal ... Preferred Network Mode not changing using ADB on Samsung S21 ... More results from android.stackexchange.com",
+    "host_name": "android.stackexchange.com",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://stackoverflow.com/questions/25319129/how-to-change-preferred-network-type-over-adb-android",
+    "name": "how to change preferred network type over adb android? - Stack Overflow",
+    "snippet": "This is working for my devices: adb shell sqlite3 /data/data/com.android.providers.settings/databases/settings.db \"update global SET value ... How can I connect to Android with ADB over TCP? Connecting to WiFi using adb shell More results from stackoverflow.com",
+    "host_name": "stackoverflow.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.youtube.com/watch?v=BoK7RmxGPhY",
+    "name": "The Hidden Android Wi-Fi Command Nobody Talks About - YouTube",
+    "snippet": "YouTube Membership: https://www.youtube.com/channel/UC17VZx3ERdQsNvAvXQYjKKw/join Master your Android device's network settings with this ...",
+    "host_name": "www.youtube.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://developer.android.com/tools/adb",
+    "name": "Android Debug Bridge (adb) | Android Studio",
+    "snippet": "Android Debug Bridge (adb) is a versatile command-line tool that lets you communicate with a device. The adb command facilitates a variety of device actions.",
+    "host_name": "developer.android.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/undergroundwires/privacy.sexy/discussions/359",
+    "name": "Android privacy: In search of possibilities using adb #359 - GitHub",
+    "snippet": "By setting the preferred network mode to a value that excludes 2G (GSM) networks, you effectively disable 2G communications. GSM = 2G; WCDMA , CDMA , EvDo = 3G ...",
+    "host_name": "github.com",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.hexnode.com/mobile-device-management/help/how-to-execute-adb-commands-on-android-devices-remotely",
+    "name": "How to execute ADB commands on Android devices remotely? - Hexnode",
+    "snippet": "On the Android device, go to Settings > System > About phone and tap on the build number 7 times. Go to Settings > Developer Options and enable Wireless ...",
+    "host_name": "www.hexnode.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.biemmeitalia.net/how-to-set-the-android-network-interface-using-shell-commands",
+    "name": "How to set the Android network interface using shell commands",
+    "snippet": "In this post, I'd like to tell you how to set the Android network preferences on Android devices, that is, IP Address, Netmask, Gateway and DNS.",
+    "host_name": "www.biemmeitalia.net",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  }
+]

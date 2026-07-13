@@ -1,0 +1,92 @@
+[
+  {
+    "url": "https://gist.github.com/sharunkumar/b6195cbbd26a0039ec87fbd3829aa6b3",
+    "name": "Enabling / Disabling private DNS in android via ADB - GitHub Gist",
+    "snippet": "The only way to fix it is to disable private DNS with the command “settings put global private_dns_mode off.” Is anyone else experiencing the same problem and ...",
+    "host_name": "gist.github.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.reddit.com/r/MiBox/comments/nas04z/how_to_set_up_private_dns_on_mi_box_s_4k_android/?tl=zh-hans",
+    "name": "如何在Mi Box / S 4K / Android 电视盒上通过Wi-Fi 使用ADB 设置私有DNS。",
+    "snippet": "settings put global private_dns_mode off. 通过进入设置/ 设备偏好设置/ 开发者选项并点击启用开发者选项切换来停用开发者选项。",
+    "host_name": "www.reddit.com",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://yamen.dev/posts/configure-private-dns-android-tv",
+    "name": "Configuring Private DNS on Android TV - yamen.dev",
+    "snippet": "Enable developer options on your Android TV by going to Settings → About → Build and tapping on the build number seven times. Then, enable USB ...",
+    "host_name": "yamen.dev",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://forums.apps4flip.com/d/1096-change-dns-via-adb",
+    "name": "Change DNS Via ADB - Apps4Flip And WebAdb Forums",
+    "snippet": "Try adb shell settings put global dns1 DNS_SERVER_IP_ADDRESS Replace \"DNS_SERVER_IP_ADDRESS\" with the actual IP address of the DNS server you want to use.",
+    "host_name": "forums.apps4flip.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://pierdelacabeza.com/maruja/posts/android-private-dns-in-hisense-and-other-phones-with-adb",
+    "name": "Android private DNS in Hisense (and other) phones with adb",
+    "snippet": "Set fixed DNS servers to NextDNS and filter all tracking and unwanted domains. Since Android 9 you can set a global \"Private DNS\" (DNS-over-TLS) to force DNS ...",
+    "host_name": "pierdelacabeza.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://xdaforums.com/t/block-updates-dns-way-no-root-needed.4397079/page-2",
+    "name": "Block updates. DNS way. No root needed | Page 2 - XDA Forums",
+    "snippet": "And if does so, will it block updates with mentioned dns? Gracias. adb shell settings put global private_dns_mode hostname adb shell settings ...",
+    "host_name": "xdaforums.com",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://developer.android.com/tools/adb",
+    "name": "Android Debug Bridge (adb) | Android Studio",
+    "snippet": "Android Debug Bridge (adb) is a versatile command-line tool that lets you communicate with a device. The adb command facilitates a variety of device actions.",
+    "host_name": "developer.android.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://developers.google.com/speed/public-dns/docs/using",
+    "name": "Get Started | Public DNS - Google for Developers",
+    "snippet": "To use Google Public DNS, you need to explicitly change the DNS settings in your operating system or device to use the Google Public DNS IP addresses.",
+    "host_name": "developers.google.com",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://blog.cloudflare.com/enable-private-dns-with-1-1-1-1-on-android-9-pie",
+    "name": "Enable Private DNS with 1.1.1.1 on Android 9 Pie - The Cloudflare Blog",
+    "snippet": "To enable this on your device: Go to Settings → Network & internet → Advanced → Private DNS. Select the Private DNS provider hostname option.",
+    "host_name": "blog.cloudflare.com",
+    "rank": 8,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://support.google.com/fi/answer/2819583?hl=en",
+    "name": "Control airplane mode, private DNS & other network settings - Google Help",
+    "snippet": "Open your device's Settings app. · Tap Network & internet And then Private DNS. If you can't find it, search for \"Private DNS.\" If you still can't find ...",
+    "host_name": "support.google.com",
+    "rank": 9,
+    "date": "",
+    "favicon": ""
+  }
+]

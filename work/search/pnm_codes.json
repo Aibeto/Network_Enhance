@@ -1,0 +1,74 @@
+[
+  {
+    "url": "https://www.reddit.com/r/GooglePixel/comments/1e0n4o6/where_has_preferred_network_type_menu_gone_in",
+    "name": "Where has \"Preferred Network Type\" menu gone in Android 14? - Reddit",
+    "snippet": "Settings > Network & Internet > Internet > tap on settings cogs for sim network... there is/was supposed to be a \"Preferred Network Type\" ... Does Android 14 beta 4 have a way to pick 5g or is LTE on by default? Super LTE/Wrap 5G - Mobile Network Settings & Preferred ... - Reddit www.reddit.com站内的其它相关信息\nSettings > Network & Internet > Internet > tap on settings cogs for sim network... there is/was supposed to be a \"Preferred Network Type\" ... Super LTE/Wrap 5G - Mobile Network Settings & Preferred ... Set Preferred Network/Disable 5G??? : r/Pixel6 www.reddit.com站内的其它相关信息",
+    "host_name": "www.reddit.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://support.google.com/pixelphone/thread/228229984/restore-preferred-network-option-in-settings-menu?hl=en",
+    "name": "Restore preferred network option in Settings menu - Google Help",
+    "snippet": "Open the Phone app and dial *#*#4636#*#*. Tap Phone information. Note the line under Set Preferred Network Type, 5G is enabled if it starts with NR. Changing network type - Google Pixel Community \"Preferred Network Type\" when set as LTE is causing problems support.google.com站内的其它相关信息",
+    "host_name": "support.google.com",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.ofca.gov.hk/filemanager/ofca/en/content_669/tr201911_02.pdf",
+    "name": "[PDF] Test Report 5G Network Trial at 26/28GHz band in Hong Kong",
+    "snippet": "To test if TUE can DL & UL using NR only and LTE + NR (DC). Test equipment. 1. LTE TUE x 1. 2. 5G TUE x 1. 3. LTE OMT x 1 & 5G OMT x1. 4 ...",
+    "host_name": "www.ofca.gov.hk",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://developer.android.com/about/versions/14/behavior-changes-14?hl=zh-cn",
+    "name": "行为变更：以Android 14 或更高版本为目标平台的应用",
+    "snippet": "对于以Android 14（API 级别34）或更高版本为目标平台的应用，在调用 BluetoothAdapter getProfileConnectionState() 方法时，Android 14 会强制执行 BLUETOOTH_CONNECT 权限。",
+    "host_name": "developer.android.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://issuetracker.google.com/issues/293920483",
+    "name": "293920483 - Issue Tracker - Google",
+    "snippet": "Note the line under Set Preferred Network Type, 5G is enabled if it starts with NR. Tap the down arrow and select the same settings without the ...\nTap Phone information. Note the line under Set Preferred Network Type, 5G is enabled if it starts with NR. Tap the down arrow and select the ...",
+    "host_name": "issuetracker.google.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://tdcolvin.medium.com/network-type-in-android-watching-for-5g-4g-3g-2g-capability-a52db23bf3bf",
+    "name": "Network type in Android: watching for 5G/4G/3G/2G capability - Tom Colvin",
+    "snippet": "Here I provide a sample app which detects the type of cellular network we're connected to — not just 5G / 4G / 3G / 2G, but specific subtype too ...",
+    "host_name": "tdcolvin.medium.com",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://groups.google.com/g/tasker/c/doX0lVnCEF8",
+    "name": "switch preferred_network_mode - Google Groups",
+    "snippet": "... Android 8.0.0. Because the weak signal strength I'd like to switch preferred_network_mode on my phone from 9 (LTE/3G auto) to 1 (2G) inside a geofence (and ...\nI'd like to switch preferred_network_mode on my phone from 9 (LTE/3G auto) to 1 (2G) inside a geofence (and switch back outside).",
+    "host_name": "groups.google.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://xdaforums.com/t/set-preferred-network-mode-through-hidden-menu.4313747",
+    "name": "How To Guide - Set Preferred Network Mode through Hidden Menu",
+    "snippet": "1. Download this app from the Play Store: Force LTE Only (4G/5G) 2. Launch app and choose \"METHOD3: (Android 11)\" 3. Under Set Preferred Network Type dropdown, ...\n1. Download this app from the Play Store: Force LTE Only (4G/5G) 2. Launch app and choose \"METHOD3: (Android 11)\" 3. Under Set Preferred Network Type dropdown, ... General - [Tasker] Preferred Network Mode Profile (Switching to 3G/5G) Using *#*#4636#*#* to set preferred networks - XDA Forums More results from xdaforums.com",
+    "host_name": "xdaforums.com",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  }
+]

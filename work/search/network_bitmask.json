@@ -1,0 +1,74 @@
+[
+  {
+    "url": "https://developer.android.com/reference/android/telephony/TelephonyManager",
+    "name": "TelephonyManager | API reference - Android Developers",
+    "snippet": "TelephonyManager | API reference | Android Developers. Essentials More Design & Plan More Develop. TelephonyNetworkSpecifier TelephonyNetworkSpecifier.Builder",
+    "host_name": "developer.android.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://tdcolvin.medium.com/network-type-in-android-watching-for-5g-4g-3g-2g-capability-a52db23bf3bf",
+    "name": "Network type in Android: watching for 5G/4G/3G/2G capability - Tom Colvin",
+    "snippet": "Our friend here is the TelephonyManager class which provides all sorts of information on cellular status. Including network type! But using it ...",
+    "host_name": "tdcolvin.medium.com",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://xdaforums.com/t/set-preferred-network-mode-through-hidden-menu.4313747",
+    "name": "How To Guide - Set Preferred Network Mode through Hidden Menu",
+    "snippet": "1. Download this app from the Play Store: Force LTE Only (4G/5G) 2. Launch app and choose \"METHOD3: (Android 11)\" 3. Under Set Preferred Network Type dropdown, ...",
+    "host_name": "xdaforums.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://learn.microsoft.com/en-us/dotnet/api/android.telephony.telephonymanager.setnetworkselectionmodemanual?view=net-android-35.0",
+    "name": "Android.Telephony - Microsoft Learn",
+    "snippet": "TelephonyManager.SetNetworkSelectionModeManual. Ask the radio to connect to the input network and change selection mode to manual. Java documentation for ...",
+    "host_name": "learn.microsoft.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://stackoverflow.com/questions/79601973/how-to-identify-differences-between-4g-lte-5g-nr-nsa-in-android-14",
+    "name": "How to identify differences between 4G (LTE) & 5G NR (NSA) in Android",
+    "snippet": "telephonyManager: TelephonyManager): How to find where i am in 5G NR (NSA) or 4G (LTE)? Override network type when the device is connected to * ...",
+    "host_name": "stackoverflow.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.daniel-ritter.de/blog/change-preferred-network-mode-on-android-15-2g-3g-lte-4g-5g-with-shell-command",
+    "name": "Change Preferred Network Type Mode on Android 15 / 2G / 3G / LTE",
+    "snippet": "You need to find these values: – Numeric Code to write to your phones modem device. Numeric Codes for every preferred network setting you want ...",
+    "host_name": "www.daniel-ritter.de",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://developer.android.com/reference/kotlin/android/telephony/TelephonyManager",
+    "name": "TelephonyManager | API reference - Android Developers",
+    "snippet": "Applications can use the methods in this class to determine telephony services and states, as well as to access some types of subscriber information.",
+    "host_name": "developer.android.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.macrodroidforum.com/index.php?threads/change-preferred-network-mode.2130",
+    "name": "https://www.macrodroidforum.com/index.php?threads/",
+    "snippet": "Learn why",
+    "host_name": "www.macrodroidforum.com",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  }
+]

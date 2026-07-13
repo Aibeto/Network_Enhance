@@ -1,0 +1,74 @@
+[
+  {
+    "url": "https://android.stackexchange.com/questions/74952/interpretting-the-output-of-dumpsys-telephony-registry",
+    "name": "adb - Interpretting the output of dumpsys telephony.registry",
+    "snippet": "Jun 26, 2014 — This object is described in detail on the Android Developers reference here. You can find the code that produces this output in SignalStrength. ...\nFrom the sources, it looks like it's printing out the contents of the SignalStrength object: private SignalStrength mSignalStrength = new ... get cellinfo with adb shell - Android Enthusiasts Stack Exchange get cellInfo with adb - Android Enthusiasts Stack Exchange More results from android.stackexchange.com",
+    "host_name": "android.stackexchange.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://topic.alibabacloud.com/a/the-use-and-telephonyregistry-interpretation-of-dumpsys-command_8_8_31218890.html",
+    "name": "The use and telephony.registry interpretation of Dumpsys",
+    "snippet": "May 29, 2016 — ADB shell Dumpsys , the default is to print out all of the current system service information, telephony . registry interpretation. Telephony . ...\nFrom msignalstrength=signalstrength:99 0-120-160-120-1-1 17-113-15-40 2147483647 2147483647 Gsm|lte, you can see RSRP=-113,RSRQ =-15 and so on.",
+    "host_name": "topic.alibabacloud.com",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://developer.android.com/tools/dumpsys",
+    "name": "dumpsys | Android Studio",
+    "snippet": "Mar 5, 2026 — Call dumpsys from the command line using the Android Debug Bridge ( ADB ) to get diagnostic output for all system services running on a connected ... Read more\ndumpsys is a tool that runs on Android devices and provides information about system services. Call dumpsys from the command line using the Android Debug ...",
+    "host_name": "developer.android.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://stackoverflow.com/questions/28537468/getting-cellular-network-status-via-adb-shell",
+    "name": "getting cellular network status via ADB shell - android",
+    "snippet": "Is it possible to check via ADB if the phone is connected to a cellular network? I had a look at ConnectivityManager, but it is for android application ...\nIs it possible to check via ADB if the phone is connected to a cellular network? I had a look at ConnectivityManager, but it is for android ... Query a phone call via ADB commands - Stack Overflow Get RSRP from CellSignalStrengthLte for Android app API 17+ More results from stackoverflow.com",
+    "host_name": "stackoverflow.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.tapatalk.com/groups/rfobasic/gsm-signal-strength-t2227.html",
+    "name": "GSM Signal Strength - rfobasic",
+    "snippet": "Feb 14, 2014 — Issue the system command dumpsys telephony.registry . Then read the entry related to SignalStrength. You can try this on the emulator, via \"adb\". Read more\nIssue the system command dumpsys telephony.registry. Then read the entry related to SignalStrength. You can try this on the emulator, via \"adb\".",
+    "host_name": "www.tapatalk.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://groups.google.com/g/tasker/c/Pf6cC2Z7y3I",
+    "name": "Shell dumpsys telephony.registry on Lolipop",
+    "snippet": "There's another (hacky) way to access dumpsys without rooting your device - through adb shell . This will require allowing USB debugging, and finding the port ... Read more\nI'm try shell command 'dumpsys telephony.registry...' but not working. Causes permission denial. If i install tasker as system app, i see 'cant find service ...",
+    "host_name": "groups.google.com",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://filmsbykris.com/scripts/MyNotes/colored/ADB%20Android%20Cellular%20Signal%20Strength-DHDu662b.html",
+    "name": "notes/ADB Android Cellular Signal Strength-DHDu662b.sh",
+    "snippet": "Get Cellular Signal Strength from an android device while [ 1 ];do adb shell dumpsys telephony.registry | grep -i signalstrength;done Read more",
+    "host_name": "filmsbykris.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://elatov.github.io/2012/12/find-out-battery-status-of-rooted-andoid-phone-using-adb",
+    "name": "Find Out Battery Status of Rooted Andoid Phone Using ADB",
+    "snippet": "Dec 16, 2012 — There are two ways to go about finding out battery status of a rooted Android phone. Another way is using the dumpsys utility , level: 92 scale: ...",
+    "host_name": "elatov.github.io",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  }
+]

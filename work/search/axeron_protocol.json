@@ -1,0 +1,92 @@
+[
+  {
+    "url": "https://docs.hexagonppm.com/r/zh-TW/HxGN-EAM-Help/12.2/1343522",
+    "name": "https://docs.hexagonppm.com/r/zh-TW/HxGN-EAM-Help/",
+    "snippet": "了解原因",
+    "host_name": "docs.hexagonppm.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/fahrez182/AxManager/releases",
+    "name": "Releases · fahrez182/AxManager - GitHub",
+    "snippet": "fahrez182/AxManager.\nNew: AxRuntime (currently in preparation) is introduced as a CLI runtime for AxManager. It functions similarly to su, but is designed to acquire ADB-level permissions. New: Permission flags are now globalized. All applications can obtain AxManager Runtime permissions without per-app binding.",
+    "host_name": "github.com",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.youtube.com/watch?v=v6F49dCvHmQ",
+    "name": "Axeron Manager (AxManager) Installation Guide No Root Needed!",
+    "snippet": "Unlock the full potential of your Android device without Root! In today's video, I'm showing you exactly how to install and set up Axeron ...",
+    "host_name": "www.youtube.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://docs.qq.com/pdf/DZnF4ZXBBVE1VZHZ6",
+    "name": "https://docs.qq.com/pdf/DZnF4ZXBBVE1VZHZ6",
+    "snippet": "了解原因",
+    "host_name": "docs.qq.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://fahrez182.github.io/AxManager/zh",
+    "name": "AxManager - fahrez182.github.io",
+    "snippet": "AxManager is an Android application designed to provide deeper control over apps and the system.",
+    "host_name": "fahrez182.github.io",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/fahrez182/AxManager",
+    "name": "GitHub - fahrez182/AxManager: AxManager is an Android",
+    "snippet": "Axeron Manager (AxManager) is a Proof of Concept (POC) for a self-created environment on Android that leverages ADB permissions to provide system-level control.",
+    "host_name": "github.com",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://fahrez182.github.io/AxManager/zh/guide/user-manual.html",
+    "name": "用户手册 | AxManager",
+    "snippet": "AxManager is an Android application designed to provide deeper control over apps and the system.",
+    "host_name": "fahrez182.github.io",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://zhuanlan.zhihu.com/p/2011811317716103775",
+    "name": "AxManager免Root搞机指南（小白向保姆级教程） - 知乎",
+    "snippet": "AxManager 的本质到底是什么 AxManager 也就是 Axeron Manager 你可以简单把它理解成 Shizuku 的加强版 它本质上就是 支持无线调试的脚本执行器 再加上一个插件容器 它的核心逻辑很简单 用无线调试拿到 ADB 权限 再用一个看起来像管理器的 UI 去执行那些 Shell 命令",
+    "host_name": "zhuanlan.zhihu.com",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://tieba.baidu.com/p/10528562780",
+    "name": "AxManager的模块怎么下载啊？【高通吧】_百度贴吧",
+    "snippet": "zhu3536 8+74 13 https://github.com/fahrez182/AxManager/releases 你没找对 3楼 2026-03-03 15:31 吾 8+74",
+    "host_name": "tieba.baidu.com",
+    "rank": 8,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://blog.csdn.net/2503_91965777/article/details/159422707",
+    "name": "AxManager+SukiSU+Zhang3Tool免root模块 - CSDN博客",
+    "snippet": "以下是 AxManager、SukiSU Ultra 与 Zhang3Tool 的 超详细安装与使用指南（2025 年最新版），内容全面、步骤清晰，适用于新手和进阶用户。 所有方法均基于当前主流 Android 系统（Android 10~14）、主流机型（小米/红米/三星/一加/魅族/OPPO/真我等），并附带常见问题解决方案。",
+    "host_name": "blog.csdn.net",
+    "rank": 9,
+    "date": "",
+    "favicon": ""
+  }
+]

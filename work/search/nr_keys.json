@@ -1,0 +1,74 @@
+[
+  {
+    "url": "https://developer.android.com/reference/android/provider/Settings.Global",
+    "name": "Settings.Global | API reference",
+    "snippet": "Settings . Global | API reference | Android Developers .PendingMessages Interfaces .restrictions Overview Classes RestrictionsReceiver android .service. settings . ...\nConvenience function for updating a single settings value as a floating point number. This will either create a new entry in the table if the given name does not exist, or modify the value of the existing row with that name.",
+    "host_name": "developer.android.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://xdaforums.com/t/guide-enabling-vo5g-vonr-on-t-mobile-plus-volte-vowifi-video-calling-for-everyone-else.4438761",
+    "name": "[GUIDE] Enabling Vo5G/VoNR on T-Mobile (plus VoLTE",
+    "snippet": "Apr 29, 2022 — the best way is to set NR-only in *#*#4636#*#* and then try to dial your voicemail. Be sure to set back to NR/LTE/GSM/WCDMA when done.",
+    "host_name": "xdaforums.com",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/herlesupreeth/docker_open5gs/discussions/456",
+    "name": "Need help with 5G SA VoNR setup #456",
+    "snippet": "Enabling the VoNR switch. Setting the preffered mode to 5G and enabling Standalone (SA) setting \"NR only\" enabling two APNs, one internet and one ims.",
+    "host_name": "github.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://play.google.com/store/apps/details?id=com.goldflake.fivegonly&hl=en_US",
+    "name": "5G VoNR Network Mode - Apps on Google Play",
+    "snippet": "May 4, 2026 — You can now change the network mode of your mobile manually as you want. There are many network modes that are hidden by the manufacture.",
+    "host_name": "play.google.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "http://opensource.hcltechsw.com/volt-mx-native-function-docs/Android/android.provider-Android-10.0/#!/api/android.provider.Settings.Global",
+    "name": "android.provider.Settings.Global - Documentation",
+    "snippet": "Global system settings , containing preferences that always apply identically to all defined users. Applications can read these but are not allowed to write.",
+    "host_name": "opensource.hcltechsw.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://blog.cacombos.com/2021/03/28/enable-vonr-support-on-qualcomm-devices",
+    "name": "Enable VoNR support on Qualcomm devices",
+    "snippet": "Mar 28, 2021 — This instruction helps you to enable VoNR (Voice over 5G New Radio – Phone calls over 5G-networks) support on your Qualcomm device.",
+    "host_name": "blog.cacombos.com",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "http://docs.52im.net/extend/docs/api/android-50/reference/android/provider/Settings.Global.html",
+    "name": "Settings.Global - Android Developers",
+    "snippet": "Class Overview. Global system settings , containing preferences that always apply identically to all defined users. Applications can read these but are not ...",
+    "host_name": "docs.52im.net",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://xdaforums.com/t/guide-how-to-enable-access-via-adb-on-a-new-installed-os.4535165",
+    "name": "[GUIDE] How to enable access via adb on a new installed OS",
+    "snippet": "There are (at least) two ways to enable access via adb: Bash: settings put global development_settings_enabled 1. settings put global adb_enabled 1. The latter can also be done in a script in an adb shell -- but of course we need a working adb connection ....",
+    "host_name": "xdaforums.com",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  }
+]

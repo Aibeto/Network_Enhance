@@ -1,0 +1,74 @@
+[
+  {
+    "url": "https://android.googlesource.com/platform/prebuilts/fullsdk/sources/android-29/+/refs/heads/androidx-wear-release/android/telephony/CellSignalStrengthNr.java",
+    "name": "CellSignalStrengthNr.java - Android GoogleSource",
+    "snippet": "CellSignalStrength implements Parcelable power. CSI reference signal received quality. CSI signal-to-noise and interference ratio. hash(mCsiRsrp, mCsiRsrq, ...",
+    "host_name": "android.googlesource.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://developer.android.com/reference/android/telephony/CellSignalStrengthNr",
+    "name": "CellSignalStrengthNr | API reference - Android Developers",
+    "snippet": "CellSignalStrengthNr | API reference | Android Developers. Overview Classes PageRange PrintAttributes. Formatter Time android.text.method",
+    "host_name": "developer.android.com",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://stackoverflow.com/questions/32531176/get-rsrp-from-cellsignalstrengthlte-for-android-app-api-17",
+    "name": "Get RSRP from CellSignalStrengthLte for Android app API 17+",
+    "snippet": "I need to write an android app that collects and stores RSRP, RSRQ, CINR, and Cell ID. The answers need to be as accurate as the phones hardware allows. Parsing CellSignalStrength in Kotlin: how can I get all strength ... How to get LTE signal strength in Android? - Stack Overflow More results from stackoverflow.com",
+    "host_name": "stackoverflow.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://learn.microsoft.com/en-us/dotnet/api/android.telephony.cellsignalstrengthnr.ssrsrq?view=net-android-35.0",
+    "name": "CellSignalStrengthNr.SsRsrq Property (Android.Telephony)",
+    "snippet": "CellSignalStrengthNr.SsRsrq Property. Android.Telephony. Range: -43 dB to 20 dB. Learn is an AI assistant that can answer questions, clarify concepts, and ...",
+    "host_name": "learn.microsoft.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.youtube.com/watch?v=hojwvo99584",
+    "name": "How to get the Signal Strength of the phone's cellular network  - YouTube",
+    "snippet": "This video shows the steps to check the signal strength of the mobile network from your Android App. It uses telephonyManager.",
+    "host_name": "www.youtube.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://android.googlesource.com/platform/frameworks/base.git/+/master/telephony/java/android/telephony/CellSignalStrengthNr.java",
+    "name": "CellSignalStrengthNr.java - Android GoogleSource",
+    "snippet": "NR signal strength related information. CSI reference signal received quality. CSI signal-to-noise and interference ratio. CellSignalStrengthNr( int csiRsrp, ...",
+    "host_name": "android.googlesource.com",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/dotnet/android/issues/8205",
+    "name": "Rsrp/Rsrq Signal Information Not Updating with CellSignalStrengths",
+    "snippet": "The signal strength listener is called whenever rsrp changes (When it happens can be verified going into the sim status changes and looking at rsrp)",
+    "host_name": "github.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://medium.com/@sivavishnu0705/unlocking-cellular-signal-insights-with-kotlin-a7ae3656474a",
+    "name": "Android CellSignalStrength: Kotlin RSRP/RSRQ Guide - Medium",
+    "snippet": "This guide dives into leveraging this powerful API using Kotlin, demonstrating best practices for accessing detailed, specific signal metrics ...",
+    "host_name": "medium.com",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  }
+]

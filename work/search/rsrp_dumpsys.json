@@ -1,0 +1,92 @@
+[
+  {
+    "url": "https://developer.android.com/tools/dumpsys",
+    "name": "dumpsys | Android Studio",
+    "snippet": "dumpsys is a tool that runs on Android devices and provides information about system services. Call dumpsys from the command line using the Android Debug ...\ndumpsys is a tool that runs on Android devices and provides information about system services. Call dumpsys from the command line using the Android Debug ...",
+    "host_name": "developer.android.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://android.stackexchange.com/questions/74952/interpretting-the-output-of-dumpsys-telephony-registry",
+    "name": "adb - Interpretting the output of dumpsys telephony.registry",
+    "snippet": "You can find the code that produces this output in SignalStrength.java in the Android framework. Even if you don't know Java, it's pretty easy to see which raw ...\nFrom the sources, it looks like it's printing out the contents of the SignalStrength object: private SignalStrength mSignalStrength = new ... get cellinfo with adb shell get cellInfo with adb More results from android.stackexchange.com\nYou can find the code that produces this output in SignalStrength.java in the Android framework. Even if you don't know Java, it's pretty easy ... get cellinfo with adb shell - Android Enthusiasts Stack Exchange get cellInfo with adb - Android Enthusiasts Stack Exchange More results from android.stackexchange.com",
+    "host_name": "android.stackexchange.com",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://topic.alibabacloud.com/a/the-use-and-telephonyregistry-interpretation-of-dumpsys-command_8_8_31218890.html",
+    "name": "The use and telephony.registry interpretation of Dumpsys",
+    "snippet": "ADB shell Dumpsys, the default is to print out all of the current system service information, usually we do not want to see so much ...\nTelephony.registry service, this service is about wireless communication, RSRP=-113,RSRQ =-15 and so on. The use and telephony.registry ...\nADB shell Dumpsys, the default is to print out all of the current system service information, usually we do not want to see so much ...",
+    "host_name": "topic.alibabacloud.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://groups.google.com/g/tasker/c/Pf6cC2Z7y3I",
+    "name": "Shell dumpsys telephony.registry on Lolipop",
+    "snippet": "I'm try shell command 'dumpsys telephony.registry...' but not working. Causes permission denial. If i install tasker as system app, i see 'cant find service ...\nI'm try shell command 'dumpsys telephony.registry...' but not working. Causes permission denial. If i install tasker as system app, i see 'cant find service ...",
+    "host_name": "groups.google.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://stackoverflow.com/questions/25897758/query-a-phone-call-via-adb-commands",
+    "name": "Query a phone call via ADB commands [duplicate]",
+    "snippet": "You could use dumpsys command. $ adb shell dumpsys telephony.registry. The field mCallState gives the call status:.\nYou could use dumpsys command. $ adb shell dumpsys telephony.registry The field mCallState gives the call status: You can get a lot of ... getting cellular network status via ADB shell - android What's the Android ADB shell \"dumpsys\" tool and what are its benefits? More results from stackoverflow.com\nYou could use dumpsys command. $ adb shell dumpsys telephony.registry. The field mCallState gives the call status:. getting cellular network status via ADB shell - android How to read \"adb shell dumpsys alarm\" output - Android 13 More results from stackoverflow.com",
+    "host_name": "stackoverflow.com",
+    "rank": 4,
+    "date": "Jul 16, 2015",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/appium/appium/issues/5397",
+    "name": "Running Adb shell query · Issue #5397",
+    "snippet": "dumpsys telephony.registry|grep. To wait for incoming call on Android, following code should. Androidrelated to Android-native driver(s)related\nHi, is there anyway so that I can run adb shell command in appium server? like this.. to know the state if a telephone rings then we can ...",
+    "host_name": "github.com",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://ccdcoe.org/uploads/2021/03/Android-Dumpsys-Analysis-to-Indicate-Driver-Distraction.pdf",
+    "name": "Android Dumpsys Analysis to Indicate Driver Distraction",
+    "snippet": "by L Bortnik · Cited by 8 — Abstract. Police officers investigating car accidents have to consider the driver's interaction with a mobile device as a possible cause.\nAndroid dumpsys telecom service generates a list of recently conducted phone calls. Each call log contains call direction, the startTime and the endTime of the ...\nTelephony Activities Android dumpsys telecom service generates a list of recently conducted phone calls. Each call log contains call direction, the startTime ...",
+    "host_name": "ccdcoe.org",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://redmine.replicant.us/attachments/download/1505/dumpsys.txt",
+    "name": "dumpsys.txt",
+    "snippet": "Currently running services: telecom telephony.registry textservices. DUMP OF SERVICE DockObserver: Current Dock … of dumpsys DockObserver. Static screen stats: ...\ntelephony.registry textservices. DUMP OF SERVICE DockObserver: Current Dock … the duration of dumpsys DockObserver\n... telephony.registry textservices trust uimode updatelock usagestats usb user vibrator voiceinteraction vrmanager wallpaper webviewupdate wifi wifip2p ...",
+    "host_name": "redmine.replicant.us",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://newandroidbook.com/ddb/A34x/dumpsys.a34x.txt",
+    "name": "dumpsys",
+    "snippet": "... telephony.registry telephony_ims testharness tethering textclassification textservices texttospeech thermalservice time_detector time_zone_detector tracing ...",
+    "host_name": "newandroidbook.com",
+    "rank": 8,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://xdaforums.com/t/android-dumpsys.4516559",
+    "name": "Android dumpsys | XDA Forums",
+    "snippet": "I would like to be able to check when an Android phone is registered to VoLTE and VoWIFI via dumpsys telephony.registry or any other attribute from dumpsys.",
+    "host_name": "xdaforums.com",
+    "rank": 9,
+    "date": "",
+    "favicon": ""
+  }
+]

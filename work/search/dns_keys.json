@@ -1,0 +1,56 @@
+[
+  {
+    "url": "https://www.reddit.com/r/tasker/comments/9yvo2h/android_p_private_dns_setting_access_in_tasker",
+    "name": "Android P+ \"Private DNS\" setting access in Tasker - Reddit",
+    "snippet": "Under Action > Settings> Custom Setting, Name: private_dns_mode Value: off , opportunistic (Automatic) or hostname (Custom) Custom Setting [ ... Enable and disable Private DNS on the fly between any providers you ... How can I make it so a private dns is toggled on and off when connecting ... More results from www.reddit.com",
+    "host_name": "www.reddit.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://tasker.helprace.com/i1608-private-dns-select-mode",
+    "name": "Private DNS - select mode - Tasker Feature Requests - Helprace",
+    "snippet": "Custom Setting > Global > \"private_dns_mode\" > The available options are \" hostname\" for on, \"opportunistic\" for automatic, and \"off\" to set it ...",
+    "host_name": "tasker.helprace.com",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.youtube.com/watch?v=z58juLAX-x8",
+    "name": "How To Set Private DNS On Android / Samsung Phone - YouTube",
+    "snippet": "set #private #dns In this tutorial, you will learn how to set private DNS on Android phone or Samsung phone!",
+    "host_name": "www.youtube.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://android.stackexchange.com/questions/239398/is-there-a-way-app-to-automatically-change-dns-server-based-on-connection",
+    "name": "Is there a way/app to automatically change DNS server based on",
+    "snippet": "To set Private DNS to Off instead of 'Automatic' use the value 'Off' instead of 'opportunistic'. change the custom setting for private DNS with ...",
+    "host_name": "android.stackexchange.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://gist.github.com/sharunkumar/b6195cbbd26a0039ec87fbd3829aa6b3",
+    "name": "Enabling / Disabling private DNS in android via ADB - GitHub Gist",
+    "snippet": "The only way to fix it is to disable private DNS with the command “settings put global private_dns_mode off.” Is anyone else experiencing the same problem\nThe only way to fix it is to disable private DNS with the command “settings put global private_dns_mode off.” Is anyone else experiencing the same problem and ...",
+    "host_name": "gist.github.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.zdnet.com/article/how-to-turn-on-private-dns-mode-on-android",
+    "name": "How to turn on Private DNS Mode on Android - and why it's a  - ZDNET",
+    "snippet": "Unencrypted DNS can expose your browsing, but Android's Private DNS keeps it private. Here's how to enable it.",
+    "host_name": "www.zdnet.com",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  }
+]

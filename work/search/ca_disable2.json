@@ -1,0 +1,74 @@
+[
+  {
+    "url": "https://xdaforums.com/t/guide-enable-4g-lte-a-carrier-aggregation-without-root-on-stock-rom.3894282/page-6",
+    "name": "[GUIDE] Enable 4g+/LTE-A Carrier Aggregation without Root on Stock",
+    "snippet": "Type adb devices and press enter. Type adb shell and press enter. Type su and press enter. Type setprop sys.usb.config diag,adb and press enter. [GUIDE] Enable Carrier Aggregation [LTE+] - XDA Forums LTE-Advanced Carrier Aggregation Enabler - XDA Forums More results from xdaforums.com",
+    "host_name": "xdaforums.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.youtube.com/watch?v=onSiqiSU9sQ",
+    "name": "Carrier Aggregation Locking On Any Network | How To Lock 4G+ 5G+",
+    "snippet": "... android what is carrier aggregation in lte lte carrier aggregation what does carrier aggregation mean ... Turn Off This Parasite on Every Phone!",
+    "host_name": "www.youtube.com",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://mt-tech.fi/en/how-to-get-4g-supported-ca-combinations-from-your-android-phone",
+    "name": "How to get 4G/5G supported CA and ENDC Combinations from your",
+    "snippet": "Go to Android Settings -> Service & feedback. Put your phone to Airplane mode, wait few second and turn Airplane mode off. Wait some time to ...",
+    "host_name": "mt-tech.fi",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.quora.com/How-do-I-stop-a-4G-Plus-network-and-use-a-normal-4G-network",
+    "name": "How to stop a 4G Plus network and use a normal 4G network - Quora",
+    "snippet": "Enable Developer options > Dial *#*#3646633#*#* Then go to LTE CA option Select OFF Then Press SET now 4G+ is disabled in your phone.",
+    "host_name": "www.quora.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.feelouttheform.net/turn-off-4g-on-android-phones",
+    "name": "Turn off 4G on Android phones - Feel out the Form",
+    "snippet": "Go to the Settings of your phone. · Find “More networks” and then “Mobile networks” (sometimes the “Mobile networks” ...",
+    "host_name": "www.feelouttheform.net",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.reddit.com/r/Xiaomi/comments/m4ymla/how_to_disable_4g_and_use_only_4g_non_rooted_poco",
+    "name": "How to disable 4g+ and use only 4g (non rooted POCO X3)? - Reddit",
+    "snippet": "4g+ is advanced version of 4g (it's called LTE Advanced) it uses carrier aggregation meaning combining two band to provide high speed and low ping.",
+    "host_name": "www.reddit.com",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://confusedbird.com/archive/index.php?thread-383.html",
+    "name": "Accessing *#0011# service menu on newer Samsung phones",
+    "snippet": "To disable the Auto Blocker, go into Settings -> Security and privacy. Scroll down to Additional security settings and turn off the Auto ...",
+    "host_name": "confusedbird.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.youtube.com/watch?v=vBDGXMCUjUQ",
+    "name": "How to Enable 4G+ LTE carrier aggregation any android device",
+    "snippet": "... Settings in Realme 4G+ Update Realme Realme 4G+ Settings Update Realme 4G+ Carrier ... STOP Calling On Your Android Until You Turn This Off.",
+    "host_name": "www.youtube.com",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  }
+]

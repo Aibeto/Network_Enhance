@@ -1,0 +1,92 @@
+[
+  {
+    "url": "https://android.googlesource.com/platform/frameworks/base/+/master/telephony/java/com/android/internal/telephony/RILConstants.java",
+    "name": "RILConstants.java - Android GoogleSource",
+    "snippet": "The Android Open Source Project. Device int NETWORK_MODE_NR_LTE_TDSCDMA_CDMA_EVDO_GSM_WCDMA. PREFERRED_NETWORK_MODE = Optional.of(TelephonyProperties.default_ ...",
+    "host_name": "android.googlesource.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/qianxb/alps_qxb/blob/master/frameworks/base/telephony/java/com/android/internal/telephony/RILConstants.java",
+    "name": "RILConstants.java - qianxb/alps_qxb - GitHub",
+    "snippet": "Below is list of OEM specific error codes which can by used by OEMs. The Android Open Source Project. PREFERRED_NETWORK_MODE = SystemProperties.get(\"ro.boot. ...",
+    "host_name": "github.com",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://xdaforums.com/t/set-preferred-network-mode-through-hidden-menu.4313747",
+    "name": "How To Guide - Set Preferred Network Mode through Hidden Menu",
+    "snippet": "1. Download this app from the Play Store: Force LTE Only (4G/5G) 2. Launch app and choose \"METHOD3: (Android 11)\" 3. Under Set Preferred Network Type dropdown, ...",
+    "host_name": "xdaforums.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://raw.githubusercontent.com/LineageOS/android_frameworks_base/lineage-18.1/telephony/java/android/telephony/TelephonyManager.java",
+    "name": "https://raw.githubusercontent.com/LineageOS/androi",
+    "snippet": "y.RILConstants; Provides access to information about the telephony services on * the device. Applications can use the methods in this class to * determine ...",
+    "host_name": "raw.githubusercontent.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://developer.android.com/reference/android/provider/Telephony.Carriers",
+    "name": "Telephony.Carriers | API reference - Android Developers",
+    "snippet": "Use SIM_APN_URI to query APN instead, this API will return matching APNs based on current subscription carrier, thus no need to specify Numeric ...",
+    "host_name": "developer.android.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://stackoverflow.com/questions/36190355/preferred-network-mode-values-for-gwl-lte-only-wcdma-only-gsm-using-adb",
+    "name": "android - preferred_network_mode values for GWL/LTE ONLY/WCDMA",
+    "snippet": "I am using below adb commands for changing preferred network mode to GSM. Can any one give the values for other modes like - GWL (GSM/WCDMA/ ...",
+    "host_name": "stackoverflow.com",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://wiki.it619.com/index.php?doc-view-3052.html",
+    "name": "Android 首选网络模式默认值的修改方法",
+    "snippet": "Android 首选网络模式默认值的修改方法. 修改系统属性：ro.telephony.default_network = 27修改说明：可连续给两个值（如4，1），卡1用的是4，卡2用的是1。",
+    "host_name": "wiki.it619.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://android.googlesource.com/platform/frameworks/base/+/9502306/telephony/java/com/android/internal/telephony/RILConstants.java",
+    "name": "RILConstants.java - Android GoogleSource",
+    "snippet": "PREFERRED_NETWORK_MODE = NETWORK_MODE_WCDMA_PREF; No restriction at all including voice/SMS/USSD/SS/AV64 * and packet data.",
+    "host_name": "android.googlesource.com",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://content.u-blox.com/sites/default/files/AndroidRIL-SourceCode_AppNote_UBX-13002041.pdf",
+    "name": "[PDF] Android RIL - u-blox",
+    "snippet": "The numbers currently present in the list are shown in Table 2. For more information on these numbers, kindly consult this Wikipedia link. Numbers. Listing.",
+    "host_name": "content.u-blox.com",
+    "rank": 8,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://paldan.altervista.org/lte-in-aosp-preferred-network-settings",
+    "name": "Adding LTE in AOSP preferred network settings panel - Paldan time",
+    "snippet": "This preference screen lets you enable/disable mobile data, and control data roaming and other network-specific mobile data features.",
+    "host_name": "paldan.altervista.org",
+    "rank": 9,
+    "date": "",
+    "favicon": ""
+  }
+]

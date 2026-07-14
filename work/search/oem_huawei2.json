@@ -1,0 +1,74 @@
+[
+  {
+    "url": "https://android.stackexchange.com/questions/111587/how-to-change-preferred-network-mode-using-adb-without-reboot",
+    "name": "How to change \"Preferred Network Mode\" using adb without reboot?",
+    "snippet": "I'm trying to change my phone's (CM 12, Stock 4.2, both rooted) preferred network mode from \"GSM/WCDMA\" (0) to \"WCDMA only\" (2) and vice versa. Preferred Network Mode not changing using ADB on Samsung S21 ... Android 11 ADB change preferred network mode More results from android.stackexchange.com",
+    "host_name": "android.stackexchange.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.reddit.com/r/Honor/comments/1m8r0hw/how_to_set_preferred_network_to_5g_only4g_only",
+    "name": "How to set \"PREFERRED NETWORK\" to 5G Only/4G Only",
+    "snippet": "Download Shizuku, set up it correctly mean enable developer menu, enable wireless debugging, pair shizuku. Then install the network switch app ... 5G on EMUI 14.2 and HarmonyOS 4.2 is strange : r/Huawei - Reddit Network mode. Configure the mobile network *#*#4636#*#* on Samsung ... More results from www.reddit.com",
+    "host_name": "www.reddit.com",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://stackoverflow.com/questions/51556581/preferred-network-mode-not-changing-over-adb",
+    "name": "Preferred Network Mode not changing over ADB - Stack Overflow",
+    "snippet": "You need to change mode in all places in settings, to do so You first need to list them like so: adb shell settings list global. You might need ... database - adb command - change preferred network mode LTE/GSM how to change preferred network type over adb android? - Stack Overflow More results from stackoverflow.com",
+    "host_name": "stackoverflow.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://xdaforums.com/t/tasker-preferred-network-mode-profile-switching-to-3g-5g.4754542",
+    "name": "General - [Tasker] Preferred Network Mode Profile (Switching to 3G/5G)",
+    "snippet": "The settings command can be used via ADB or a terminal emulator on the device Code: # To get the current network mode setting adb shell ... How To Guide - Set Preferred Network Mode through Hidden Menu Global Rom on Chinese device | Page 3 - XDA Forums More results from xdaforums.com",
+    "host_name": "xdaforums.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://ubos.tech/news/how-to-force-android-phones-onto-lte%E2%80%91only-or-5g%E2%80%91only-networks-ubos-guide",
+    "name": "How to Force Android Phones onto LTE‑Only or 5G‑Only Networks",
+    "snippet": "You can force your Android phone onto LTE‑only or 5G‑only mode by adjusting hidden network settings, using ADB commands, or applying a ...",
+    "host_name": "ubos.tech",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/undergroundwires/privacy.sexy/discussions/359",
+    "name": "Android privacy: In search of possibilities using adb #359 - GitHub",
+    "snippet": "adb shell settings put global preferred_network_mode. By setting the preferred network mode to a value that excludes 2G (GSM) networks, you effectively disable ...",
+    "host_name": "github.com",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.youtube.com/watch?v=PkAVHd5i_UQ",
+    "name": "How To Switch 5G OFF or On on the HONOR Magic V5  - YouTube",
+    "snippet": "Our Chief Mobile Opinionist, Matteo, walks us through how to switch 5G OFF or ON on the HONOR Magic V5. HONOR Magic V5 available to purchase ...",
+    "host_name": "www.youtube.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.instagram.com/reel/DZo3sxMhLE8",
+    "name": "How to Set Preferred Network Mode on Honor Mobile Phone  - Instagram",
+    "snippet": "How to enable or disable auto connect on your wifi network in your Honor mobile phone. Go to settings, go to wifi. So here you can see the ...",
+    "host_name": "www.instagram.com",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  }
+]

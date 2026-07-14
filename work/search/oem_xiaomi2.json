@@ -1,0 +1,74 @@
+[
+  {
+    "url": "https://www.reddit.com/r/HyperOS/comments/1rrym0v/advance_setting",
+    "name": "advance setting! : r/HyperOS - Reddit",
+    "snippet": "The command forces HyperOS/MIUI to think your phone is a higher-end device by setting hidden system properties. It tries to enable: higher CPU/ ... Unlock premium/flagship level via tweaks : r/HyperOS Debloating HyperOS via ADB not working : r/PocoPhones More results from www.reddit.com",
+    "host_name": "www.reddit.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://sites.google.com/site/tweakradje/xiaomi-hyperos-3-tweaking",
+    "name": "tweakradje - Xiaomi HyperOS 3 tweaking - Google Drive: Sign-in",
+    "snippet": "Do the usual tweaks like disable ads, uninstall system apps, disable MIUI optimization and RAM expansion Unlock option to write settings to global, system and ...",
+    "host_name": "sites.google.com",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://xiaomi.eu/community/threads/24-1-8-11.71129/page-5",
+    "name": "HyperOS 1.0 - 24.1.8/11 | Page 5 - Xiaomi.eu",
+    "snippet": "On your phone, under Developer options, make sure 'USB debugging' and 'USB debugging (Security settings)' are switched on. In the adb folder on ...",
+    "host_name": "xiaomi.eu",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.youtube.com/watch?v=2cmfAQZ1IJM",
+    "name": "How to enable and disable the Developer Options at HyperOS 2.0?",
+    "snippet": "With this video, I want to show you, how you can activate the developer options at the Xiaomi 14T and Xiaomi 14T Pro with the new operation ...",
+    "host_name": "www.youtube.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/MlgmXyysd/Xiaomi-HyperOS-BootLoader-Bypass/issues/194",
+    "name": "bypass worked with downgraded settings, unlock tool still fails #194",
+    "snippet": "After following the existing issues, I downgraded my Settings app to Settings_AGATEGlobal_from_OS1.0.2.0.UKWMIXM and hooray - the bypass worked:.",
+    "host_name": "github.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://new.c.mi.com/pk/post/87520",
+    "name": "10 Must-Enable Settings for MIUI & HyperOS Users - Xiaomi Community",
+    "snippet": "2. Set the Highest Screen Refresh Rate · 3. Show Real-Time Network Speed · 4. Notification Spotlight (HyperOS) · 5.",
+    "host_name": "new.c.mi.com",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.youtube.com/watch?v=lP_OaCeIIHU",
+    "name": "Activate Hidden Features of HyperOS On Your Xiaomi Phone Without Root",
+    "snippet": "... Xiaomi Phone ✓ HyperOS LockScreen Depth Effect Working - https://youtu.be/tGocvnwQJsY ▸HyperOS China v/s HyperOS India/Global Full ...",
+    "host_name": "www.youtube.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://xdaforums.com/t/how-to-unlock-bootloader-on-xiaomi-hyperos-all-devices-except-cn.4654009/page-36",
+    "name": "️How to unlock bootloader on Xiaomi HyperOS(all devices,except CN).",
+    "snippet": "A PoC that exploits a vulnerability to bypass the Xiaomi HyperOS community restrictions of BootLoader unlocked account bindings.",
+    "host_name": "xdaforums.com",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  }
+]

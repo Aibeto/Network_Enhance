@@ -1,0 +1,74 @@
+[
+  {
+    "url": "https://developer.android.com/develop/connectivity/network-ops/data-saver",
+    "name": "Optimize network data usage | Connectivity - Android Developers",
+    "snippet": "Enables or disables Data Saver mode when passing true or false , respectively. $ adb shell cmd netpolicy add restrict-background-whitelist <UID> ...",
+    "host_name": "developer.android.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://forums.jtechforums.org/t/how-to-block-internet-for-an-app-on-android/1470",
+    "name": "How to Block Internet for an App on Android - JTech Forums",
+    "snippet": "You can use the cmd netpolicy tool to restrict background and foreground data. Go to Settings > Network & Internet > Data Saver and turn it ON. ...",
+    "host_name": "forums.jtechforums.org",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://android.stackexchange.com/questions/249033/how-to-disable-app-background-data-usage-via-adb-without-root",
+    "name": "How to disable app background data usage via adb without root",
+    "snippet": "You can use cmd netpolicy add restrict-background-blacklist <UID> but it only restricts background data for the app if the network is metered ( ... How to get an overview of which app are allowed to background data for ... Is it possible to selectively limit background data usage? More results from android.stackexchange.com",
+    "host_name": "android.stackexchange.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/sncvikas/ADB_Commands/blob/master/README.md",
+    "name": "ADB_Commands/README.md at master - GitHub",
+    "snippet": "Here is a handy list of adb commands widely used while working with Android platform. cmd netpolicy set restrict-background true Disable data saver mode ...",
+    "host_name": "github.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.reddit.com/r/tasker/comments/kj9o4u/add_data_saver_direct_toggle_to_quick_settings",
+    "name": "Add Data Saver direct toggle to quick settings : r/tasker - Reddit",
+    "snippet": "So if you're rooted you can use the run shell command cmd netpolicy set restrict-background true to activate the data saver. Ending it with ... data saver : r/AutomateUser - Reddit Hey guys, I need an app that can block all apps' background data ... More results from www.reddit.com",
+    "host_name": "www.reddit.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://source.android.com/docs/core/data/data-saver",
+    "name": "Data Saver mode | Android Open Source Project",
+    "snippet": "adb shell cmd netpolicy. For example, this command returns the UIDs of the whitelisted apps: adb shell cmd netpolicy list restrict-background-whitelist. Was ...",
+    "host_name": "source.android.com",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.youtube.com/watch?v=H-9xKmuwawg",
+    "name": "Data Saver (Android Development Patterns S3 Ep 6) - YouTube",
+    "snippet": "Data Saver expands on the background optimizations available in Marshmallow by adding a system wide setting to disable background data usage ...",
+    "host_name": "www.youtube.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://stackoverflow.com/questions/38059589/detecting-programmatically-if-restrict-background-data-is-enabled-for-android",
+    "name": "Detecting programmatically if \"Restrict background data\" is enabled for",
+    "snippet": "In Android Marshmallow there is an option in Settings : Settings -> Data Usage -> My App -> Toggle for \"Restrict app background data\" which \"disable background ...",
+    "host_name": "stackoverflow.com",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  }
+]

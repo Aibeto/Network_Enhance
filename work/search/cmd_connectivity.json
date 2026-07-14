@@ -1,0 +1,74 @@
+[
+  {
+    "url": "https://stackoverflow.com/questions/10506591/turning-airplane-mode-on-via-adb",
+    "name": "Turning airplane mode on via ADB - android - Stack Overflow",
+    "snippet": "To enable the Airplane mode use the following commands: cmd connectivity airplane-mode disabled Turn airplane mode enable/disable adb shell cmd How to enable airplane mode on android using adb Use ADB to check if Airplane mode is turned on? More results from stackoverflow.com",
+    "host_name": "stackoverflow.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.youtube.com/watch?v=DXCNzOaq7Lg",
+    "name": "24. ADB Concepts : How to Check, Enable & Disable 'Airplane Mode",
+    "snippet": "#24. ADB Concepts : How to Check, Enable & Disable 'Airplane Mode' Using “ADB Commands” · Comments.",
+    "host_name": "www.youtube.com",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://gist.github.com/Pulimet/5013acf2cd5b28e55036c82c91bd56d8?permalink_comment_id=4340609",
+    "name": "Pulimet - Adb useful commands list · GitHub",
+    "snippet": "Get airplane mode adb shell cmd connectivity airplane-mode disabled Turn airplane mode enable/disable adb shell",
+    "host_name": "gist.github.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.reddit.com/r/tasker/comments/3a4zkq/shell_android_terminal_command_to_enabledisable",
+    "name": "shell (android terminal) command to enable/disable Airplane Mode",
+    "snippet": "How to automatically turn on Airplane Mode when connecting to Wi-Fi (and turn it off when you leave) to maximize battery life! Set Airplane mode not working after update to Android 13 - Reddit Toggle Airplane mode - Feature request to implement new method More results from www.reddit.com",
+    "host_name": "www.reddit.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.quora.com/How-do-I-enable-airplane-mode-on-a-non-rooted-device-using-ADB-commoner-using-other-than-GUI-event-key-or-tap",
+    "name": "How to enable airplane mode on a non-rooted device using ADB",
+    "snippet": "Turn on Airplane mode: Use the following command to launch Settings > Wireless networks, toggle Airplane mode and return (by pressing Back).",
+    "host_name": "www.quora.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://llamalab.com/automate/doc/block/airplane_mode_set_state.html",
+    "name": "Airplane mode set state ⋅ Automate for Android ⋅ LlamaLab",
+    "snippet": "Airplane mode set state. An action block that enables or disables airplane mode. The fiber will proceed immediately without pause.",
+    "host_name": "llamalab.com",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.sharetechnote.com/html/Android/Android_ADB.html",
+    "name": "Android | ShareTechnote",
+    "snippet": "i) Execute adb command to switch to 'Device Settings -> Airplane Mode' menu. ii) Performing a sequence of Key operation to click Airplane mode option.",
+    "host_name": "www.sharetechnote.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://tasker.helprace.com/i1208-adb-airplane-mode",
+    "name": "ADB + Airplane Mode - Tasker Feature Requests - Helprace",
+    "snippet": "To enable permission for toggle Airplane Mode only requires an ADB appops command be run only once. It simply executes",
+    "host_name": "tasker.helprace.com",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  }
+]

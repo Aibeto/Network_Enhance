@@ -1,0 +1,74 @@
+[
+  {
+    "url": "https://www.reddit.com/r/tasker/comments/18ajp7s/wifi_connected_state_in_android_14_is_not_working",
+    "name": "\"WiFi Connected\" state in Android 14 is not working : r/tasker - Reddit",
+    "snippet": "I've moved to Pixel 8 Pro running Android 14 and since then all profiles using \"WiFi Connected\" state are not working.",
+    "host_name": "www.reddit.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://source.android.com/docs/core/connect/wifi-sta-sta-concurrency",
+    "name": "Wi-Fi STA/STA concurrency - Android Open Source Project",
+    "snippet": "Android 12 introduces Wi-Fi STA/STA concurrency, which allows devices to connect to two Wi-Fi networks concurrently.",
+    "host_name": "source.android.com",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://blog.j2i.net/2023/02/21/wifi-scanning-part-2-scanning-on-android",
+    "name": "WiFi Scanning Part 2: Scanning on Android - j2i.net",
+    "snippet": "Part 1 of this post was about WiFi scanning on Windows. You can find it here. Scanning on Android isn't hard, but there are obstacles.",
+    "host_name": "blog.j2i.net",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.youtube.com/watch?v=RjjE0Fro61Q",
+    "name": "WiFi Debugging in Android Studio (Terminal) - YouTube",
+    "snippet": "In this video, we're going to be demonstrating how to WiFi Debug Android Studio manually. WiFi debugging is a great way to troubleshoot ...",
+    "host_name": "www.youtube.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://xdaforums.com/t/solved-secure-system-settings-on-android-14-how-to-toggle-wifi.4656323",
+    "name": "[SOLVED] Secure System Settings on Android 14: How to toggle WiFi? | XDA Forums",
+    "snippet": "SOLUTION 1. Uninstall and Reinstall the Helper app. 2. Launch it and grant all permissions. HELPER app was needed only for the WiFi toggle. Now ...",
+    "host_name": "xdaforums.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://techdocs.zebra.com/emdk-for-android/14-0/samples/wifi",
+    "name": "Wi-Fi Configuration - Zebra | TechDocs",
+    "snippet": "The EMDK for Android allows you to configure Wi-Fi of a Zebra device. The available actions are: Disable Wi-Fi; Enable Wi-Fi; Add a Network; Connect to a ...",
+    "host_name": "techdocs.zebra.com",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://stackoverflow.com/questions/63569335/wifi-scan-on-android",
+    "name": "WiFi scan on Android - Stack Overflow",
+    "snippet": "I have an app that is scanning Wi-Fi networks. When one Wi-Fi scan is finished I'm starting new one. I'm testing this on Pixel3 and SamsungS10 phones.",
+    "host_name": "stackoverflow.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/pr4bh4sh/adb-wifi-setting-manager",
+    "name": "pr4bh4sh/adb-wifi-setting-manager: Control wifi connections on Android with adb - GitHub",
+    "snippet": "Control wifi connections on Android with adb. Just create a shell script or copy-paste the command to set up the new device. Note - This app is created for ...",
+    "host_name": "github.com",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  }
+]

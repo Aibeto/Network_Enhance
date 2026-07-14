@@ -1,0 +1,92 @@
+[
+  {
+    "url": "https://developer.android.com/reference/android/provider/Settings.Global",
+    "name": "Settings.Global | API reference | Android Developers",
+    "snippet": "Settings.Global | API reference | Android Developers. Studio Android API Reference Overview Android Platform Packages API level REL",
+    "host_name": "developer.android.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://xdaforums.com/t/set-preferred-network-mode-through-hidden-menu.4313747",
+    "name": "How To Guide - Set Preferred Network Mode through Hidden Menu",
+    "snippet": "1. Download this app from the Play Store: Force LTE Only (4G/5G) 2. Launch app and choose \"METHOD3: (Android 11)\" 3. Under Set Preferred Network Type dropdown, ... General - [Tasker] Preferred Network Mode Profile (Switching to 3G/5G) Using *#*#4636#*#* to set preferred networks - XDA Forums More results from xdaforums.com",
+    "host_name": "xdaforums.com",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://stackoverflow.com/questions/51556581/preferred-network-mode-not-changing-over-adb",
+    "name": "Preferred Network Mode not changing over ADB - Stack Overflow",
+    "snippet": "You need to change mode in all places in settings, to do so You first need to list them like so: adb shell settings list global | grep preferred Set preferred network type - android - Stack Overflow java - How to access setPreferredNetworkType in ... More results from stackoverflow.com",
+    "host_name": "stackoverflow.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.reddit.com/r/tasker/comments/q3csve/preferred_network_type",
+    "name": "Preferred network type : r/tasker - Reddit",
+    "snippet": "Hi, is there a way to set NR/LTE/GSM/WCDMA resp. 2G/3G/4G/5G as preferred network type ? I don't find this option. It's only possible to set ... Where has \"Preferred Network Type\" menu gone in Android 14? - Reddit Preferred Network Type option missing from settings : r/GooglePixel More results from www.reddit.com",
+    "host_name": "www.reddit.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://android.stackexchange.com/questions/248779/preferred-network-mode-not-changing-using-adb-on-samsung-s21-android-12",
+    "name": "Preferred Network Mode not changing using ADB on Samsung S21",
+    "snippet": "When I change the preferred network mode from the Settings app, the value for preferred_network_mode is saved into settings_global.xml and the ... How to change \"Preferred Network Mode\" using adb without reboot? Android 11 ADB change preferred network mode More results from android.stackexchange.com",
+    "host_name": "android.stackexchange.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://learn.microsoft.com/en-us/dotnet/api/android.provider.settings.global?view=net-android-35.0",
+    "name": "Settings.Global Class (Android.Provider) | Microsoft Learn",
+    "snippet": "Global system settings, containing preferences that always apply identically to all defined users.",
+    "host_name": "learn.microsoft.com",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "http://opensource.hcltechsw.com/volt-mx-native-function-docs/Android/android.provider-Android-10.0/#!/api/android.provider.Settings.Global",
+    "name": "android.provider.Settings.Global - HCL Software Open Source",
+    "snippet": "Global system settings, containing preferences that always apply identically to all defined users. Applications can read these but are not allowed to write.",
+    "host_name": "opensource.hcltechsw.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://android.googlesource.com/platform/prebuilts/fullsdk/platforms/+/9698c0ff01d4b3e24cab840903c06a282db785b3/android-33-ext5/data/res/values/config.xml",
+    "name": "config.xml - Android GoogleSource",
+    "snippet": "These resources are around just to allow their values to be customized for different hardware and product builds. . Values must be from NetworkCapabilities#NET ...",
+    "host_name": "android.googlesource.com",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "http://docs.52im.net/extend/docs/api/android-50/reference/android/provider/Settings.Global.html",
+    "name": "Settings.Global - Android Developers",
+    "snippet": "Class Overview. Global system settings, containing preferences that always apply identically to all defined users. Applications can read these but are not ...",
+    "host_name": "docs.52im.net",
+    "rank": 8,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://support.google.com/pixelphone/thread/228229984/restore-preferred-network-option-in-settings-menu?hl=en",
+    "name": "Restore preferred network option in Settings menu - Google Help",
+    "snippet": "Open the Phone app and dial *#*#4636#*#*. Tap Phone information. Note the line under Set Preferred Network Type, 5G is enabled if it starts with NR.",
+    "host_name": "support.google.com",
+    "rank": 9,
+    "date": "",
+    "favicon": ""
+  }
+]

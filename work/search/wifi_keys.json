@@ -1,0 +1,74 @@
+[
+  {
+    "url": "https://www.reddit.com/r/tasker/comments/18ajp7s/wifi_connected_state_in_android_14_is_not_working",
+    "name": "\"WiFi Connected\" state in Android 14 is not working : r/tasker - Reddit",
+    "snippet": "I've moved to Pixel 8 Pro running Android 14 and since then all profiles using \"WiFi Connected\" state are not working. Android 14 wifi problems but not the usual one... : r/firewalla - Reddit You Can Finally See The Frequency Of Your Wi-Fi Network : r/Android More results from www.reddit.com",
+    "host_name": "www.reddit.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://source.android.com/docs/core/connect/wifi-network-selection",
+    "name": "Wi-Fi network selection | Android Open Source Project",
+    "snippet": "This page outlines the algorithms and procedures used in Android 12 for selecting and switching between Wi-Fi networks.",
+    "host_name": "source.android.com",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.youtube.com/watch?v=fVTS-EMTmCo",
+    "name": "No More WiFi Struggles on Android 14 - Discover the Way! - YouTube",
+    "snippet": "More Android 14 Tutorials and Hacks: https://www.hardreset.info/tutorials/android/ Step into the world of seamless internet connectivity ...",
+    "host_name": "www.youtube.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://sps-support.honeywell.com/s/article/How-to-change-the-WiFi-Roaming-parameters-in-an-Android-device",
+    "name": "How to change the WiFi Roaming parameters in an Android device?",
+    "snippet": "Open the app drawer and navigate to 'Power Tools' > 'Wi-Fi Radio Settings'. Tap 'Roaming RSSI Threshold'. Enter a value between 45 and 100.",
+    "host_name": "sps-support.honeywell.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://support.linksys.com/kb/article/416-en",
+    "name": "How to optimize your Android smartphone's wireless connectivity",
+    "snippet": "1. Open the Settings app on your Android smartphone. 2. Tap Connections. 3. Tap Wi-Fi. 4. To see available networks, tap the Wi-Fi switch to ON. 5. Select a 2. ...\n1. Open the Settings app on your Android smartphone. 2. Tap Connections. 3. Tap Wi-Fi. Select a 2.4 GHz Wi-Fi network.",
+    "host_name": "support.linksys.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://support.google.com/android/answer/9654714?hl=en",
+    "name": "Manage advanced network settings on your Android phone",
+    "snippet": "Open your device's Settings app. · Tap Network & internet And then Internet. If you still can't find it, get help from ...",
+    "host_name": "support.google.com",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.miradore.com/knowledge/android/adding-wi-fi-settings-for-android-devices",
+    "name": "Configure Wi-Fi settings for Android devices - Miradore",
+    "snippet": "You can configure the restriction by navigating to Configuration profiles > Android > Restrictions and choosing Denied for the Wi-Fi ...",
+    "host_name": "www.miradore.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "http://opensource.hcltechsw.com/volt-mx-native-function-docs/Android/android.provider-Android-10.0/#!/api/android.provider.Settings.Global",
+    "name": "android.provider.Settings.Global - HCL Software Open Source",
+    "snippet": "Global system settings, containing preferences that always apply identically to all defined users. Applications can read these but are not allowed to write.\nThis setting controls whether WiFi configurations created by a Device Owner app should be locked down. This setting takes integer values. Non-zero values mean ...",
+    "host_name": "opensource.hcltechsw.com",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  }
+]

@@ -1,0 +1,74 @@
+[
+  {
+    "url": "https://www.reddit.com/r/viwoods/comments/1psfz7q/how_to_disable_wifibt_auto_power_off_when_viwoods",
+    "name": "How to disable WIFI/BT auto power off when Viwoods Reader sleeps/locking device - Reddit",
+    "snippet": "If you want mobile data to turn off when Wi-Fi is connected, run: adb shell settings put global mobile_data_always_on … get global mobile_data_ ... PSA: disabling 'mobile data always-on while on wifi' from the developer options is a rarely discussed method to dramatically increase battery life : r/Android Tip: Disabling 'Mobile Data Always Active' in Developer Options has significantly improved background drain on my Pixel 6 Pro : r/GooglePixel More results from www.reddit.com",
+    "host_name": "www.reddit.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/appium/appium-android-driver/issues/23",
+    "name": "Mobile Data always on · Issue #23 · appium/appium-android-driver - GitHub",
+    "snippet": "Mobile data isn't turning off on the device. The issue appears to be with io.appium.settings: // WiFi sets correctly:",
+    "host_name": "github.com",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://developer.android.com/reference/android/provider/Settings.Global",
+    "name": "Settings.Global | API reference | Android Developers",
+    "snippet": "Settings.Global | API reference | Android Developers .Global Settings.NameValueTable Settings.Panel. Receiver android.service.settings.preferences Overview ...",
+    "host_name": "developer.android.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "http://opensource.hcltechsw.com/volt-mx-native-function-docs/Android/android.provider-Android-10.0/#!/api/android.provider.Settings.Global",
+    "name": "android.provider.Settings.Global - Documentation - HCL Software Open Source",
+    "snippet": "Global system settings, containing preferences that always apply identically to all defined users. This overrides WIFI_ON and BLUETOOTH_ON,",
+    "host_name": "opensource.hcltechsw.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://android.stackexchange.com/questions/230349/settings-get-global-mobile-data-always-returns-0",
+    "name": "Settings get global mobile_data always returns 0 - Android Enthusiasts Stack Exchange",
+    "snippet": "This script turns on data successfully, but couldn't turn data off after 10 seconds, since settings get global mobile_data always returns 0. What does the \"Aggressive Wi-Fi to Cellular handover\" option in Developer Settings do? Where are Android settings stored? - Android Enthusiasts Stack Exchange More results from android.stackexchange.com",
+    "host_name": "android.stackexchange.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://support.thinkware.com/hc/en-us/articles/360045929814--Android-Switch-to-Mobile-Data",
+    "name": "[Android] Switch to Mobile Data - Thinkware Help Center | Troubleshooting | Tech Support",
+    "snippet": "On your Android Smartphone, the Switch to Mobile Data Setting allows the smartphone to automatically use your cellular data if poor Wi-Fi is detected.",
+    "host_name": "support.thinkware.com",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://support.google.com/android/answer/9654714?hl=en",
+    "name": "Manage advanced network settings on your Android phone - Google Help",
+    "snippet": "Manage advanced network settings on your Android phone. You can change network settings like automatic connections, metered access, proxy settings, and more.",
+    "host_name": "support.google.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.scribd.com/document/807317279/CodigosBrevent-KITZy",
+    "name": "Android Global Settings Configuration | PDF - Scribd",
+    "snippet": "Adjusting Bluetooth discoverability and timeout settings affects device connectivity by controlling how the device interacts with other Bluetooth devices.",
+    "host_name": "www.scribd.com",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  }
+]

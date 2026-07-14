@@ -1,0 +1,74 @@
+[
+  {
+    "url": "https://www.teltonika-networks.com/newsroom/beyond-signal-bars-understanding-rssi-rsrp-sinr-and-other-key-metrics",
+    "name": "Understanding RSSI, RSRP, SINR & Other Key Metrics",
+    "snippet": "RSRP measures the strength of the useful signal. SINR compares your signal to any interference—higher SINR means faster, more stable internet.",
+    "host_name": "www.teltonika-networks.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://poynting.tech/articles/antenna-faq/signal-strength-measure-rsrp-rsrq-and-sinr-reference-for-lte-cheat-sheet",
+    "name": "Signal strength measure RSRP, RSRQ and SINR",
+    "snippet": "RSRP, RSRQ and SINR are three important parameters used to measure the quality of a cellular network signal in LTE & 5G Technologies.",
+    "host_name": "poynting.tech",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.youtube.com/watch?v=cA5wApfZSjw",
+    "name": "5G Signal Made Simple - What is RSSI, RSRP, RSRQ and",
+    "snippet": "Signal Strength Indicator RSRP - Reference Signal. SINR - signal-to-interference-plus-noise ratio … 817 533-8130",
+    "host_name": "www.youtube.com",
+    "rank": 2,
+    "date": "Jul 15, 2019",
+    "favicon": ""
+  },
+  {
+    "url": "https://support.zyxel.eu/hc/en-us/articles/360005188999-LTE-and-5G-Signal-Quality-Parameters",
+    "name": "LTE and 5G Signal Quality Parameters",
+    "snippet": "This article will answer questions what are the LTE signal levels and what should be the optimal values and what are the 5G signal levels...",
+    "host_name": "support.zyxel.eu",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.eseye.com/resources/iot-explained/understanding-signal-quality-rssi-rsrp-and-rsrq",
+    "name": "Understanding Signal Quality: RSSI, RSRP, and RSRQ",
+    "snippet": "RSRP values also range in dBm, typically from -140 dBm (very weak signal) to -44 dBm (very strong signal). RSRP is essential for handover ...",
+    "host_name": "www.eseye.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.linkedin.com/pulse/simplifying-lte-5g-signal-strength-rsrp-rsrq-sinr-explained-ko8jf",
+    "name": "Simplifying LTE & 5G signal strength RSRP, RSRQ, and",
+    "snippet": "Troubleshoot poor performance and solve connectivity issues. Get the best possible data speeds and optimized antenna performance. What is RSRP?",
+    "host_name": "www.linkedin.com",
+    "rank": 5,
+    "date": "Jul 13, 2025",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.youtube.com/watch?v=Hf-8pSZBmok",
+    "name": "How To Check, Read and Understand Signal Strength on",
+    "snippet": "In this episode, we're going to look at how to check, read and understand signal strength on smartphones. Which signal readings indicate good/ ...",
+    "host_name": "www.youtube.com",
+    "rank": 6,
+    "date": "Jul 13, 2024",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.techplayon.com/5g-nr-measurements-rsrp-rssi-rsrq-and-sinr",
+    "name": "5G Measurements - RSRP, RSSI, RSRQ and SINR",
+    "snippet": "CSI-RSRP stands for CSI reference signal received power. It is defined as the linear average over the power contributions (in watt) of the ...",
+    "host_name": "www.techplayon.com",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  }
+]

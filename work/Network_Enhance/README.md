@@ -261,13 +261,22 @@ Network_Enhance/
 - 本版本已修复此 bug（v6.3.x 的已知问题）
 - 自检逻辑已增加 pwd 兜底，不会再误报
 
-### Q6: 卸载后后台应用无法联网
+### Q6: 公网延迟显示 "2000 ms (较差)" 是什么意思
+**A**: 
+- 这是模块的**nc 端口可达性兜底**生效的正常表现
+- 在 AxManager 的 ADB shell 环境下，原生 `ping` 命令可能因 SELinux 或网络权限限制执行失败
+- 模块会自动通过 `nc -w 2 -z 223.5.5.5 53` 测试端口可达性作为兜底
+- 若 nc 可达，则返回 `2000`（代表**网络连通但延迟无法精确测算**）
+- 若 nc 也不通，则显示 `timeout (不通)`（代表网络彻底不通）
+- **这不是 bug，而是免Root环境下的正常降级表现**，5G 假满格判定仍可基于 RSRP/SINR 正常工作
+
+### Q7: 卸载后后台应用无法联网
 **A**: 
 - 这是 Data Saver 未关闭导致
 - `uninstall.sh` 会兜底关闭 Data Saver
 - 如仍异常，手动执行：`adb shell cmd netpolicy set restrict-background false`
 
-### Q7: 调度器日志显示"PNM 受限"
+### Q8: 调度器日志显示"PNM 受限"
 **A**: 
 - 该品牌 ROM 忽略了 PNM 写入
 - 5G 假满格降级功能在该设备上不可用

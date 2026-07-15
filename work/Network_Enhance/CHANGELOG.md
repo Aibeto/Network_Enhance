@@ -309,4 +309,195 @@ adb shell rm -f /data/local/tmp/satellite_earth*
 
 ---
 
+---
+
+### 八、实测补充说明（公网延迟 2000ms）
+
+在 AxManager 的 ADB shell 环境下，原生 `ping` 命令可能因 SELinux 或网络权限限制执行失败。模块已实现三级容错：
+
+1. **优先** `/system/bin/ping` 绝对路径（绕过 BusyBox applet 差异）
+2. **兜底** 原生 `ping`（PATH 中的 ping）
+3. **最终兜底** `nc -w 2 -z 223.5.5.5 53` 端口可达性测试
+
+若 WebUI 公网延迟显示 `2000 ms (较差)`，说明前两级 ping 均失败，nc 端口可达性测试成功。**这是免Root环境下的正常降级表现**：
+- `2000` 代表**网络连通但延迟无法精确测算**
+- 5G 假满格判定仍可基于 RSRP/SINR 正常工作（不依赖 ping 精确值）
+- 若显示 `timeout (不通)` 则代表网络彻底不通
+
+---
+
+### 九、核心功能实测指南
+
+以下为手机端功能验证建议清单，可通过 WebUI 终端或 ADB shell 执行。
+
+#### 实测 1：5G 假满格降级触发
+
+**目的**：验证 5G 假满格自动降级到 4G 的逻辑
+
+**方法 A：临时拉低阈值测试（推荐）**
+
+编辑 `config.sh`，将假满格判定阈值拉低到极易触发：
+```bash
+# 临时改为 -120（几乎任何 5G 信号都会被判为"强信号"）
+FAKE_5G_RSRP_THRESHOLD=-120
+# 临时改为 50ms（正常 ping 都会超过此阈值）
+FAKE_5G_PING_THRESHOLD=50
+```
+
+重启调度器：
+```bash
+sh /data/user_de/0/com.android.shell/axeron/plugins/Network_Enhance/scripts/monitor.sh restart
+```
+
+**预期观察**：
+1. WebUI "5G 假满格判定" 显示 `⚠ 假满格`
+2. WebUI "5G降级状态" 显示 `⚠ 已降级4G`
+3. 收到通知"网络增强 → 5G假满格降级"
+4. `preferred_network_mode` 从 26/27/32/33 变为 9（LTE/GSM/WCDMA）
+5. 日志记录：`[5G降级] 触发假满格, 调用 carrier.sh degrade`
+
+**验证命令**：
+```bash
+# 查看当前 PNM 值（应显示 9）
+settings get global preferred_network_mode
+# 查看日志
+tail -20 /data/local/tmp/network_enhance.log
+```
+
+**测试后恢复**：将 `config.sh` 阈值改回默认值（-85 / 200），重启调度器。
+
+---
+
+#### 实测 2：游戏模式锁定 LTE 生效
+
+**目的**：验证游戏模式锁定 LTE Only + 关闭 ENDC + 禁后台带宽
+
+**操作步骤**：
+1. WebUI 点击"游戏模式(LTE)"按钮，或执行：
+```bash
+sh /data/user_de/0/com.android.shell/axeron/plugins/Network_Enhance/scripts/weaknet.sh game
+```
+
+**预期观察**：
+1. 收到通知"网络增强 → LTE Only 已锁定"（语音副作用提示）
+2. `preferred_network_mode` 变为 11（LTE only）
+3. `endc_capability` 变为 0（关闭 ENDC）
+4. Data Saver 开启：`cmd netpolicy get restrict-background` 显示 enabled
+5. WebUI "weaknet" 状态显示"weaknet激活"
+6. 调度器让位（日志显示"weaknet 激活, 跳过本轮"）
+
+**验证命令**：
+```bash
+# 验证 PNM 锁定
+settings get global preferred_network_mode    # 应为 11
+settings get global endc_capability           # 应为 0
+# 验证 Data Saver
+cmd netpolicy get restrict-background         # 应为 1/enabled
+# 验证 weaknet 标志
+ls -la /data/local/tmp/network_enhance_weaknet_active   # 应存在
+```
+
+**恢复测试**：
+```bash
+sh /data/user_de/0/com.android.shell/axeron/plugins/Network_Enhance/scripts/weaknet.sh normal
+```
+验证 PNM 恢复为运营商默认值（26/27/32/33），ENDC 恢复为 1，Data Saver 关闭。
+
+---
+
+#### 实测 3：防振荡冷却机制
+
+**目的**：验证 5G 降级后 30 分钟冷却期内不恢复
+
+**前置条件**：先完成实测 1，使模块进入"已降级4G"状态
+
+**验证步骤**：
+
+1. **确认降级状态**：
+```bash
+cat /data/local/tmp/network_enhance_monitor.state | grep FAKE_5G_ACTIVE
+# 应显示 FAKE_5G_ACTIVE=1
+```
+
+2. **恢复 config.sh 阈值**为正常值（-85 / 200），让 5G 信号判定为"正常"
+
+3. **重启调度器**：
+```bash
+sh /data/user_de/0/com.android.shell/axeron/plugins/Network_Enhance/scripts/monitor.sh restart
+```
+
+4. **观察日志**（持续 30 分钟）：
+```bash
+# 实时查看日志
+tail -f /data/local/tmp/network_enhance.log
+```
+
+**预期观察**：
+- 冷却期内（前 30 分钟）日志显示：
+  `[5G冷却] 降级 XXXs, 还需 XXXs 才允许恢复`
+- 冷却期内 `preferred_network_mode` 保持为 9（不恢复 5G）
+- 30 分钟后开始计数：
+  `[5G恢复] 检测正常 (1/3)`
+  `[5G恢复] 检测正常 (2/3)`
+  `[5G恢复] 检测正常 (3/3)`
+- 连续 3 次正常后恢复 5G：
+  `[5G恢复] 连续3次正常, 调用 carrier.sh unlock-lte`
+- `preferred_network_mode` 恢复为运营商默认值
+
+**快速验证冷却（可选）**：
+临时将 `config.sh` 中 `DOWNGRADE_COOLDOWN_SEC=1800` 改为 `120`（2分钟），可快速验证冷却逻辑，测试后改回 1800。
+
+---
+
+#### 实测 4：无网络死锁回退
+
+**目的**：验证降级到 4G 后若 4G 也无网，自动恢复 5G
+
+**验证步骤**：
+1. 完成实测 1 进入降级状态
+2. 临时拔出 SIM 卡或开启飞行模式（模拟 4G 无网）
+3. 等待 4 分钟（2 个检测周期）
+
+**预期观察**：
+- 日志显示：`[无网回退] 4G 降级后 Ping 失败 (1/2)` → `(2/2)`
+- 日志显示：`[无网回退] 4G 无改善, 自动恢复 5G (避免死锁)`
+- 收到通知"网络增强 → 4G无改善已恢复5G"
+- `preferred_network_mode` 恢复为运营商默认值
+
+---
+
+#### 实测 5：华为/荣耀/三星 PNM 写入验证
+
+**目的**：验证三层验证机制（OEM 兼容性 + 写入验证 + 功能性验证）
+
+**验证步骤**：
+1. 执行菜单 31（锁定 LTE）：
+```bash
+sh /data/user_de/0/com.android.shell/axeron/plugins/Network_Enhance/scripts/carrier.sh lock-lte
+```
+
+2. 查看日志验证三层验证：
+```bash
+tail -30 /data/local/tmp/network_enhance.log
+```
+
+**预期观察（华为/荣耀/三星）**：
+- 日志显示：`[oem-verify] global.preferred_network_mode=11 写入验证成功`
+- 或日志显示：`[oem-verify] ... 写入验证失败 (标记 PNM 受限)`
+- 若验证失败，PNM 受限标记文件生成：
+```bash
+ls /data/local/tmp/network_enhance_pnm_restricted_*
+```
+
+3. 解锁恢复：
+```bash
+sh /data/user_de/0/com.android.shell/axeron/plugins/Network_Enhance/scripts/carrier.sh unlock-lte
+```
+
+---
+
+**实测完成后**：将 `config.sh` 所有阈值恢复为默认值，重启调度器，模块进入正常工作状态。
+
+---
+
 **v1.0 重构完成。** 本版本严格遵循 AxManager 官方插件协议，所有 ADB Shell 命令在 Android 14/15 无 Root 环境下可用，无任何虚构命令。

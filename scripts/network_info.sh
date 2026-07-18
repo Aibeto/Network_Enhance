@@ -229,13 +229,41 @@ _rat_number_to_name() {
     esac
 }
 
-# 从 dumpsys telephony.registry 提取卡1 (PhoneId=0) 的实时网络制式编号
-# 双卡设备上 mDataNetworkType 按卡1→卡2 顺序出现，head -1 取第一个
+# ----------------------------------------------------------------------
+# dumpsys telephony.registry 按 mPhoneId= 分块提取
+# 输出中每个卡槽对应一个 mPhoneId=N 块，N=0 是卡1，N=1 是卡2
+# 用 awk flag 模式精确匹配 phoneId 值，截取该块到下一个 mPhoneId= 之前
+# ----------------------------------------------------------------------
+_extract_slot1_block() {
+    se_dumpsys_cached telephony.registry 2>/dev/null \
+        | awk '/mPhoneId=0/{flag=1; next} /mPhoneId=[1-9]/{flag=0} flag' 2>/dev/null
+}
+
+_extract_slot2_block() {
+    se_dumpsys_cached telephony.registry 2>/dev/null \
+        | awk '/mPhoneId=1/{flag=1; next} /mPhoneId=[02-9]/{flag=0} flag' 2>/dev/null
+}
+
+# 从 dumpsys telephony.registry 提取卡1 (mPhoneId=0) 的实时网络制式编号
+# 优先在卡1 块内匹配 mDataNetworkType，避免双卡设备取到卡2 的制式
 _get_rat_number() {
-    local reg rat
-    reg=$(se_dumpsys_cached telephony.registry 2>/dev/null)
-    [ -z "$reg" ] && { echo ""; return 0; }
-    rat=$(echo "$reg" | grep -oE 'mDataNetworkType=[0-9]+' 2>/dev/null | head -1 | cut -d= -f2)
+    local block rat
+
+    block=$(_extract_slot1_block)
+    if [ -n "$block" ]; then
+        rat=$(echo "$block" | grep -oE 'mDataNetworkType=[0-9]+' 2>/dev/null | head -1 | cut -d= -f2)
+        [ -n "$rat" ] && [ "$rat" != "0" ] && { echo "$rat"; return 0; }
+
+        rat=$(echo "$block" | grep -oE 'mDataNetworkType: [0-9]+' 2>/dev/null | head -1 | awk '{print $2}')
+        [ -n "$rat" ] && [ "$rat" != "0" ] && { echo "$rat"; return 0; }
+
+        rat=$(echo "$block" | grep -oE 'mVoiceNetworkType=[0-9]+' 2>/dev/null | head -1 | cut -d= -f2)
+        [ -n "$rat" ] && [ "$rat" != "0" ] && { echo "$rat"; return 0; }
+    fi
+
+    # 兜底: 全局第一个 mDataNetworkType= (无 mPhoneId 分块时)
+    rat=$(se_dumpsys_cached telephony.registry 2>/dev/null \
+          | grep -oE 'mDataNetworkType=[0-9]+' 2>/dev/null | head -1 | cut -d= -f2)
     [ -n "$rat" ] && [ "$rat" != "0" ] && { echo "$rat"; return 0; }
     echo ""
 }
@@ -287,18 +315,42 @@ get_mobile_dbm() {
 
 # ----------------------------------------------------------------------
 # 卡2 信息采集（双卡设备）
-# 双卡设备上 dumpsys telephony.registry 中信号数据按卡1→卡2顺序排列
-# 属性后缀 .2 对应物理卡槽2，部分 ROM 不提供 .2 后缀
+# dumpsys telephony.registry 中每个 mPhoneId=N 块对应一个卡槽
+# 卡2 = mPhoneId=1 块，通过 _extract_slot2_block() 提取
 # ----------------------------------------------------------------------
 
-# 从 dumpsys telephony.registry 提取卡2 的实时网络制式编号
-# 双卡设备上 mDataNetworkType 按卡1→卡2 顺序出现，sed -n '2p' 取第二个
 _get_rat_number_2() {
-    local reg rat
-    reg=$(se_dumpsys_cached telephony.registry 2>/dev/null)
-    [ -z "$reg" ] && { echo ""; return 0; }
-    rat=$(echo "$reg" | grep -oE 'mDataNetworkType=[0-9]+' 2>/dev/null | sed -n '2p' | cut -d= -f2)
+    local block rat
+
+    block=$(_extract_slot2_block)
+    [ -z "$block" ] && { echo ""; return 0; }
+
+    # 策略 1: 卡2 块的 mDataNetworkType= (等号格式)
+    rat=$(echo "$block" | grep -oE 'mDataNetworkType=[0-9]+' 2>/dev/null | head -1 | cut -d= -f2)
     [ -n "$rat" ] && [ "$rat" != "0" ] && { echo "$rat"; return 0; }
+
+    # 策略 2: 卡2 块的 mDataNetworkType: (冒号格式)
+    rat=$(echo "$block" | grep -oE 'mDataNetworkType: [0-9]+' 2>/dev/null | head -1 | awk '{print $2}')
+    [ -n "$rat" ] && [ "$rat" != "0" ] && { echo "$rat"; return 0; }
+
+    # 策略 3: 卡2 块的 mVoiceNetworkType= (语音网络制式，数据制式缺失时兜底)
+    rat=$(echo "$block" | grep -oE 'mVoiceNetworkType=[0-9]+' 2>/dev/null | head -1 | cut -d= -f2)
+    [ -n "$rat" ] && [ "$rat" != "0" ] && { echo "$rat"; return 0; }
+
+    # 策略 4: 全局第二个 mDataNetworkType= (无 mPhoneId 分块时的兜底)
+    rat=$(se_dumpsys_cached telephony.registry 2>/dev/null \
+          | grep -oE 'mDataNetworkType=[0-9]+' 2>/dev/null | sed -n '2p' | cut -d= -f2)
+    [ -n "$rat" ] && [ "$rat" != "0" ] && { echo "$rat"; return 0; }
+
+    # 策略 5: getprop fallback (字符串制式转 RAT 编号)
+    local prop_rat
+    prop_rat=$(getprop gsm.network.type.2 2>/dev/null | head -1 | cut -d',' -f1)
+    case "$prop_rat" in
+        NR|nr)    echo "20"; return 0 ;;
+        LTE|lte)  echo "13"; return 0 ;;
+        *)        ;;
+    esac
+
     echo ""
 }
 
@@ -350,39 +402,50 @@ get_carrier_name_2() {
 }
 
 get_mobile_dbm_2() {
-    local reg dbm
-    reg=$(se_dumpsys_cached telephony.registry 2>/dev/null)
-    [ -z "$reg" ] && { echo ""; return 0; }
+    local block dbm
+    block=$(_extract_slot2_block)
+    [ -z "$block" ] && { echo ""; return 0; }
 
-    # 卡2 数据位于第二个匹配项，用 sed -n '2p' 取
-    dbm=$(echo "$reg" | grep -oE 'mDbm=[-]?[0-9]+' 2>/dev/null | sed -n '2p' | cut -d= -f2)
+    # 在卡2 块中查找 dbm
+    dbm=$(echo "$block" | grep -oE 'mDbm=[-]?[0-9]+' 2>/dev/null | head -1 | cut -d= -f2)
     [ -n "$dbm" ] && [ "$dbm" != "2147483647" ] && { echo "$dbm"; return 0; }
 
-    dbm=$(echo "$reg" | grep -oE 'dbm = -?[0-9]+' 2>/dev/null | sed -n '2p' | sed 's/.*= *//')
+    dbm=$(echo "$block" | grep -oE 'dbm = -?[0-9]+' 2>/dev/null | head -1 | sed 's/.*= *//')
     [ -n "$dbm" ] && [ "$dbm" != "2147483647" ] && { echo "$dbm"; return 0; }
 
-    dbm=$(echo "$reg" | grep -oE 'mDbm: [-]?[0-9]+' 2>/dev/null | sed -n '2p' | awk '{print $2}')
+    dbm=$(echo "$block" | grep -oE 'mDbm: [-]?[0-9]+' 2>/dev/null | head -1 | awk '{print $2}')
     [ -n "$dbm" ] && [ "$dbm" != "2147483647" ] && { echo "$dbm"; return 0; }
 
-    # mSignalStrength 行内负数也取第二个
-    dbm=$(echo "$reg" | grep 'mSignalStrength' 2>/dev/null | sed -n '2p' | grep -oE '[-][0-9]+' | head -1)
+    # mSignalStrength 行内负数（兜底）
+    dbm=$(echo "$block" | grep 'mSignalStrength' 2>/dev/null | head -1 | grep -oE '[-][0-9]+' | head -1)
     [ -n "$dbm" ] && [ "$dbm" != "-2147483647" ] && { echo "$dbm"; return 0; }
+
+    # 全局第二个 mDbm (无 mPhoneId 分块时兜底)
+    dbm=$(se_dumpsys_cached telephony.registry 2>/dev/null \
+          | grep -oE 'mDbm=[-]?[0-9]+' 2>/dev/null | sed -n '2p' | cut -d= -f2)
+    [ -n "$dbm" ] && [ "$dbm" != "2147483647" ] && { echo "$dbm"; return 0; }
 
     echo ""
 }
 
 get_mobile_level_2() {
-    local reg level
-    reg=$(se_dumpsys_cached telephony.registry 2>/dev/null)
-    [ -z "$reg" ] && { echo ""; return 0; }
+    local block level
+    block=$(_extract_slot2_block)
+    [ -z "$block" ] && { echo ""; return 0; }
 
-    level=$(echo "$reg" | grep -oE 'mLevel=[0-9]+' 2>/dev/null | sed -n '2p' | cut -d= -f2)
+    # 在卡2 块中查找父级 mLevel（系统信号栏值）
+    level=$(echo "$block" | grep -oE 'mLevel=[0-9]+' 2>/dev/null | head -1 | cut -d= -f2)
     [ -n "$level" ] && [ "$level" != "2147483647" ] && { echo "$level"; return 0; }
 
-    level=$(echo "$reg" | grep -oE 'mLevel: [0-9]+' 2>/dev/null | sed -n '2p' | awk '{print $2}')
+    level=$(echo "$block" | grep -oE 'mLevel: [0-9]+' 2>/dev/null | head -1 | awk '{print $2}')
     [ -n "$level" ] && [ "$level" != "2147483647" ] && { echo "$level"; return 0; }
 
-    level=$(echo "$reg" | grep -oE 'level = [0-9]+' 2>/dev/null | sed -n '2p' | sed 's/.*= *//')
+    level=$(echo "$block" | grep -oE 'level = [0-9]+' 2>/dev/null | head -1 | sed 's/.*= *//')
+    [ -n "$level" ] && [ "$level" != "2147483647" ] && { echo "$level"; return 0; }
+
+    # 全局第二个 mLevel (无 mPhoneId 分块时兜底)
+    level=$(se_dumpsys_cached telephony.registry 2>/dev/null \
+          | grep -oE 'mLevel=[0-9]+' 2>/dev/null | sed -n '2p' | cut -d= -f2)
     [ -n "$level" ] && [ "$level" != "2147483647" ] && { echo "$level"; return 0; }
 
     echo ""

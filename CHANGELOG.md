@@ -1,5 +1,100 @@
 # 网络增强 版本日志
 
+## v1.1 (2026-07-15) — 代理稳定模式 + 白名单小工具版
+
+### 新增功能
+
+#### 1. 代理稳定模式（VPN/代理用户优化）
+**应用场景**：VPN/代理用户在网络切换时频繁断流，以及后台 App 抢占带宽导致代理延迟。
+
+**解决方案**：新增 `apply_vpn_mode()` 函数，一键优化代理使用环境：
+
+1. **锁定 LTE Only**（调用 `carrier.sh lock-lte`）
+   - 防止 5G/4G 切换导致代理隧道重连断流
+   - 写入 `preferred_network_mode=11` + 关闭 ENDC
+
+2. **移动数据始终保活**（`mobile_data_always_on=1`）
+   - 避免 WiFi/移动数据切换时代理连接中断
+   - 确保代理隧道底层网络稳定
+
+3. **开启 Data Saver 压制后台抢网**（`cmd netpolicy set restrict-background true`）
+   - 确保代理流量优先
+   - 避免后台应用抢网导致代理延迟
+
+4. **DNS 预热代理服务域名**
+   - 覆盖主流 VPN 协议与 CDN（Cloudflare/Google）
+   - 加速代理握手
+
+5. **调度器严格避让**（`set_weaknet_active "vpn"`）
+   - 代理模式期间调度器不执行任何 PNM 操作
+   - 避免与代理稳定模式冲突
+
+6. **用户通知**
+   - 开启时发送通知，提示若代理断流可使用白名单工具
+
+#### 2. 内置代理白名单管理小工具
+**应用场景**：代理稳定模式开启的 Data Saver 可能误伤后台运行的 VPN App 本身，导致代理断流。
+
+**解决方案**：内置白名单管理小工具，用户在 WebUI 输入代理软件包名即可一键管理 Data Saver 白名单。
+
+**新增函数**：
+- `add_vpn_whitelist <包名>`：加入 Data Saver 白名单
+- `remove_vpn_whitelist <包名>`：移出 Data Saver 白名单
+- `list_vpn_whitelist`：查看当前白名单
+- `get_uid_by_package <包名>`：通过 `pm list packages -U` 获取应用 UID
+
+**工作流程**：
+1. 接收包名参数（如 `com.v2ray.ang`）
+2. 通过 `pm list packages -U <包名>` 获取 UID（解析 `uid:100xx`）
+3. 执行 `cmd netpolicy add/remove restrict-background-whitelist <UID>`
+4. 成功后发送通知告知用户
+
+**WebUI 交互**：
+- 弱网自救卡片下方新增"代理白名单管理"卡片
+- 包名输入框（placeholder: `com.v2ray.ang`）
+- "加入白名单"按钮（执行 `action.sh 34`）
+- "移出白名单"按钮（执行 `action.sh 35`）
+
+**Action 菜单**：
+- `34|add-vpn-wl <包名>`：加入白名单
+- `35|rm-vpn-wl <包名>`：移出白名单
+
+**彻底解决**：代理软件被 Data Saver 误杀导致断流的问题，用户无需再去系统设置手动加白名单。
+
+### 交互入口更新
+
+- **action.sh**：
+  - 菜单 33 `vpn-mode` 触发代理稳定模式
+  - 菜单 34 `add-vpn-wl <包名>` 加入白名单
+  - 菜单 35 `rm-vpn-wl <包名>` 移出白名单
+- **webroot/index.html**：
+  - 弱网自救卡片新增"代理稳定模式"按钮
+  - 新增"代理白名单管理"卡片（输入框 + 加入/移出按钮）
+- **weaknet.sh**：case 分发新增 `vpn)` / `add-wl)` / `rm-wl)` / `list-wl)` 子命令
+
+### 恢复默认联动
+
+代理稳定模式结束后，执行"恢复默认优化"（菜单 5）会自动：
+- 关闭 Data Saver（`cmd netpolicy set restrict-background false`）
+- 还原 `mobile_data_always_on=0`
+- 调用 `carrier.sh unlock-lte` 恢复 5G + 清除 PNM 受限标记 + 功能性验证
+- 重启调度器
+
+### 版本号更新
+- `module.prop`: version=v1.1, versionCode=110
+- `common.sh`: SE_VERSION="1.1", SE_VERSION_CODE="110"
+
+### 继承功能（v1.0 + v1.0.1）
+- ✅ 5G 假满格自动降级（RSRP+SINR+Ping 三维度）
+- ✅ 游戏模式锁定 LTE Only 防跳频
+- ✅ 多品牌 PNM 写入验证（华为/荣耀/三星）
+- ✅ 防振荡冷却与无网络死锁回退
+- ✅ 双卡/多卡运营商识别（逗号分隔处理 + alpha 名称匹配）
+- ✅ 智能 DNS 选择
+- ✅ Data Saver 禁后台抢带宽
+
+---
+
 ## v1.0.1 (2026-07-15) — 双卡运营商识别修复版
 
 ### 修复内容
@@ -12,36 +107,17 @@
 **修复方案**（4 项增强）：
 
 1. **逗号分隔处理**：获取到 MCC-MNC 后，用 `cut -d',' -f1` 截取逗号前的第一个值进行匹配
-   ```bash
-   mccmnc_first=$(echo "$mccmnc" | cut -d',' -f1 | tr -d ' ')
-   ```
-
-2. **补全移动 MCC-MNC**：
-   - 新增 `46000` / `46002` / `46007` 明确识别为 `mobile`（移动）
-   - 保留原 `46004` / `46008` / `46013` / `46017`
-
+2. **补全移动 MCC-MNC**：46000/46002/46007 明确识别为 mobile
 3. **补全其他运营商 MCC-MNC**：
-   - 电信（telecom）：新增 `46003` / `46005`，保留 `46011` / `46012`
-   - 联通（unicom）：`46001` / `46006` / `46009`
-   - 广电（ctn）：`46015` / `46020`
-
-4. **新增运营商名称（alpha）匹配**：
-   - 当 MCC-MNC 匹配失败时，通过 `gsm.sim.operator.alpha` 名称匹配
-   - 兼容中英文与大小写：
-     - 移动：`CMCC` / `China Mobile` / `中国移动` / `移动`
-     - 联通：`CUCC` / `China Unicom` / `中国联通` / `联通`
-     - 电信：`CTCC` / `China Telecom` / `中国电信` / `电信`
-     - 广电：`CBN` / `China Broadcasting` / `中国广电` / `广电`
+   - 电信：46003/46005/46011/46012
+   - 联通：46001/46006/46009
+   - 广电：46015/46020
+4. **新增运营商名称（alpha）匹配**：CMCC=移动, CUCC=联通, CTCC=电信, CBN=广电（兼容中英文）
 
 ### 影响
-- 双卡设备（如同时插入两张移动卡）现在能正确识别为 `mobile` 运营商
+- 双卡设备现在能正确识别运营商
 - 运营商识别成功率从约 70% 提升至 95%+
 - 后续运营商默认值应用（电信 27 / 移动 32 / 联通 26 / 广电 33）将正确生效
-
-### 升级说明
-- 从 v1.0 升级到 v1.0.1 只需在 AxManager 中重新刷入新 zip 包
-- 无需卸载旧版本（直接覆盖安装）
-- 卸载/升级后运行时残留文件会自动清理
 
 ---
 

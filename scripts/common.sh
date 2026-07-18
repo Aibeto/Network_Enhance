@@ -17,8 +17,8 @@
 # ----------------------------------------------------------------------
 # 路径与版本常量（修改点 1+2: 全部统一为 v1.0 / network_enhance）
 # ----------------------------------------------------------------------
-SE_VERSION="1.1"
-SE_VERSION_CODE="110"
+SE_VERSION="1.1.1"
+SE_VERSION_CODE="111"
 SE_LOG_TAG="NetworkEnhance"
 
 # 日志路径优先 /data/local/tmp（ADB 必写、稳定）
@@ -531,45 +531,61 @@ se_get_lte_preferred_mode() {
 }
 
 # ----------------------------------------------------------------------
-# 修改点 6: WiFi RSSI 读取（cmd wifi status 优先 + dumpsys fallback）
+# 修改点 6: WiFi RSSI 读取（v1.1.1 增强: 优先匹配负数 RSSI, 防止等级误判）
 # ----------------------------------------------------------------------
-# 来源: S3 + 用户补充要求 4
-#   cmd wifi status 在 Android 14+ 上更稳定, 是 dumpsys wifi 的精简版
-#   失败时 fallback 到 dumpsys wifi 的 5 种 grep 模式 (S1 v6.3.1)
 se_get_wifi_rssi() {
     local result
 
-    # 优先 cmd wifi status (S3 推荐, Android 14+ 更稳定)
+    # v1.1.1: cmd wifi status 优先, 但只匹配负数 RSSI
     if se_is_android_14_plus; then
-        result=$(cmd wifi status 2>/dev/null | grep -i 'RSSI' | grep -oE '[-]?[0-9]+' | head -1)
+        result=$(cmd wifi status 2>/dev/null | grep -i 'RSSI' | grep -oE 'RSSI:?\s*-[0-9]+' | grep -oE '\-[0-9]+' | head -1)
+        [ -n "$result" ] && { echo "$result"; return 0; }
+        result=$(cmd wifi status 2>/dev/null | grep -i 'rssi' | grep -oE 'rssi=?\s*\-[0-9]+' | grep -oE '\-[0-9]+' | head -1)
+        [ -n "$result" ] && { echo "$result"; return 0; }
+        result=$(cmd wifi status 2>/dev/null | grep -iE 'RSSI\s+-[0-9]' | grep -oE '\-[0-9]+' | head -1)
         [ -n "$result" ] && { echo "$result"; return 0; }
     fi
 
-    # Fallback: dumpsys wifi 5 种模式 (S1 v6.3.1)
+    # Fallback: dumpsys wifi
     local dump
     dump=$(dumpsys wifi 2>/dev/null)
 
-    # 模式 1: mRssi: -65 (标准 AOSP)
+    # 模式 2: mRssi: -65 (只接受负数)
     result=$(echo "$dump" | awk -F': ' '/^[[:space:]]*mRssi:/ {gsub(/[^0-9-].*/, "", $2); print $2; exit}' 2>/dev/null)
+    if [ -n "$result" ] && [ "$result" -lt 0 ] 2>/dev/null; then
+        echo "$result"; return 0
+    fi
+
+    # 模式 3: mRssi=-65 (负数)
+    result=$(echo "$dump" | grep -oE 'mRssi=\-[0-9]+' 2>/dev/null | head -1 | cut -d= -f2)
     [ -n "$result" ] && { echo "$result"; return 0; }
 
-    # 模式 2: mRssi=-65 (部分 ROM 用等号)
-    result=$(echo "$dump" | grep -oE 'mRssi=[-]?[0-9]+' 2>/dev/null | head -1 | cut -d= -f2)
+    # 模式 4: RSSI: -65 (负数)
+    result=$(echo "$dump" | grep -oE 'RSSI:\s*\-[0-9]+' 2>/dev/null | head -1 | grep -oE '\-[0-9]+')
     [ -n "$result" ] && { echo "$result"; return 0; }
 
-    # 模式 3: RSSI: -65 (部分 ROM 简写)
-    result=$(echo "$dump" | grep -oE 'RSSI: [-]?[0-9]+' 2>/dev/null | head -1 | awk '{print $2}')
+    # 模式 5: WifiInfo 行内 mRssi=-65 (负数)
+    result=$(echo "$dump" | grep 'WifiInfo' 2>/dev/null | grep -oE 'mRssi=\-[0-9]+' 2>/dev/null | head -1 | cut -d= -f2)
     [ -n "$result" ] && { echo "$result"; return 0; }
 
-    # 模式 4: WifiInfo 行内 mRssi=-65
-    result=$(echo "$dump" | grep 'WifiInfo' 2>/dev/null | grep -oE 'mRssi=[-]?[0-9]+' 2>/dev/null | head -1 | cut -d= -f2)
+    # v1.1.1: 正数降级处理 - 若提取到 0-100 正数, 判定为等级, 降级
+    local raw_rssi
+    raw_rssi=$(cmd wifi status 2>/dev/null | grep -i 'RSSI' | grep -oE '[-]?[0-9]+' | head -1)
+    if [ -n "$raw_rssi" ]; then
+        if [ "$raw_rssi" -lt 0 ] 2>/dev/null; then
+            echo "$raw_rssi"; return 0
+        fi
+        if [ "$raw_rssi" -gt 100 ] 2>/dev/null; then
+            echo "-$raw_rssi"; return 0
+        fi
+        # 0-100 正数 = 等级, 降级
+        log_msg "[wifi] RSSI 提取到正数 $raw_rssi (可能是等级), 降级处理" "[warn]"
+    fi
+
+    # 最终兜底
+    result=$(echo "$dump" | grep -oE 'mRssi[=:]\s*-[0-9]+' 2>/dev/null | head -1 | grep -oE '\-[0-9]+')
     [ -n "$result" ] && { echo "$result"; return 0; }
 
-    # 模式 5: cmd wifi status (兜底, 即使非 Android 14+ 也尝试)
-    result=$(cmd wifi status 2>/dev/null | grep -i 'RSSI' | grep -oE '[-]?[0-9]+' | head -1)
-    [ -n "$result" ] && { echo "$result"; return 0; }
-
-    # 全部失败
     echo ""
 }
 

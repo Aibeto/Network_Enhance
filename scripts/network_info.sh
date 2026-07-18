@@ -152,77 +152,62 @@ get_wifi_link_speed() {
 }
 
 # ----------------------------------------------------------------------
-# 修改点 1: WiFi 频段读取（cmd wifi status 优先 + dumpsys fallback）
+# 修改点 1: WiFi 频段读取（v1.1.1 重构: 提取频率数值统一判定, 不依赖 "5G" 字样）
 # ----------------------------------------------------------------------
-# 来源: S1 v6.3.1 + S3 cmd wifi status
+# 来源: S1 v6.3.1 + S3 cmd wifi status + v1.1.1 用户反馈
+#   问题: 部分 ROM 输出含 "5G" 字样但频段误判为 2.4G
+#   修复: 只匹配 frequency 关键字后的 4 位数 (2412-5825), 统一判定
 get_wifi_frequency() {
     local freq=""
 
-    # 优先 cmd wifi status (S3 推荐)
-    if se_is_android_14_plus; then
-        freq=$(cmd wifi status 2>/dev/null | grep -i 'frequency' 2>/dev/null | grep -oE '[0-9]+' | head -1)
-        if [ -n "$freq" ]; then
-            if [ "$freq" -gt 4000 ] 2>/dev/null; then
-                echo "5G"; return 0
-            else
-                echo "2.4G"; return 0
-            fi
+    _judge_freq() {
+        local f="$1"
+        [ -z "$f" ] && return 1
+        case "$f" in
+            [0-9][0-9][0-9][0-9]) ;;
+            *) return 1 ;;
+        esac
+        if [ "$f" -gt 4000 ] 2>/dev/null; then
+            echo "5G"; return 0
+        elif [ "$f" -ge 2000 ] && [ "$f" -le 3000 ] 2>/dev/null; then
+            echo "2.4G"; return 0
         fi
+        return 1
+    }
+
+    if se_is_android_14_plus; then
+        freq=$(cmd wifi status 2>/dev/null | grep -iE 'frequency' | grep -oE '[0-9]{4}' | head -1)
+        local result
+        result=$(_judge_freq "$freq")
+        [ -n "$result" ] && { echo "$result"; return 0; }
     fi
 
-    # Fallback: dumpsys wifi 5 种模式 (S1 v6.3.1)
     local dump
     dump=$(dumpsys wifi 2>/dev/null)
 
-    # 模式 1: mFrequency: 5180 (旧 AOSP)
-    freq=$(echo "$dump" | grep 'mFrequency' 2>/dev/null | head -1 | grep -oE '[0-9]+' 2>/dev/null | head -1)
-    if [ -n "$freq" ]; then
-        if [ "$freq" -gt 4000 ] 2>/dev/null; then
-            echo "5G"; return 0
-        else
-            echo "2.4G"; return 0
-        fi
-    fi
+    freq=$(echo "$dump" | grep -oE 'mFrequency[=:]\s*[0-9]{4}' 2>/dev/null | head -1 | grep -oE '[0-9]{4}')
+    result=$(_judge_freq "$freq")
+    [ -n "$result" ] && { echo "$result"; return 0; }
 
-    # 模式 2: frequency=5180
-    freq=$(echo "$dump" | grep -oE 'frequency=[0-9]+' 2>/dev/null | head -1 | cut -d= -f2)
-    if [ -n "$freq" ]; then
-        if [ "$freq" -gt 4000 ] 2>/dev/null; then
-            echo "5G"; return 0
-        else
-            echo "2.4G"; return 0
-        fi
-    fi
+    freq=$(echo "$dump" | grep -oE 'frequency=[0-9]{4}' 2>/dev/null | head -1 | grep -oE '[0-9]{4}')
+    result=$(_judge_freq "$freq")
+    [ -n "$result" ] && { echo "$result"; return 0; }
 
-    # 模式 3: Frequency: 5180MHz (Android 14/15 真实格式)
-    freq=$(echo "$dump" | grep -oE 'Frequency: [0-9]+MHz' 2>/dev/null | head -1 | grep -oE '[0-9]+' | head -1)
-    if [ -n "$freq" ]; then
-        if [ "$freq" -gt 4000 ] 2>/dev/null; then
-            echo "5G"; return 0
-        else
-            echo "2.4G"; return 0
-        fi
-    fi
+    freq=$(echo "$dump" | grep -oE 'Frequency:\s*[0-9]{4}MHz' 2>/dev/null | head -1 | grep -oE '[0-9]{4}')
+    result=$(_judge_freq "$freq")
+    [ -n "$result" ] && { echo "$result"; return 0; }
 
-    # 模式 4: Frequency: 5180 (无 MHz 后缀)
-    freq=$(echo "$dump" | grep -oE 'Frequency: [0-9]+' 2>/dev/null | head -1 | grep -oE '[0-9]+' | head -1)
-    if [ -n "$freq" ]; then
-        if [ "$freq" -gt 4000 ] 2>/dev/null; then
-            echo "5G"; return 0
-        else
-            echo "2.4G"; return 0
-        fi
-    fi
+    freq=$(echo "$dump" | grep -oE 'Frequency:\s*[0-9]{4}' 2>/dev/null | head -1 | grep -oE '[0-9]{4}')
+    result=$(_judge_freq "$freq")
+    [ -n "$result" ] && { echo "$result"; return 0; }
 
-    # 模式 5: cmd wifi status (兜底)
-    freq=$(cmd wifi status 2>/dev/null | grep -i 'frequency' 2>/dev/null | grep -oE '[0-9]+' | head -1)
-    if [ -n "$freq" ]; then
-        if [ "$freq" -gt 4000 ] 2>/dev/null; then
-            echo "5G"; return 0
-        else
-            echo "2.4G"; return 0
-        fi
-    fi
+    freq=$(echo "$dump" | grep 'WifiInfo' 2>/dev/null | grep -oE 'frequency=[0-9]{4}' 2>/dev/null | head -1 | grep -oE '[0-9]{4}')
+    result=$(_judge_freq "$freq")
+    [ -n "$result" ] && { echo "$result"; return 0; }
+
+    freq=$(cmd wifi status 2>/dev/null | grep -iE 'freq' | grep -oE '[0-9]{4}' | head -1)
+    result=$(_judge_freq "$freq")
+    [ -n "$result" ] && { echo "$result"; return 0; }
 
     echo "?"
 }

@@ -1,5 +1,7 @@
 # AGENTS.md — 项目上下文指南
 
+> ⚠️ **重要：AGENTS.md 是"活文档"** — 任何代码变更（新增/修改/删除功能、重构、调整架构）后，**应考虑同步更新本文档**，确保其反映代码真实状态。过时的 AGENTS.md 可能误导协作者。
+
 ## 项目概况
 
 **Network_Enhance (AxManager 网络增强模块)**
@@ -9,6 +11,7 @@
 - **运行环境**: AxManager (ADB shell, `#!/system/bin/sh`)
 - **最低 Android**: 14 (API 34)
 - **当前版本**: 见 `module.prop` 中的 `version` 和 `versionCode` 字段
+- **CI 构建版本**: CI 构建产物中 `version` 字段被替换为 `v<timestamp>`（如 `v20260719_120000`），`versionCode` 被替换为日期数字（如 `20260719`），与 artifact 名称保持一致
 - **支持的品牌**: 小米/HyperOS, OPPO/ColorOS, vivo/OriginOS, 华为/HarmonyOS, 荣耀/MagicOS, 三星/OneUI
 - **技术约束**: 无 Root 权限，所有操作基于 `settings put/get`、`cmd wifi/netpolicy`、`getprop/setprop`、`dumpsys`
 
@@ -135,55 +138,23 @@ monitor.sh（主循环，120s 周期）
 
 ---
 
-## 构建与部署
-
-```
-发布流程：
-1. 更新 versionCode 在 customize.sh（头部注释）和 module.prop
-2. 更新 CHANGELOG.md
-3. 在项目根目录执行:
-   zip -r Network_Enhance_vX.X.X.zip \
-     scripts/ webroot/ action.sh config.sh customize.sh \
-     post-fs-data.sh service.sh uninstall.sh module.prop \
-     banner.png LICENSE README.md CHANGELOG.md
-4. 上传至 AxManager
-```
-
-注意：CI 构建流水线（`.github/workflows/build.yml`）不在本仓库中，如需配置请参考 AxManager 插件 CI 文档。
-
----
-
-## 测试指南
-
-### 模拟测试（PC 端）
-
-```bash
-# 导出关键函数后测试
-source scripts/common.sh
-source scripts/oem_compat.sh
-# 调用目标函数验证逻辑
-```
-
-### 真机验证
-
-1. 部署到 AxManager
-2. 执行菜单 26（模块自检）
-3. 执行菜单 30（5G 假满格自检）
-4. 检查 `/data/local/tmp/network_enhance.log`
-
-### 验证要点
-
-- `se_detect_carrier()` 在各运营商 SIM 卡下的识别准确性（含双卡逗号分隔场景）
-- `se_should_verify_write()` 的品牌过滤逻辑
-- `lock_lte` / `unlock_lte` 的 PNM 写入验证流程（三层验证）
-- `degrade_5g_to_4g()` 的假满格触发条件
-- `se_get_wifi_rssi()` 的四阶段 fallback 机制（cmd wifi status → dumpsys wifi → 兜底）
-- WebUI 的 `fetchStatus()` 状态更新
-- 代理白名单的 `validate_package_name()` / `validate_uid()` 安全校验
-
----
-
 ## 可维护性指南
+
+### 维护 AGENTS.md（首要规则）
+
+**每次变更代码后，应考虑检查并更新 AGENTS.md 中以下对应部分：**
+
+| 变更类型 | 需更新的 AGENTS.md 章节 |
+|---------|----------------------|
+| 新增/删除/重命名脚本文件 | 目录结构、调度器架构（如涉及 monitor） |
+| 修改函数签名或行为 | 关键架构决策、测试验证要点 |
+| 新增/移除品牌支持 | 项目概况（品牌列表）、OEM 兼容策略、可维护性指南（添加新品牌步骤） |
+| 新增场景模式 | 场景模式隔离表、可维护性指南（添加新场景模式步骤） |
+| 修改 WebUI | 代码约定（WebUI 规范）、测试验证要点 |
+| 修改构建流程 | 项目概况（CI 构建版本）、build.yml |
+| 调整版本号策略 | 项目概况（当前版本描述） |
+
+判断标准：**如果有人在阅读 AGENTS.md 后会对代码产生错误预期，那就说明需要更新了。**
 
 ### 添加新品牌支持
 
@@ -206,12 +177,3 @@ source scripts/oem_compat.sh
 2. 确保 `validate_package_name()` 和 `validate_uid()` 安全校验
 3. 在 `action.sh` 菜单中添加对应入口
 4. 在 WebUI 中添加交互卡片
-
-### 调试技巧
-
-- 查看运行时日志: `tail -f /data/local/tmp/network_enhance.log`
-- 查看 settings 写入: `settings list global | grep -i "network\|preferred\|endc\|wifi"`
-- 查看当前 PNM: `settings get global preferred_network_mode`
-- 查看网络制式实际状态: `dumpsys telephony.registry | grep -E 'mServiceState|NR|LTE'`
-- 诊断数据抓取: `sh scripts/diag_dump.sh`（输出到 `/data/local/tmp/network_enhance_diag.txt`）
-- 查看 PNM 受限标记: `ls /data/local/tmp/network_enhance_pnm_restricted_*`

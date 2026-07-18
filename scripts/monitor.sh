@@ -233,11 +233,10 @@ apply_dynamic_params() {
     local params interval scan_ms bad_rssi mobile_ka ping_chk
     params=$(se_compute_dynamic_params "$level" "$rssi_abs" 2>/dev/null)
     [ -z "$params" ] && params="120 15000 -88 1 1"
-    interval=$(echo "$params" | awk '{print $1}')
-    scan_ms=$(echo "$params" | awk '{print $2}')
-    bad_rssi=$(echo "$params" | awk '{print $3}')
-    mobile_ka=$(echo "$params" | awk '{print $4}')
-    ping_chk=$(echo "$params" | awk '{print $5}')
+    # 单次 read 替代 5 次 awk，减少进程创建
+    read -r interval scan_ms bad_rssi mobile_ka ping_chk <<EOF
+$params
+EOF
     [ -z "$interval" ] && interval=120
     [ -z "$scan_ms" ] && scan_ms=15000
     [ -z "$bad_rssi" ] && bad_rssi=-88
@@ -508,6 +507,7 @@ run_monitor_loop() {
 
     # 首轮立即检测一次
     sleep 2
+    se_dumpsys_clear
     local _net_type _wifi_rssi _mobile_dbm _ping_ms _nr_rsrp _nr_sinr _target_level _rssi_abs _applied_params
     _net_type=$(se_detect_network_type 2>/dev/null)
     _wifi_rssi=$(se_get_wifi_rssi 2>/dev/null)
@@ -547,6 +547,9 @@ run_monitor_loop() {
 
     while true; do
         loop_count=$((loop_count + 1))
+
+        # 清除 dumpsys 缓存（确保每轮获取最新数据）
+        se_dumpsys_clear
 
         # weaknet 激活时跳过本轮, 禁止任何降级/升级/无网络回退操作
         if [ -f "$WEAKNET_ACTIVE_FLAG" ]; then

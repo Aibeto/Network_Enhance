@@ -209,11 +209,47 @@ get_carrier_name() {
     echo "$name"
 }
 
+# ----------------------------------------------------------------------
+# 通用 RAT 编号 → 名称映射 (TelephonyManager NETWORK_TYPE_*)
+# 20=NR, 13=LTE, 19=LTE_CA, 3=UMTS, 8=HSDPA, 9=HSUPA, 10=HSPA, 15=HSPA+
+# 1=GPRS, 2=EDGE, 16=GSM, 17=TD_SCDMA, 4=CDMA, 5=EVDO_0, 6=EVDO_A, 12=EVDO_B
+# ----------------------------------------------------------------------
+_rat_number_to_name() {
+    case "$1" in
+        20)     echo "5G NR" ;;
+        13|19)  echo "4G LTE" ;;
+        3|8|9|10|14|15|17) echo "3G" ;;
+        1|2|16) echo "2G" ;;
+        4|5|6|7|12) echo "3G" ;;  # CDMA/EvDo
+        18)     echo "IWLAN" ;;
+        *)      echo "" ;;
+    esac
+}
+
+# 从 dumpsys telephony.registry 提取卡1 (PhoneId=0) 的实时网络制式编号
+_get_rat_number() {
+    local reg rat
+    reg=$(se_dumpsys_cached telephony.registry 2>/dev/null)
+    [ -z "$reg" ] && { echo ""; return 0; }
+    # mDataNetworkType 是当前数据网络制式，比 getprop 更实时可靠
+    rat=$(echo "$reg" | grep -oE 'mDataNetworkType=[0-9]+' 2>/dev/null | head -1 | cut -d= -f2)
+    [ -n "$rat" ] && [ "$rat" != "0" ] && { echo "$rat"; return 0; }
+    rat=$(echo "$reg" | grep -oE 'mVoiceNetworkType=[0-9]+' 2>/dev/null | head -1 | cut -d= -f2)
+    [ -n "$rat" ] && [ "$rat" != "0" ] && { echo "$rat"; return 0; }
+    echo ""
+}
+
 get_network_type_name() {
+    local rat_num name
+    rat_num=$(_get_rat_number)
+    name=$(_rat_number_to_name "$rat_num")
+    [ -n "$name" ] && { echo "$name"; return 0; }
+
+    # Fallback: getprop gsm.network.type
     local rat
     rat=$(getprop gsm.network.type 2>/dev/null | head -1)
     if [ -z "$rat" ] || [ "$rat" = "Unknown" ] || [ "$rat" = "unknown" ] || [ "$rat" = "NR_SA,Unknown" ]; then
-        rat=$(getprop gsm.network.type 2>/dev/null | tr ',' '\n' | head -1)
+        rat=$(echo "$rat" | tr ',' '\n' | head -1)
         case "$rat" in
             NR|nr)      echo "5G NR"; return 0 ;;
             LTE|lte)    echo "4G LTE"; return 0 ;;
@@ -250,23 +286,37 @@ get_mobile_dbm() {
 
 # ----------------------------------------------------------------------
 # 卡2 信息采集（双卡设备）
-# 属性后缀 .2 对应物理卡槽2，dumpsys 中提取 mSubId=2 或 PhoneId=1 块
+# 属性后缀 .2 对应物理卡槽2，dumpsys 中提取 PhoneId=1 块
 # ----------------------------------------------------------------------
-get_carrier_name_2() {
-    local name
-    name=$(getprop gsm.sim.operator.alpha.2 2>/dev/null | head -1)
-    name=$(echo "$name" | sed 's/,[[:space:]]*$//;s/^[[:space:],]*//')
-    if [ -z "$name" ] || [ "$name" = "Unknown" ] || [ "$name" = "unknown" ]; then
-        name=$(getprop gsm.operator.alpha.2 2>/dev/null | head -1)
-        if [ -z "$name" ] || [ "$name" = "Unknown" ] || [ "$name" = "unknown" ]; then
-            echo ""
-            return 0
-        fi
-    fi
-    echo "$name"
+
+# 提取 dumpsys telephony.registry 中 PhoneId=1 的完整块（卡2）
+# 使用 awk 精确截取 PhoneId=1～下一个 PhoneId= 之间，避免混入卡1数据
+_extract_slot2_block() {
+    local reg
+    reg=$(se_dumpsys_cached telephony.registry 2>/dev/null)
+    [ -z "$reg" ] && { echo ""; return 0; }
+    echo "$reg" | awk '/PhoneId=1/{found=1; next} found && /PhoneId=/{exit} found'
+}
+
+# 从卡2 的 dumpsys 块提取实时网络制式编号
+_get_rat_number_2() {
+    local block rat
+    block=$(_extract_slot2_block)
+    [ -z "$block" ] && { echo ""; return 0; }
+    rat=$(echo "$block" | grep -oE 'mDataNetworkType=[0-9]+' 2>/dev/null | head -1 | cut -d= -f2)
+    [ -n "$rat" ] && [ "$rat" != "0" ] && { echo "$rat"; return 0; }
+    rat=$(echo "$block" | grep -oE 'mVoiceNetworkType=[0-9]+' 2>/dev/null | head -1 | cut -d= -f2)
+    [ -n "$rat" ] && [ "$rat" != "0" ] && { echo "$rat"; return 0; }
+    echo ""
 }
 
 get_network_type_name_2() {
+    local rat_num name
+    rat_num=$(_get_rat_number_2)
+    name=$(_rat_number_to_name "$rat_num")
+    [ -n "$name" ] && { echo "$name"; return 0; }
+
+    # Fallback: getprop gsm.network.type.2
     local rat
     rat=$(getprop gsm.network.type.2 2>/dev/null | head -1)
     if [ -z "$rat" ] || [ "$rat" = "Unknown" ] || [ "$rat" = "unknown" ]; then
@@ -285,16 +335,18 @@ get_network_type_name_2() {
     esac
 }
 
-# 提取 dumpsys telephony.registry 中卡2 对应的信号块
-# mSubId=2 块或 PhoneId=1 块，从该行截取到文件末尾再应用卡1相同的解析模式
-_extract_slot2_block() {
-    local reg block
-    reg=$(se_dumpsys_cached telephony.registry 2>/dev/null)
-    block=$(echo "$reg" | sed -n '/mSubId=2/,$p' 2>/dev/null)
-    if [ -z "$block" ]; then
-        block=$(echo "$reg" | sed -n '/PhoneId=1/,$p' 2>/dev/null)
+get_carrier_name_2() {
+    local name
+    name=$(getprop gsm.sim.operator.alpha.2 2>/dev/null | head -1)
+    name=$(echo "$name" | sed 's/,[[:space:]]*$//;s/^[[:space:],]*//')
+    if [ -z "$name" ] || [ "$name" = "Unknown" ] || [ "$name" = "unknown" ]; then
+        name=$(getprop gsm.operator.alpha.2 2>/dev/null | head -1)
+        if [ -z "$name" ] || [ "$name" = "Unknown" ] || [ "$name" = "unknown" ]; then
+            echo ""
+            return 0
+        fi
     fi
-    echo "$block"
+    echo "$name"
 }
 
 get_mobile_dbm_2() {

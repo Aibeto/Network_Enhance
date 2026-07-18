@@ -364,36 +364,70 @@
       display: block
     }
 
-    /* 异步执行浮窗指示器 — 固定定位，不阻塞页面滚动 */
+    /* 异步执行浮窗指示器 — 固定顶部，不阻塞页面滚动 */
     .exec-indicator {
       position: fixed;
-      left: 50%;
-      bottom: 80px;
-      transform: translateX(-50%);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(30, 38, 56, 0.95);
-      color: #7ab8ff;
-      padding: 8px 14px;
-      border-radius: 20px;
-      border: 1px solid #2a3458;
-      font-size: 12px;
-      font-weight: 500;
-      opacity: 0;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 9999;
       pointer-events: none;
-      z-index: 999;
-      transition: opacity .2s;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, .4)
+      opacity: 0;
+      transition: opacity .15s
     }
 
     .exec-indicator.show {
       opacity: 1
     }
 
-    .exec-spinner {
-      width: 14px;
-      height: 14px;
+    /* 顶部动画进度条 */
+    .exec-bar {
+      height: 3px;
+      background: linear-gradient(90deg, #7ab8ff, #5dd4a3, #7ab8ff);
+      background-size: 200% 100%;
+      animation: execSlide 1.2s linear infinite
+    }
+
+    @keyframes execSlide {
+      from {
+        background-position: 200% 0
+      }
+
+      to {
+        background-position: 0 0
+      }
+    }
+
+    /* 操作名称小标签 */
+    .exec-label {
+      position: fixed;
+      top: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(10, 14, 26, 0.92);
+      color: #7ab8ff;
+      padding: 4px 12px;
+      border-radius: 0 0 10px 10px;
+      font-size: 11px;
+      font-weight: 500;
+      border: 1px solid #1e2638;
+      border-top: none;
+      z-index: 9998;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity .15s
+    }
+
+    .exec-label.show {
+      opacity: 1
+    }
+
+    .exec-label-spinner {
+      width: 10px;
+      height: 10px;
       border: 2px solid #2a3458;
       border-top-color: #7ab8ff;
       border-radius: 50%;
@@ -635,8 +669,11 @@
   </details>
 
   <div class="footer">网络增强 v1.1.4 · MIT License · AxManager 免Root · 5G假满格自救版</div>
-  <div class="exec-indicator" id="exec-indicator"><span class="exec-spinner"></span><span
-      id="exec-indicator-text">执行中</span></div>
+  <div class="exec-indicator" id="exec-indicator">
+    <div class="exec-bar"></div>
+  </div>
+  <div class="exec-label" id="exec-label"><span class="exec-label-spinner"></span><span id="exec-label-text">执行中</span>
+  </div>
   <div class="toast" id="toast"></div>
   <div class="alert-box" id="alert-box"><span class="close" onclick="hideAlert()">×</span>
     <div id="alert-content"></div>
@@ -799,6 +836,7 @@
             }, 10000);
             return;
           } catch (e) {
+            ksuDone = true;
             try { delete window[cbName]; } catch (e8) { }
             diag('ksu.exec 异常: ' + e, 'err');
           }
@@ -1001,15 +1039,27 @@
     }
 
     function showExecIndicator(name) {
-      var el = document.getElementById('exec-indicator');
-      var txt = document.getElementById('exec-indicator-text');
+      // 取消之前排队的隐藏操作
+      if (showExecIndicator._hideTimer) { clearTimeout(showExecIndicator._hideTimer); showExecIndicator._hideTimer = null; }
+      var bar = document.getElementById('exec-indicator');
+      var label = document.getElementById('exec-label');
+      var txt = document.getElementById('exec-label-text');
       if (txt) txt.textContent = (name || '执行中');
-      if (el) el.className = 'exec-indicator show';
+      if (bar) bar.className = 'exec-indicator show';
+      if (label) label.className = 'exec-label show';
+      showExecIndicator._ts = Date.now();
     }
 
     function hideExecIndicator() {
-      var el = document.getElementById('exec-indicator');
-      if (el) el.className = 'exec-indicator';
+      var elapsed = Date.now() - (showExecIndicator._ts || 0);
+      var delay = (elapsed < 350) ? (350 - elapsed) : 0;
+      showExecIndicator._hideTimer = setTimeout(function () {
+        showExecIndicator._hideTimer = null;
+        var bar = document.getElementById('exec-indicator');
+        var label = document.getElementById('exec-label');
+        if (bar) bar.className = 'exec-indicator';
+        if (label) label.className = 'exec-label';
+      }, delay);
     }
 
     function toast(msg, duration) {
@@ -1021,12 +1071,19 @@
       toast._timer = setTimeout(function () { el.className = 'toast'; toast._timer = null; }, duration || 3000);
     }
 
-    function showAlert(content) {
+    function showAlert(content, duration) {
       document.getElementById('alert-content').textContent = content;
       document.getElementById('alert-box').className = 'alert-box show';
+      // 自动关闭：默认 3 秒，传 0 则不自动关闭
+      if (showAlert._timer) { clearTimeout(showAlert._timer); showAlert._timer = null; }
+      var d = (duration === undefined) ? 3000 : duration;
+      if (d > 0) {
+        showAlert._timer = setTimeout(hideAlert, d);
+      }
     }
 
     function hideAlert() {
+      if (showAlert._timer) { clearTimeout(showAlert._timer); showAlert._timer = null; }
       document.getElementById('alert-box').className = 'alert-box';
     }
 
@@ -1048,22 +1105,25 @@
       showExecIndicator(name);
       diag('runCmd: ' + name + ' | ' + cmd.substring(0, 80));
       exec(cmd, function (errno, stdout, stderr) {
-        var ok = (errno === 0 || errno === '0' || errno === 0);
-        hideExecIndicator();
-        cmdRunning = false;
-        cmdRunningName = '';
-        if (ok) {
-          toast(name + ' 完成');
-          if (stdout && stdout.trim()) {
-            showAlert(name + ' 输出:\n\n' + stdout.substring(0, 3000));
+        try {
+          var ok = (errno === 0 || errno === '0');
+          if (ok) {
+            toast(name + ' 完成');
+            if (stdout && stdout.trim()) {
+              showAlert(name + ' 输出:\n\n' + stdout.substring(0, 3000));
+            }
+          } else {
+            toast(name + ' 失败 (' + errno + ')');
+            showAlert(name + ' 失败 (errno=' + errno + '):\n\nstdout: ' + (stdout || '') + '\n\nstderr: ' + (stderr || ''));
           }
-        } else {
-          toast(name + ' 失败 (' + errno + ')');
-          showAlert(name + ' 失败 (errno=' + errno + '):\n\nstdout: ' + (stdout || '') + '\n\nstderr: ' + (stderr || ''));
+          if (typeof after === 'function') after();
+          // 延迟刷新，避免阻塞当前操作
+          setTimeout(function () { throttledLoad('refreshAll', 500, doRefreshAll); }, 500);
+        } finally {
+          hideExecIndicator();
+          cmdRunning = false;
+          cmdRunningName = '';
         }
-        if (typeof after === 'function') after();
-        // 延迟刷新，避免阻塞当前操作
-        setTimeout(function () { throttledLoad('refreshAll', 500, doRefreshAll); }, 500);
       });
     }
 

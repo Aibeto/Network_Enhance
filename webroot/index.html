@@ -596,13 +596,10 @@
 
     // ======================================================================
     // 全局异步防假卡死框架
-    //   - 请求队列: execQueue 确保同一时刻最多 1 个 exec 在运行
     //   - 去重: pendingLoads 跟踪正在执行的请求，避免重复提交
     //   - 节流: 按钮操作 500ms 冷却，refreshAll 2s 冷却
     //   - 错误隔离: 每个异步操作独立 try/catch，不互相拖垮
     // ======================================================================
-    var execQueue = [];
-    var execRunning = false;
     var pendingLoads = {};          // key → true 表示该请求正在执行
     var pendingLoadTimers = {};    // key → 延迟执行的 timer
     var lastBtnClick = 0;          // 按钮节流时间戳
@@ -624,40 +621,19 @@
       console.log('[diag]', msg);
     }
 
-    // 全局 exec 调度器 — 确保 exec 串行执行，避免并发卡死
-    function runNextExec() {
-      if (execRunning || execQueue.length === 0) return;
-      execRunning = true;
-      var item = execQueue.shift();
-      // 检查去重: 如果该请求已在执行中，跳过
-      if (item._key && pendingLoads[item._key]) {
-        execRunning = false;
-        runNextExec();
-        return;
-      }
-      if (item._key) pendingLoads[item._key] = true;
-      item._fn(function () {
-        if (item._key) delete pendingLoads[item._key];
-        execRunning = false;
-        // 用 setTimeout 避免微任务堆积
-        setTimeout(runNextExec, 0);
-      });
-    }
-
-    function enqueueExec(key, fn) {
-      execQueue.push({ _key: key || null, _fn: fn });
-      if (!execRunning) runNextExec();
-    }
-
     // 带去重的延迟加载 — 同一 key 在冷却期内不会重复提交
     // 用于 setInterval 中的轮询请求，避免旧请求堆积
+    // 直接执行 fn，不再经过队列（exec 已是同步调用）
     function throttledLoad(key, delayMs, fn) {
       if (pendingLoads[key]) return;           // 正在执行中，跳过
       if (pendingLoadTimers[key]) return;      // 已有定时器，跳过
       pendingLoadTimers[key] = setTimeout(function () {
         delete pendingLoadTimers[key];
         if (pendingLoads[key]) return;         // 双重检查
-        enqueueExec(key, fn);
+        pendingLoads[key] = true;
+        fn(function () {
+          delete pendingLoads[key];
+        });
       }, delayMs);
     }
 
@@ -721,63 +697,56 @@
     }
 
     function exec(cmd, callback) {
-      enqueueExec('exec:' + cmd.substring(0, 40), function (done) {
-        diag('exec: ' + cmd.substring(0, 100));
-        try {
-          if (typeof Axeron !== 'undefined' && typeof Axeron.exec === 'function') {
-            try {
-              var json = Axeron.exec(cmd, '{}');
-              var result = JSON.parse(json);
-              var errno = (result.errno !== undefined) ? result.errno : 0;
-              var stdout = result.stdout || '';
-              var stderr = result.stderr || '';
-              diag('exec [axeron]: errno=' + errno + ' len=' + stdout.length, 'ok');
-              done();
-              try { callback(errno, stdout, stderr); } catch (e) { diag('cb err: ' + e, 'err'); }
-              return;
-            } catch (e) {
-              diag('Axeron.exec 异常: ' + e, 'err');
-            }
+      diag('exec: ' + cmd.substring(0, 100));
+      try {
+        if (typeof Axeron !== 'undefined' && typeof Axeron.exec === 'function') {
+          try {
+            var json = Axeron.exec(cmd, '{}');
+            var result = JSON.parse(json);
+            var errno = (result.errno !== undefined) ? result.errno : 0;
+            var stdout = result.stdout || '';
+            var stderr = result.stderr || '';
+            diag('exec [axeron]: errno=' + errno + ' len=' + stdout.length, 'ok');
+            try { callback(errno, stdout, stderr); } catch (e) { diag('cb err: ' + e, 'err'); }
+            return;
+          } catch (e) {
+            diag('Axeron.exec 异常: ' + e, 'err');
           }
-
-          if (typeof ksu !== 'undefined' && typeof ksu.exec === 'function') {
-            var cbName = '__ne_cb_' + Date.now() + '_' + Math.floor(Math.random() * 1000000);
-            var ksuDone = false;
-            window[cbName] = function (errno, stdout, stderr) {
-              if (ksuDone) return;
-              ksuDone = true;
-              try { delete window[cbName]; } catch (e) { }
-              diag('exec [ksu]: errno=' + errno + ' len=' + (stdout || '').length, 'ok');
-              done();
-              try { callback(errno, stdout || '', stderr || ''); } catch (e2) { diag('cb err: ' + e2, 'err'); }
-            };
-            try {
-              ksu.exec(cmd, '{}', cbName);
-              setTimeout(function () {
-                if (!ksuDone) {
-                  ksuDone = true;
-                  try { delete window[cbName]; } catch (e) { }
-                  diag('ksu.exec 超时', 'err');
-                  done();
-                  callback(-2, '', 'exec 超时');
-                }
-              }, 10000);
-              return;
-            } catch (e) {
-              try { delete window[cbName]; } catch (e8) { }
-              diag('ksu.exec 异常: ' + e, 'err');
-            }
-          }
-
-          diag('exec 失败: API 不可用', 'err');
-          done();
-          callback(-1, '', 'API 不可用');
-        } catch (e) {
-          done();
-          diag('exec 异常: ' + e, 'err');
-          callback(-1, '', 'exec 异常');
         }
-      });
+
+        if (typeof ksu !== 'undefined' && typeof ksu.exec === 'function') {
+          var cbName = '__ne_cb_' + Date.now() + '_' + Math.floor(Math.random() * 1000000);
+          var ksuDone = false;
+          window[cbName] = function (errno, stdout, stderr) {
+            if (ksuDone) return;
+            ksuDone = true;
+            try { delete window[cbName]; } catch (e) { }
+            diag('exec [ksu]: errno=' + errno + ' len=' + (stdout || '').length, 'ok');
+            try { callback(errno, stdout || '', stderr || ''); } catch (e2) { diag('cb err: ' + e2, 'err'); }
+          };
+          try {
+            ksu.exec(cmd, '{}', cbName);
+            setTimeout(function () {
+              if (!ksuDone) {
+                ksuDone = true;
+                try { delete window[cbName]; } catch (e) { }
+                diag('ksu.exec 超时', 'err');
+                callback(-2, '', 'exec 超时');
+              }
+            }, 10000);
+            return;
+          } catch (e) {
+            try { delete window[cbName]; } catch (e8) { }
+            diag('ksu.exec 异常: ' + e, 'err');
+          }
+        }
+
+        diag('exec 失败: API 不可用', 'err');
+        callback(-1, '', 'API 不可用');
+      } catch (e) {
+        diag('exec 异常: ' + e, 'err');
+        callback(-1, '', 'exec 异常');
+      }
     }
 
     function initModDir() {
@@ -1064,7 +1033,7 @@
     // 使用 throttledLoad 防止重复调用堆积
     function loadNetworkInfo() {
       if (!MODDIR || !API_READY) return;
-      throttledLoad('networkInfo', 0, function () {
+      throttledLoad('networkInfo', 0, function (done) {
         exec('sh ' + MODDIR + '/scripts/network_info.sh json', function (errno, stdout) {
           var data = parseJSON(stdout);
 
@@ -1072,6 +1041,7 @@
             document.getElementById('net-badge').textContent = '解析失败';
             document.getElementById('net-badge').className = 'badge err';
             diag('network_info json 解析失败: errno=' + errno + ' stdout=' + (stdout || '').substring(0, 200), 'err');
+            done();
             return;
           }
 
@@ -1188,6 +1158,7 @@
               monFake5gEl.className = 'stat-value small good';
             }
           }
+          done();
         });
       });
     }
@@ -1228,7 +1199,7 @@
     // 状态文件路径 + 5G 降级状态显示
     function loadMonitorStatus() {
       if (!MODDIR || !API_READY) return;
-      throttledLoad('monitorStatus', 0, function () {
+      throttledLoad('monitorStatus', 0, function (done) {
         var pidFile = '/data/local/tmp/network_enhance_monitor.pid';
         var stateFile = '/data/local/tmp/network_enhance_monitor.state';
 
@@ -1243,6 +1214,7 @@
             badge.className = 'badge err';
             levelEl.textContent = '-';
             fake5gEl.textContent = '-';
+            done();
             return;
           }
 
@@ -1254,6 +1226,7 @@
               badge.className = 'badge err';
               levelEl.textContent = '-';
               fake5gEl.textContent = '-';
+              done();
               return;
             }
 
@@ -1266,6 +1239,7 @@
               if (text.indexOf('PID=') < 0) {
                 levelEl.textContent = '启动中';
                 fake5gEl.textContent = '-';
+                done();
                 return;
               }
 
@@ -1294,6 +1268,7 @@
                 fake5gEl.textContent = '正常';
                 fake5gEl.className = 'stat-value small good';
               }
+              done();
             });
           });
         });
@@ -1302,7 +1277,7 @@
 
     function loadDnsStatus() {
       if (!MODDIR || !API_READY) return;
-      throttledLoad('dnsStatus', 500, function () {
+      throttledLoad('dnsStatus', 500, function (done) {
         exec('sh ' + MODDIR + '/scripts/dns.sh status', function (errno, stdout) {
           var text = stdout || '';
           var modeMatch = text.match(/模式:\s*(\S+)/);
@@ -1314,6 +1289,7 @@
           if (mode === 'hostname') { badge.textContent = 'DoT'; badge.className = 'badge ok'; }
           else if (mode === 'off') { badge.textContent = '关闭'; badge.className = 'badge err'; }
           else { badge.textContent = mode; badge.className = 'badge'; }
+          done();
         });
       });
     }
@@ -1321,12 +1297,13 @@
     // weaknet 标志路径
     function loadWeaknetStatus() {
       if (!API_READY) return;
-      throttledLoad('weaknetStatus', 500, function () {
+      throttledLoad('weaknetStatus', 500, function (done) {
         exec('test -f /data/local/tmp/network_enhance_weaknet_active && echo ACTIVE || echo STANDARD', function (errno, stdout) {
           var text = (stdout || '').trim();
           var badge = document.getElementById('weaknet-badge');
           if (text === 'ACTIVE') { badge.textContent = 'weaknet激活'; badge.className = 'badge warn'; }
           else { badge.textContent = '标准'; badge.className = 'badge'; }
+          done();
         });
       });
     }
@@ -1334,7 +1311,7 @@
     // 日志路径
     function loadLog() {
       if (!API_READY) return;
-      throttledLoad('logLoad', 0, function () {
+      throttledLoad('logLoad', 0, function (done) {
         exec('tail -50 /data/local/tmp/network_enhance.log 2>/dev/null || echo "(日志不存在)"', function (errno, stdout) {
           var text = (stdout || '').trim() || '(空)';
           var html = text.split('\n').map(function (line) {
@@ -1344,6 +1321,7 @@
             return '<div class="' + cls + '">' + escapeHtml(line) + '</div>';
           }).join('');
           document.getElementById('log-view').innerHTML = html;
+          done();
         });
       });
     }
@@ -1367,15 +1345,17 @@
     }
 
     // 实际刷新逻辑（被 throttledLoad 调度）
-    function doRefreshAll() {
+    function doRefreshAll(done) {
       if (!API_READY || !MODDIR) {
         diag('doRefreshAll 跳过: API=' + API_READY + ' MODDIR=' + MODDIR, 'err');
+        if (done) done();
         return;
       }
       loadNetworkInfo();
       loadMonitorStatus();
       loadDnsStatus();
       loadWeaknetStatus();
+      if (done) done();
     }
 
     function refreshAll() {

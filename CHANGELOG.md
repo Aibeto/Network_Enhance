@@ -1,5 +1,13 @@
 # 网络增强 版本日志
 
+## v1.1.4 (2026-07-18) — WiFi 频段暴力截取 + 6GHz + CI 自动化
+
+- 采用暴力截取法重构 Frequency 解析，彻底解决部分 ROM 频段抓取失败问题
+- 新增 6GHz WiFi 频段判定（感谢 @Aibeto 的 PR 贡献）
+- 引入 GitHub Actions CI 自动化测试
+
+---
+
 ## v1.1.3 (2026-07-17) — WiFi 频段与链路速率解析终极修复版
 
 - 精确锁定 Link speed 与 Frequency 字段，修复 WiFi 频段显示为空及链路速率抓取错误数值的问题

@@ -149,7 +149,9 @@ get_wifi_frequency() {
             [0-9][0-9][0-9][0-9]) ;;
             *) return 1 ;;
         esac
-        if [ "$f" -gt 4000 ] 2>/dev/null; then
+        if [ "$f" -ge 5925 ] && [ "$f" -le 7125 ] 2>/dev/null; then
+            echo "6G"; return 0
+        elif [ "$f" -gt 4000 ] && [ "$f" -lt 5925 ] 2>/dev/null; then
             echo "5G"; return 0
         elif [ "$f" -ge 2000 ] && [ "$f" -le 3000 ] 2>/dev/null; then
             echo "2.4G"; return 0
@@ -160,36 +162,28 @@ get_wifi_frequency() {
     local dump
     dump=$(dumpsys wifi 2>/dev/null)
 
-    # 阶段 1: dumpsys wifi 精确匹配 "Frequency: 5180MHz" 
-    freq=$(echo "$dump" | grep -oE 'Frequency:\s*[0-9]{4}MHz' 2>/dev/null | head -1 | grep -oE '[0-9]{4}')
+    # 阶段 1: cmd wifi status 暴力截取 "Frequency: 5180MHz"
+    freq=$(cmd wifi status 2>/dev/null | grep -oE 'Frequency: [0-9]+MHz' 2>/dev/null | head -1 | grep -oE '[0-9]+')
     result=$(_judge_freq "$freq")
     [ -n "$result" ] && { echo "$result"; return 0; }
 
-    # 阶段 1b: "Frequency: 5180" (无 MHz 后缀)
-    freq=$(echo "$dump" | grep -oE 'Frequency:\s*[0-9]{4}' 2>/dev/null | head -1 | grep -oE '[0-9]{4}')
+    # 阶段 2: cmd wifi status "Frequency: 5180" (无 MHz 后缀)
+    freq=$(cmd wifi status 2>/dev/null | grep -oE 'Frequency: [0-9]+' 2>/dev/null | head -1 | grep -oE '[0-9]+')
     result=$(_judge_freq "$freq")
     [ -n "$result" ] && { echo "$result"; return 0; }
 
-    # 阶段 2: cmd wifi status 匹配 frequency
-    if se_is_android_14_plus; then
-        freq=$(cmd wifi status 2>/dev/null | grep -iE 'frequency' | grep -oE '[0-9]{4}' | head -1)
-        result=$(_judge_freq "$freq")
-        [ -n "$result" ] && { echo "$result"; return 0; }
-    fi
-
-    # 阶段 3: 旧 AOSP 格式降级
-    # 3a: mFrequency: 5180 或 mFrequency=5180
-    freq=$(echo "$dump" | grep -oE 'mFrequency[=:]\s*[0-9]{4}' 2>/dev/null | head -1 | grep -oE '[0-9]{4}')
+    # 阶段 3: dumpsys wifi 暴力截取 "Frequency: 5180MHz"
+    freq=$(echo "$dump" | grep -oE 'Frequency: [0-9]+MHz' 2>/dev/null | head -1 | grep -oE '[0-9]+')
     result=$(_judge_freq "$freq")
     [ -n "$result" ] && { echo "$result"; return 0; }
 
-    # 3b: frequency=5180 (小写等号)
-    freq=$(echo "$dump" | grep -oE 'frequency=[0-9]{4}' 2>/dev/null | head -1 | grep -oE '[0-9]{4}')
+    # 阶段 4: dumpsys wifi "Frequency: 5180" (无 MHz 后缀)
+    freq=$(echo "$dump" | grep -oE 'Frequency: [0-9]+' 2>/dev/null | head -1 | grep -oE '[0-9]+')
     result=$(_judge_freq "$freq")
     [ -n "$result" ] && { echo "$result"; return 0; }
 
-    # 阶段 4: WifiInfo 行内 frequency=5180
-    freq=$(echo "$dump" | grep 'WifiInfo' 2>/dev/null | grep -oE 'frequency=[0-9]{4}' 2>/dev/null | head -1 | grep -oE '[0-9]{4}')
+    # 阶段 5: 旧 AOSP 格式降级 mFrequency=5180
+    freq=$(echo "$dump" | grep -oE 'mFrequency=[0-9]+' 2>/dev/null | head -1 | grep -oE '[0-9]+')
     result=$(_judge_freq "$freq")
     [ -n "$result" ] && { echo "$result"; return 0; }
 

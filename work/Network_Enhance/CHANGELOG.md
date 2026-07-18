@@ -1,5 +1,12 @@
 # 网络增强 版本日志
 
+## v1.1.3 (2026-07-17) — WiFi 链路速率与频段解析精确锁定版
+
+- 精确锁定 Link speed 与 Frequency 字段，修复 WiFi 频段显示为空及链路速率抓取错误数值的问题
+- 排除 Tx Link speed / Max Supported 等干扰字段，只匹配标准 "Link speed:" 行
+
+---
+
 ## v1.1.2 (2026-07-17) — WiFi RSSI 解析强容错版
 
 - 修复部分 ROM 上 WiFi RSSI 显示为空的问题（重构为四阶段多重 fallback 机制）

@@ -248,6 +248,92 @@ get_mobile_dbm() {
     echo "$dbm"
 }
 
+# ----------------------------------------------------------------------
+# 卡2 信息采集（双卡设备）
+# 属性后缀 .2 对应物理卡槽2，dumpsys 中提取 mSubId=2 或 PhoneId=1 块
+# ----------------------------------------------------------------------
+get_carrier_name_2() {
+    local name
+    name=$(getprop gsm.sim.operator.alpha.2 2>/dev/null | head -1)
+    name=$(echo "$name" | sed 's/,[[:space:]]*$//;s/^[[:space:],]*//')
+    if [ -z "$name" ] || [ "$name" = "Unknown" ] || [ "$name" = "unknown" ]; then
+        name=$(getprop gsm.operator.alpha.2 2>/dev/null | head -1)
+        if [ -z "$name" ] || [ "$name" = "Unknown" ] || [ "$name" = "unknown" ]; then
+            echo ""
+            return 0
+        fi
+    fi
+    echo "$name"
+}
+
+get_network_type_name_2() {
+    local rat
+    rat=$(getprop gsm.network.type.2 2>/dev/null | head -1)
+    if [ -z "$rat" ] || [ "$rat" = "Unknown" ] || [ "$rat" = "unknown" ]; then
+        echo ""
+        return 0
+    fi
+    rat=$(echo "$rat" | cut -d',' -f1)
+    case "$rat" in
+        NR|nr)                  echo "5G NR" ;;
+        LTE|lte)                echo "4G LTE" ;;
+        HSDPA|HSUPA|HSPA|HSPA+) echo "3G HSPA" ;;
+        UMTS)                   echo "3G UMTS" ;;
+        EDGE)                   echo "2G EDGE" ;;
+        GPRS)                   echo "2G GPRS" ;;
+        *)                      echo "${rat:-}" ;;
+    esac
+}
+
+# 提取 dumpsys telephony.registry 中卡2 对应的信号块
+# mSubId=2 块或 PhoneId=1 块，从该行截取到文件末尾再应用卡1相同的解析模式
+_extract_slot2_block() {
+    local reg block
+    reg=$(se_dumpsys_cached telephony.registry 2>/dev/null)
+    block=$(echo "$reg" | sed -n '/mSubId=2/,$p' 2>/dev/null)
+    if [ -z "$block" ]; then
+        block=$(echo "$reg" | sed -n '/PhoneId=1/,$p' 2>/dev/null)
+    fi
+    echo "$block"
+}
+
+get_mobile_dbm_2() {
+    local block dbm
+    block=$(_extract_slot2_block)
+    [ -z "$block" ] && { echo ""; return 0; }
+
+    dbm=$(echo "$block" | grep -oE 'mDbm=[-]?[0-9]+' 2>/dev/null | head -1 | cut -d= -f2)
+    [ -n "$dbm" ] && [ "$dbm" != "2147483647" ] && { echo "$dbm"; return 0; }
+
+    dbm=$(echo "$block" | grep -oE 'dbm = -?[0-9]+' 2>/dev/null | head -1 | sed 's/.*= *//')
+    [ -n "$dbm" ] && [ "$dbm" != "2147483647" ] && { echo "$dbm"; return 0; }
+
+    dbm=$(echo "$block" | grep -oE 'mDbm: [-]?[0-9]+' 2>/dev/null | head -1 | awk '{print $2}')
+    [ -n "$dbm" ] && [ "$dbm" != "2147483647" ] && { echo "$dbm"; return 0; }
+
+    dbm=$(echo "$block" | grep 'mSignalStrength' 2>/dev/null | head -1 | grep -oE '[-][0-9]+' | head -1)
+    [ -n "$dbm" ] && [ "$dbm" != "-2147483647" ] && { echo "$dbm"; return 0; }
+
+    echo ""
+}
+
+get_mobile_level_2() {
+    local block level
+    block=$(_extract_slot2_block)
+    [ -z "$block" ] && { echo ""; return 0; }
+
+    level=$(echo "$block" | grep -oE 'mLevel=[0-9]+' 2>/dev/null | head -1 | cut -d= -f2)
+    [ -n "$level" ] && [ "$level" != "2147483647" ] && { echo "$level"; return 0; }
+
+    level=$(echo "$block" | grep -oE 'mLevel: [0-9]+' 2>/dev/null | head -1 | awk '{print $2}')
+    [ -n "$level" ] && [ "$level" != "2147483647" ] && { echo "$level"; return 0; }
+
+    level=$(echo "$block" | grep -oE 'level = [0-9]+' 2>/dev/null | head -1 | sed 's/.*= *//')
+    [ -n "$level" ] && [ "$level" != "2147483647" ] && { echo "$level"; return 0; }
+
+    echo ""
+}
+
 get_ping_ms() {
     se_get_ping_ms
 }
@@ -364,10 +450,23 @@ show_full_status() {
     case "$net_type" in
         mobile|dual)
             echo "[移动网络]"
-            echo "  运营商   : $(get_carrier_name)"
-            echo "  网络制式 : $(get_network_type_name)"
-            echo "  Level    : $(get_mobile_level)/4"
-            echo "  dBm      : $(get_mobile_dbm) dBm"
+            echo "  卡1"
+            echo "    运营商   : $(get_carrier_name)"
+            echo "    网络制式 : $(get_network_type_name)"
+            echo "    Level    : $(get_mobile_level)/4"
+            echo "    dBm      : $(get_mobile_dbm) dBm"
+            local carrier2 rat2 level2 dbm2
+            carrier2=$(get_carrier_name_2)
+            if [ -n "$carrier2" ]; then
+                rat2=$(get_network_type_name_2)
+                level2=$(get_mobile_level_2)
+                dbm2=$(get_mobile_dbm_2)
+                echo "  卡2"
+                echo "    运营商   : ${carrier2}"
+                echo "    网络制式 : ${rat2:-无}"
+                echo "    Level    : ${level2:-无}/4"
+                echo "    dBm      : ${dbm2:-无} dBm"
+            fi
             echo ""
             ;;
     esac
@@ -409,7 +508,11 @@ show_brief() {
             echo "WiFi $(get_wifi_ssid) | $(get_wifi_rssi)dBm | $(get_wifi_link_speed)Mbps | 延迟$(get_ping_ms)ms"
             ;;
         mobile)
-            echo "$(get_carrier_name) $(get_network_type_name) | Lv$(get_mobile_level)/4 $(get_mobile_dbm)dBm | RSRP$(get_nr_rsrp) | 延迟$(get_ping_ms)ms"
+            echo "$(get_carrier_name) $(get_network_type_name) | Lv$(get_mobile_level)/4 $(get_mobile_dbm)dBm"
+            local c2
+            c2=$(get_carrier_name_2)
+            [ -n "$c2" ] && echo " 卡2: $c2 $(get_network_type_name_2) | Lv$(get_mobile_level_2)/4 $(get_mobile_dbm_2)dBm"
+            echo "RSRP$(get_nr_rsrp) | 延迟$(get_ping_ms)ms"
             ;;
         dual)
             echo "双通道 WiFi $(get_wifi_rssi)dBm + 移动 Lv$(get_mobile_level)/4 | RSRP$(get_nr_rsrp) | 延迟$(get_ping_ms)ms"
@@ -432,6 +535,9 @@ show_multiline() {
         mobile)
             echo "$(get_carrier_name) $(get_network_type_name)"
             echo "信号: Lv$(get_mobile_level)/4 | $(get_mobile_dbm) dBm"
+            local c2m
+            c2m=$(get_carrier_name_2)
+            [ -n "$c2m" ] && echo "卡2: $c2m $(get_network_type_name_2) | Lv$(get_mobile_level_2)/4 $(get_mobile_dbm_2)dBm"
             echo "5G : RSRP $(get_nr_rsrp) | SINR $(get_nr_sinr) dB"
             echo "延迟: $(get_ping_ms) ms"
             ;;
@@ -461,7 +567,10 @@ json_escape() {
 # JSON 输出（含 nr / preferred_network_mode / fake_5g 等字段供 WebUI 使用）
 # ----------------------------------------------------------------------
 show_json() {
-    local net_type ssid rssi speed freq carrier rat level dbm ping_ms nr_rsrp nr_sinr nr_rsrq fake_5g pnm_mode
+    local net_type ssid rssi speed freq
+    local carrier1 rat1 level1 dbm1
+    local carrier2 rat2 level2 dbm2
+    local ping_ms nr_rsrp nr_sinr nr_rsrq fake_5g pnm_mode
 
     net_type=$(se_detect_network_type 2>/dev/null)
     [ -z "$net_type" ] && net_type="none"
@@ -478,17 +587,31 @@ show_json() {
     freq=$(get_wifi_frequency 2>/dev/null)
     [ -z "$freq" ] && freq="?"
 
-    carrier=$(get_carrier_name 2>/dev/null)
-    [ -z "$carrier" ] && carrier="无SIM"
+    # 卡1
+    carrier1=$(get_carrier_name 2>/dev/null)
+    [ -z "$carrier1" ] && carrier1="无SIM"
 
-    rat=$(get_network_type_name 2>/dev/null)
-    [ -z "$rat" ] && rat="无"
+    rat1=$(get_network_type_name 2>/dev/null)
+    [ -z "$rat1" ] && rat1="无"
 
-    level=$(get_mobile_level 2>/dev/null)
-    [ -z "$level" ] && level="无"
+    level1=$(get_mobile_level 2>/dev/null)
+    [ -z "$level1" ] && level1="无"
 
-    dbm=$(get_mobile_dbm 2>/dev/null)
-    [ -z "$dbm" ] && dbm="无"
+    dbm1=$(get_mobile_dbm 2>/dev/null)
+    [ -z "$dbm1" ] && dbm1="无"
+
+    # 卡2
+    carrier2=$(get_carrier_name_2 2>/dev/null)
+    [ -z "$carrier2" ] && carrier2=""
+
+    rat2=$(get_network_type_name_2 2>/dev/null)
+    [ -z "$rat2" ] && rat2=""
+
+    level2=$(get_mobile_level_2 2>/dev/null)
+    [ -z "$level2" ] && level2=""
+
+    dbm2=$(get_mobile_dbm_2 2>/dev/null)
+    [ -z "$dbm2" ] && dbm2=""
 
     ping_ms=$(se_get_ping_ms 2>/dev/null)
     [ -z "$ping_ms" ] && ping_ms="?"
@@ -529,11 +652,17 @@ show_json() {
     echo "    \"link_speed\": \"$(json_escape "$speed")\","
     echo "    \"frequency\": \"$(json_escape "$freq")\""
     echo "  },"
-    echo "  \"mobile\": {"
-    echo "    \"carrier\": \"$(json_escape "$carrier")\","
-    echo "    \"rat\": \"$(json_escape "$rat")\","
-    echo "    \"level\": \"$(json_escape "$level")\","
-    echo "    \"dbm\": \"$(json_escape "$dbm")\""
+    echo "  \"mobile1\": {"
+    echo "    \"carrier\": \"$(json_escape "$carrier1")\","
+    echo "    \"rat\": \"$(json_escape "$rat1")\","
+    echo "    \"level\": \"$(json_escape "$level1")\","
+    echo "    \"dbm\": \"$(json_escape "$dbm1")\""
+    echo "  },"
+    echo "  \"mobile2\": {"
+    echo "    \"carrier\": \"$(json_escape "$carrier2")\","
+    echo "    \"rat\": \"$(json_escape "$rat2")\","
+    echo "    \"level\": \"$(json_escape "$level2")\","
+    echo "    \"dbm\": \"$(json_escape "$dbm2")\""
     echo "  },"
     echo "  \"nr\": {"
     echo "    \"rsrp\": \"$(json_escape "$nr_rsrp")\","
@@ -558,10 +687,20 @@ case "$1" in
         echo "Freq: $(get_wifi_frequency)"
         ;;
     mobile)
-        echo "Carrier: $(get_carrier_name)"
-        echo "RAT: $(get_network_type_name)"
-        echo "Level: $(get_mobile_level)/4"
-        echo "dBm: $(get_mobile_dbm)"
+        echo "卡1"
+        echo "  Carrier: $(get_carrier_name)"
+        echo "  RAT: $(get_network_type_name)"
+        echo "  Level: $(get_mobile_level)/4"
+        echo "  dBm: $(get_mobile_dbm)"
+        local c2cmd
+        c2cmd=$(get_carrier_name_2)
+        if [ -n "$c2cmd" ]; then
+            echo "卡2"
+            echo "  Carrier: $c2cmd"
+            echo "  RAT: $(get_network_type_name_2)"
+            echo "  Level: $(get_mobile_level_2)/4"
+            echo "  dBm: $(get_mobile_dbm_2)"
+        fi
         ;;
     nr)
         echo "NR RSRP: $(get_nr_rsrp) dBm"

@@ -1073,23 +1073,9 @@
           else if (data.net_type === 'dual') { badge.textContent = '双通道'; badge.className = 'badge ok'; }
           else { badge.textContent = '无网络'; badge.className = 'badge err'; }
 
-          // 网络制式 (preferred_network_mode) 显示
-          var pnmEl = document.getElementById('mobile-rat');
-          if (pnmEl) {
-            var pnm = data.preferred_network_mode || '-';
-            var pnmDesc = pnm;
-            if (pnm === '11') pnmDesc = 'LTE Only (11)';
-            else if (pnm === '9') pnmDesc = 'LTE/3G (9)';
-            else if (pnm === '23') pnmDesc = 'NR Only (23)';
-            else if (pnm === '26') pnmDesc = 'NR/LTE/GSM/WCDMA (26)';
-            else if (pnm === '27') pnmDesc = 'NR/LTE/CDMA/EvDo/GSM/WCDMA (27)';
-            else if (pnm === '32') pnmDesc = 'NR/LTE/TDSCDMA/GSM/WCDMA (32)';
-            else if (pnm === '33') pnmDesc = '全制式5G (33)';
-            pnmEl.textContent = pnmDesc;
-          }
-
           var wifi = data.wifi || {};
-          var mobile = data.mobile || {};
+          var mobile1 = data.mobile1 || {};
+          var mobile2 = data.mobile2 || {};
 
           document.getElementById('wifi-ssid').textContent = wifi.ssid || '-';
           var rssiEl = document.getElementById('wifi-rssi');
@@ -1099,16 +1085,29 @@
           document.getElementById('wifi-speed').textContent = (wifi.link_speed || '?') + ' Mbps';
           document.getElementById('wifi-freq').textContent = wifi.frequency || '?';
 
-          document.getElementById('mobile-carrier').textContent = mobile.carrier || '-';
-          // mobile-rat 已被 preferred_network_mode 占用, 这里不再覆盖
-          var lvlEl = document.getElementById('mobile-level');
-          var lvlVal = mobile.level || '?';
-          lvlEl.textContent = lvlVal + '/4';
-          lvlEl.className = 'stat-value ' + levelClass(lvlVal);
-          var dbmEl = document.getElementById('mobile-dbm');
-          var dbmVal = mobile.dbm || '?';
-          dbmEl.textContent = dbmVal + ' dBm';
-          dbmEl.className = 'stat-value ' + dbmClass(dbmVal);
+          // 卡1
+          document.getElementById('mobile-carrier-1').textContent = mobile1.carrier || '-';
+          document.getElementById('mobile-rat-1').textContent = mobile1.rat || '-';
+          var lvl1El = document.getElementById('mobile-level-1');
+          var lvl1Val = mobile1.level || '?';
+          lvl1El.textContent = lvl1Val + '/4';
+          lvl1El.className = 'stat-value ' + levelClass(lvl1Val);
+          var dbm1El = document.getElementById('mobile-dbm-1');
+          var dbm1Val = mobile1.dbm || '?';
+          dbm1El.textContent = dbm1Val + ' dBm';
+          dbm1El.className = 'stat-value ' + dbmClass(dbm1Val);
+
+          // 卡2
+          document.getElementById('mobile-carrier-2').textContent = mobile2.carrier || '-';
+          document.getElementById('mobile-rat-2').textContent = mobile2.rat || '-';
+          var lvl2El = document.getElementById('mobile-level-2');
+          var lvl2Val = mobile2.level || '?';
+          lvl2El.textContent = lvl2Val + '/4';
+          lvl2El.className = 'stat-value ' + levelClass(lvl2Val);
+          var dbm2El = document.getElementById('mobile-dbm-2');
+          var dbm2Val = mobile2.dbm || '?';
+          dbm2El.textContent = dbm2Val + ' dBm';
+          dbm2El.className = 'stat-value ' + dbmClass(dbm2Val);
 
           var pingEl = document.getElementById('net-ping');
           var pingVal = data.ping_ms || '?';

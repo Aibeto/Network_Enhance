@@ -584,7 +584,7 @@
   <script>
     // ======================================================================
     // 网络增强 WebUI
-    // 基于 exec 容错增强框架构建
+    // 基于 exec 容错增强框架 + 全局异步防假卡死框架构建
     // ======================================================================
 
     var MODDIR = '';
@@ -593,6 +593,22 @@
     var API_TYPE = '';
     var apiRetryCount = 0;
     var MAX_API_RETRY = 3;
+
+    // ======================================================================
+    // 全局异步防假卡死框架
+    //   - 请求队列: execQueue 确保同一时刻最多 1 个 exec 在运行
+    //   - 去重: pendingLoads 跟踪正在执行的请求，避免重复提交
+    //   - 节流: 按钮操作 500ms 冷却，refreshAll 2s 冷却
+    //   - 错误隔离: 每个异步操作独立 try/catch，不互相拖垮
+    // ======================================================================
+    var execQueue = [];
+    var execRunning = false;
+    var pendingLoads = {};          // key → true 表示该请求正在执行
+    var pendingLoadTimers = {};    // key → 延迟执行的 timer
+    var lastBtnClick = 0;          // 按钮节流时间戳
+    var lastRefreshAll = 0;        // refreshAll 节流时间戳
+    var BTN_THROTTLE_MS = 500;
+    var REFRESH_THROTTLE_MS = 2000;
 
     function diag(msg, level) {
       var ts = new Date().toLocaleTimeString();
@@ -606,6 +622,43 @@
         el.scrollTop = el.scrollHeight;
       }
       console.log('[diag]', msg);
+    }
+
+    // 全局 exec 调度器 — 确保 exec 串行执行，避免并发卡死
+    function runNextExec() {
+      if (execRunning || execQueue.length === 0) return;
+      execRunning = true;
+      var item = execQueue.shift();
+      // 检查去重: 如果该请求已在执行中，跳过
+      if (item._key && pendingLoads[item._key]) {
+        execRunning = false;
+        runNextExec();
+        return;
+      }
+      if (item._key) pendingLoads[item._key] = true;
+      item._fn(function () {
+        if (item._key) delete pendingLoads[item._key];
+        execRunning = false;
+        // 用 setTimeout 避免微任务堆积
+        setTimeout(runNextExec, 0);
+      });
+    }
+
+    function enqueueExec(key, fn) {
+      execQueue.push({ _key: key || null, _fn: fn });
+      if (!execRunning) runNextExec();
+    }
+
+    // 带去重的延迟加载 — 同一 key 在冷却期内不会重复提交
+    // 用于 setInterval 中的轮询请求，避免旧请求堆积
+    function throttledLoad(key, delayMs, fn) {
+      if (pendingLoads[key]) return;           // 正在执行中，跳过
+      if (pendingLoadTimers[key]) return;      // 已有定时器，跳过
+      pendingLoadTimers[key] = setTimeout(function () {
+        delete pendingLoadTimers[key];
+        if (pendingLoads[key]) return;         // 双重检查
+        enqueueExec(key, fn);
+      }, delayMs);
     }
 
     function setApiBanner(level, msg) {
@@ -668,54 +721,63 @@
     }
 
     function exec(cmd, callback) {
-      diag('exec: ' + cmd.substring(0, 100));
-
-      if (typeof Axeron !== 'undefined' && typeof Axeron.exec === 'function') {
+      enqueueExec('exec:' + cmd.substring(0, 40), function (done) {
+        diag('exec: ' + cmd.substring(0, 100));
         try {
-          var json = Axeron.exec(cmd, '{}');
-          var result = JSON.parse(json);
-          var errno = (result.errno !== undefined) ? result.errno : 0;
-          var stdout = result.stdout || '';
-          var stderr = result.stderr || '';
-          diag('exec [axeron]: errno=' + errno + ' len=' + stdout.length, 'ok');
-          setTimeout(function () {
-            try { callback(errno, stdout, stderr); } catch (e) { diag('cb err: ' + e, 'err'); }
-          }, 0);
-          return;
-        } catch (e) {
-          diag('Axeron.exec 异常: ' + e, 'err');
-        }
-      }
-
-      if (typeof ksu !== 'undefined' && typeof ksu.exec === 'function') {
-        var cbName = '__ne_cb_' + Date.now() + '_' + Math.floor(Math.random() * 1000000);
-        var done = false;
-        window[cbName] = function (errno, stdout, stderr) {
-          if (done) return;
-          done = true;
-          try { delete window[cbName]; } catch (e) { }
-          diag('exec [ksu]: errno=' + errno + ' len=' + (stdout || '').length, 'ok');
-          try { callback(errno, stdout || '', stderr || ''); } catch (e2) { diag('cb err: ' + e2, 'err'); }
-        };
-        try {
-          ksu.exec(cmd, '{}', cbName);
-          setTimeout(function () {
-            if (!done) {
-              done = true;
-              try { delete window[cbName]; } catch (e) { }
-              diag('ksu.exec 超时', 'err');
-              callback(-2, '', 'exec 超时');
+          if (typeof Axeron !== 'undefined' && typeof Axeron.exec === 'function') {
+            try {
+              var json = Axeron.exec(cmd, '{}');
+              var result = JSON.parse(json);
+              var errno = (result.errno !== undefined) ? result.errno : 0;
+              var stdout = result.stdout || '';
+              var stderr = result.stderr || '';
+              diag('exec [axeron]: errno=' + errno + ' len=' + stdout.length, 'ok');
+              done();
+              try { callback(errno, stdout, stderr); } catch (e) { diag('cb err: ' + e, 'err'); }
+              return;
+            } catch (e) {
+              diag('Axeron.exec 异常: ' + e, 'err');
             }
-          }, 10000);
-          return;
-        } catch (e) {
-          try { delete window[cbName]; } catch (e8) { }
-          diag('ksu.exec 异常: ' + e, 'err');
-        }
-      }
+          }
 
-      diag('exec 失败: API 不可用', 'err');
-      setTimeout(function () { callback(-1, '', 'API 不可用'); }, 0);
+          if (typeof ksu !== 'undefined' && typeof ksu.exec === 'function') {
+            var cbName = '__ne_cb_' + Date.now() + '_' + Math.floor(Math.random() * 1000000);
+            var ksuDone = false;
+            window[cbName] = function (errno, stdout, stderr) {
+              if (ksuDone) return;
+              ksuDone = true;
+              try { delete window[cbName]; } catch (e) { }
+              diag('exec [ksu]: errno=' + errno + ' len=' + (stdout || '').length, 'ok');
+              done();
+              try { callback(errno, stdout || '', stderr || ''); } catch (e2) { diag('cb err: ' + e2, 'err'); }
+            };
+            try {
+              ksu.exec(cmd, '{}', cbName);
+              setTimeout(function () {
+                if (!ksuDone) {
+                  ksuDone = true;
+                  try { delete window[cbName]; } catch (e) { }
+                  diag('ksu.exec 超时', 'err');
+                  done();
+                  callback(-2, '', 'exec 超时');
+                }
+              }, 10000);
+              return;
+            } catch (e) {
+              try { delete window[cbName]; } catch (e8) { }
+              diag('ksu.exec 异常: ' + e, 'err');
+            }
+          }
+
+          diag('exec 失败: API 不可用', 'err');
+          done();
+          callback(-1, '', 'API 不可用');
+        } catch (e) {
+          done();
+          diag('exec 异常: ' + e, 'err');
+          callback(-1, '', 'exec 异常');
+        }
+      });
     }
 
     function initModDir() {
@@ -923,6 +985,13 @@
     }
 
     function runCmd(cmd, name, after) {
+      // 按钮节流防连点
+      var now = Date.now();
+      if (now - lastBtnClick < BTN_THROTTLE_MS) {
+        toast('操作太快，请稍候');
+        return;
+      }
+      lastBtnClick = now;
       toast(name + ' 执行中...');
       diag('runCmd: ' + name + ' | ' + cmd.substring(0, 80));
       exec(cmd, function (errno, stdout, stderr) {
@@ -937,7 +1006,8 @@
           showAlert(name + ' 失败 (errno=' + errno + '):\n\nstdout: ' + (stdout || '') + '\n\nstderr: ' + (stderr || ''));
         }
         if (typeof after === 'function') after();
-        setTimeout(refreshAll, 500);
+        // 延迟刷新，避免阻塞当前操作
+        setTimeout(function () { throttledLoad('refreshAll', 500, doRefreshAll); }, 500);
       });
     }
 
@@ -991,131 +1061,134 @@
     }
 
     // loadNetworkInfo 解析 network_info.sh JSON 并更新各区块
+    // 使用 throttledLoad 防止重复调用堆积
     function loadNetworkInfo() {
       if (!MODDIR || !API_READY) return;
-      exec('sh ' + MODDIR + '/scripts/network_info.sh json', function (errno, stdout) {
-        var data = parseJSON(stdout);
+      throttledLoad('networkInfo', 0, function () {
+        exec('sh ' + MODDIR + '/scripts/network_info.sh json', function (errno, stdout) {
+          var data = parseJSON(stdout);
 
-        if (!data) {
-          document.getElementById('net-badge').textContent = '解析失败';
-          document.getElementById('net-badge').className = 'badge err';
-          diag('network_info json 解析失败: errno=' + errno + ' stdout=' + (stdout || '').substring(0, 200), 'err');
-          return;
-        }
-
-        document.getElementById('net-type').textContent = data.net_type || '-';
-        var badge = document.getElementById('net-badge');
-        // 网络类型映射: 5G/4G/3G/2G/wifi/mobile/dual/none
-        if (data.net_type === 'wifi') { badge.textContent = 'WiFi'; badge.className = 'badge ok'; }
-        else if (data.net_type === '5G') { badge.textContent = '5G'; badge.className = 'badge ok'; }
-        else if (data.net_type === '4G') { badge.textContent = '4G'; badge.className = 'badge ok'; }
-        else if (data.net_type === '3G') { badge.textContent = '3G'; badge.className = 'badge warn'; }
-        else if (data.net_type === '2G') { badge.textContent = '2G'; badge.className = 'badge err'; }
-        else if (data.net_type === 'mobile') { badge.textContent = '移动数据'; badge.className = 'badge ok'; }
-        else if (data.net_type === 'dual') { badge.textContent = '双通道'; badge.className = 'badge ok'; }
-        else { badge.textContent = '无网络'; badge.className = 'badge err'; }
-
-        // 网络制式 (preferred_network_mode) 显示
-        var pnmEl = document.getElementById('mobile-rat');
-        if (pnmEl) {
-          var pnm = data.preferred_network_mode || '-';
-          var pnmDesc = pnm;
-          if (pnm === '11') pnmDesc = 'LTE Only (11)';
-          else if (pnm === '9') pnmDesc = 'LTE/3G (9)';
-          else if (pnm === '23') pnmDesc = 'NR Only (23)';
-          else if (pnm === '26') pnmDesc = 'NR/LTE/GSM/WCDMA (26)';
-          else if (pnm === '27') pnmDesc = 'NR/LTE/CDMA/EvDo/GSM/WCDMA (27)';
-          else if (pnm === '32') pnmDesc = 'NR/LTE/TDSCDMA/GSM/WCDMA (32)';
-          else if (pnm === '33') pnmDesc = '全制式5G (33)';
-          pnmEl.textContent = pnmDesc;
-        }
-
-        var wifi = data.wifi || {};
-        var mobile = data.mobile || {};
-
-        document.getElementById('wifi-ssid').textContent = wifi.ssid || '-';
-        var rssiEl = document.getElementById('wifi-rssi');
-        var rssiVal = wifi.rssi || '?';
-        rssiEl.textContent = rssiVal + ' dBm';
-        rssiEl.className = 'stat-value ' + rssiClass(rssiVal);
-        document.getElementById('wifi-speed').textContent = (wifi.link_speed || '?') + ' Mbps';
-        document.getElementById('wifi-freq').textContent = wifi.frequency || '?';
-
-        document.getElementById('mobile-carrier').textContent = mobile.carrier || '-';
-        // mobile-rat 已被 preferred_network_mode 占用, 这里不再覆盖
-        var lvlEl = document.getElementById('mobile-level');
-        var lvlVal = mobile.level || '?';
-        lvlEl.textContent = lvlVal + '/4';
-        lvlEl.className = 'stat-value ' + levelClass(lvlVal);
-        var dbmEl = document.getElementById('mobile-dbm');
-        var dbmVal = mobile.dbm || '?';
-        dbmEl.textContent = dbmVal + ' dBm';
-        dbmEl.className = 'stat-value ' + dbmClass(dbmVal);
-
-        var pingEl = document.getElementById('net-ping');
-        var pingVal = data.ping_ms || '?';
-        // ping 显示兼容 timeout / 2000
-        if (pingVal === 'timeout') {
-          pingEl.textContent = 'timeout (不通)';
-          pingEl.className = 'stat-value bad';
-        } else if (pingVal === '2000') {
-          pingEl.textContent = '2000 ms (较差)';
-          pingEl.className = 'stat-value warn';
-        } else {
-          pingEl.textContent = pingVal + ' ms';
-          pingEl.className = 'stat-value ' + pingClass(pingVal);
-        }
-
-        // 5G 信号质量字段
-        var nr = data.nr || {};
-        var nrBadge = document.getElementById('nr-badge');
-        var rsrpEl = document.getElementById('nr-rsrp');
-        var rsrqEl = document.getElementById('nr-rsrq');
-        var sinrEl = document.getElementById('nr-sinr');
-        var fake5gEl = document.getElementById('fake5g-status');
-        var fake5gWarn = document.getElementById('fake5g-warn');
-
-        var rsrpVal = nr.rsrp || '无';
-        var sinrVal = nr.sinr || '无';
-        rsrpEl.textContent = rsrpVal;
-        rsrqEl.textContent = nr.rsrq || '无';
-        sinrEl.textContent = sinrVal;
-        rsrpEl.className = 'stat-value ' + rsrpClass(rsrpVal);
-        sinrEl.className = 'stat-value ' + sinrClass(sinrVal);
-
-        // fake_5g 兼容 '1'/'true'/1/true 多种格式
-        var isFake5g = (nr.fake_5g === '1' || nr.fake_5g === 1 || nr.fake_5g === true || nr.fake_5g === 'true');
-        var isFake5gActive = (nr.fake_5g_active === '1' || nr.fake_5g_active === 1 || nr.fake_5g_active === 'true');
-        if (isFake5g || isFake5gActive) {
-          fake5gEl.textContent = '⚠ 假满格';
-          fake5gEl.className = 'stat-value bad';
-          nrBadge.textContent = '假满格';
-          nrBadge.className = 'badge err';
-          fake5gWarn.className = 'fake5g-warn show';
-        } else {
-          fake5gEl.textContent = 'OK 正常';
-          fake5gEl.className = 'stat-value good';
-          nrBadge.textContent = '正常';
-          nrBadge.className = 'badge ok';
-          fake5gWarn.className = 'fake5g-warn';
-        }
-
-        // 同步驱动调度器区块的 5G降级状态 (mon-fake5g)
-        // 解决 loadMonitorStatus 依赖 state 文件导致空白的问题
-        // 即使调度器未运行, 也能从 JSON 的 fake_5g_active 字段获取状态
-        var monFake5gEl = document.getElementById('mon-fake5g');
-        if (monFake5gEl) {
-          if (isFake5gActive) {
-            monFake5gEl.textContent = '⚠ 已降级4G';
-            monFake5gEl.className = 'stat-value small warn';
-          } else if (isFake5g) {
-            monFake5gEl.textContent = '⚠ 检测到假满格';
-            monFake5gEl.className = 'stat-value small warn';
-          } else {
-            monFake5gEl.textContent = '正常';
-            monFake5gEl.className = 'stat-value small good';
+          if (!data) {
+            document.getElementById('net-badge').textContent = '解析失败';
+            document.getElementById('net-badge').className = 'badge err';
+            diag('network_info json 解析失败: errno=' + errno + ' stdout=' + (stdout || '').substring(0, 200), 'err');
+            return;
           }
-        }
+
+          document.getElementById('net-type').textContent = data.net_type || '-';
+          var badge = document.getElementById('net-badge');
+          // 网络类型映射: 5G/4G/3G/2G/wifi/mobile/dual/none
+          if (data.net_type === 'wifi') { badge.textContent = 'WiFi'; badge.className = 'badge ok'; }
+          else if (data.net_type === '5G') { badge.textContent = '5G'; badge.className = 'badge ok'; }
+          else if (data.net_type === '4G') { badge.textContent = '4G'; badge.className = 'badge ok'; }
+          else if (data.net_type === '3G') { badge.textContent = '3G'; badge.className = 'badge warn'; }
+          else if (data.net_type === '2G') { badge.textContent = '2G'; badge.className = 'badge err'; }
+          else if (data.net_type === 'mobile') { badge.textContent = '移动数据'; badge.className = 'badge ok'; }
+          else if (data.net_type === 'dual') { badge.textContent = '双通道'; badge.className = 'badge ok'; }
+          else { badge.textContent = '无网络'; badge.className = 'badge err'; }
+
+          // 网络制式 (preferred_network_mode) 显示
+          var pnmEl = document.getElementById('mobile-rat');
+          if (pnmEl) {
+            var pnm = data.preferred_network_mode || '-';
+            var pnmDesc = pnm;
+            if (pnm === '11') pnmDesc = 'LTE Only (11)';
+            else if (pnm === '9') pnmDesc = 'LTE/3G (9)';
+            else if (pnm === '23') pnmDesc = 'NR Only (23)';
+            else if (pnm === '26') pnmDesc = 'NR/LTE/GSM/WCDMA (26)';
+            else if (pnm === '27') pnmDesc = 'NR/LTE/CDMA/EvDo/GSM/WCDMA (27)';
+            else if (pnm === '32') pnmDesc = 'NR/LTE/TDSCDMA/GSM/WCDMA (32)';
+            else if (pnm === '33') pnmDesc = '全制式5G (33)';
+            pnmEl.textContent = pnmDesc;
+          }
+
+          var wifi = data.wifi || {};
+          var mobile = data.mobile || {};
+
+          document.getElementById('wifi-ssid').textContent = wifi.ssid || '-';
+          var rssiEl = document.getElementById('wifi-rssi');
+          var rssiVal = wifi.rssi || '?';
+          rssiEl.textContent = rssiVal + ' dBm';
+          rssiEl.className = 'stat-value ' + rssiClass(rssiVal);
+          document.getElementById('wifi-speed').textContent = (wifi.link_speed || '?') + ' Mbps';
+          document.getElementById('wifi-freq').textContent = wifi.frequency || '?';
+
+          document.getElementById('mobile-carrier').textContent = mobile.carrier || '-';
+          // mobile-rat 已被 preferred_network_mode 占用, 这里不再覆盖
+          var lvlEl = document.getElementById('mobile-level');
+          var lvlVal = mobile.level || '?';
+          lvlEl.textContent = lvlVal + '/4';
+          lvlEl.className = 'stat-value ' + levelClass(lvlVal);
+          var dbmEl = document.getElementById('mobile-dbm');
+          var dbmVal = mobile.dbm || '?';
+          dbmEl.textContent = dbmVal + ' dBm';
+          dbmEl.className = 'stat-value ' + dbmClass(dbmVal);
+
+          var pingEl = document.getElementById('net-ping');
+          var pingVal = data.ping_ms || '?';
+          // ping 显示兼容 timeout / 2000
+          if (pingVal === 'timeout') {
+            pingEl.textContent = 'timeout (不通)';
+            pingEl.className = 'stat-value bad';
+          } else if (pingVal === '2000') {
+            pingEl.textContent = '2000 ms (较差)';
+            pingEl.className = 'stat-value warn';
+          } else {
+            pingEl.textContent = pingVal + ' ms';
+            pingEl.className = 'stat-value ' + pingClass(pingVal);
+          }
+
+          // 5G 信号质量字段
+          var nr = data.nr || {};
+          var nrBadge = document.getElementById('nr-badge');
+          var rsrpEl = document.getElementById('nr-rsrp');
+          var rsrqEl = document.getElementById('nr-rsrq');
+          var sinrEl = document.getElementById('nr-sinr');
+          var fake5gEl = document.getElementById('fake5g-status');
+          var fake5gWarn = document.getElementById('fake5g-warn');
+
+          var rsrpVal = nr.rsrp || '无';
+          var sinrVal = nr.sinr || '无';
+          rsrpEl.textContent = rsrpVal;
+          rsrqEl.textContent = nr.rsrq || '无';
+          sinrEl.textContent = sinrVal;
+          rsrpEl.className = 'stat-value ' + rsrpClass(rsrpVal);
+          sinrEl.className = 'stat-value ' + sinrClass(sinrVal);
+
+          // fake_5g 兼容 '1'/'true'/1/true 多种格式
+          var isFake5g = (nr.fake_5g === '1' || nr.fake_5g === 1 || nr.fake_5g === true || nr.fake_5g === 'true');
+          var isFake5gActive = (nr.fake_5g_active === '1' || nr.fake_5g_active === 1 || nr.fake_5g_active === 'true');
+          if (isFake5g || isFake5gActive) {
+            fake5gEl.textContent = '⚠ 假满格';
+            fake5gEl.className = 'stat-value bad';
+            nrBadge.textContent = '假满格';
+            nrBadge.className = 'badge err';
+            fake5gWarn.className = 'fake5g-warn show';
+          } else {
+            fake5gEl.textContent = 'OK 正常';
+            fake5gEl.className = 'stat-value good';
+            nrBadge.textContent = '正常';
+            nrBadge.className = 'badge ok';
+            fake5gWarn.className = 'fake5g-warn';
+          }
+
+          // 同步驱动调度器区块的 5G降级状态 (mon-fake5g)
+          // 解决 loadMonitorStatus 依赖 state 文件导致空白的问题
+          // 即使调度器未运行, 也能从 JSON 的 fake_5g_active 字段获取状态
+          var monFake5gEl = document.getElementById('mon-fake5g');
+          if (monFake5gEl) {
+            if (isFake5gActive) {
+              monFake5gEl.textContent = '⚠ 已降级4G';
+              monFake5gEl.className = 'stat-value small warn';
+            } else if (isFake5g) {
+              monFake5gEl.textContent = '⚠ 检测到假满格';
+              monFake5gEl.className = 'stat-value small warn';
+            } else {
+              monFake5gEl.textContent = '正常';
+              monFake5gEl.className = 'stat-value small good';
+            }
+          }
+        });
       });
     }
 
@@ -1155,28 +1228,17 @@
     // 状态文件路径 + 5G 降级状态显示
     function loadMonitorStatus() {
       if (!MODDIR || !API_READY) return;
+      throttledLoad('monitorStatus', 0, function () {
+        var pidFile = '/data/local/tmp/network_enhance_monitor.pid';
+        var stateFile = '/data/local/tmp/network_enhance_monitor.state';
 
-      var pidFile = '/data/local/tmp/network_enhance_monitor.pid';
-      var stateFile = '/data/local/tmp/network_enhance_monitor.state';
+        exec('cat ' + pidFile + ' 2>/dev/null', function (errno, pidStr) {
+          var pid = (pidStr || '').trim();
+          var badge = document.getElementById('monitor-badge');
+          var levelEl = document.getElementById('mon-level');
+          var fake5gEl = document.getElementById('mon-fake5g');
 
-      exec('cat ' + pidFile + ' 2>/dev/null', function (errno, pidStr) {
-        var pid = (pidStr || '').trim();
-        var badge = document.getElementById('monitor-badge');
-        var levelEl = document.getElementById('mon-level');
-        var fake5gEl = document.getElementById('mon-fake5g');
-
-        if (!pid || !/^[0-9]+$/.test(pid)) {
-          badge.textContent = '未运行';
-          badge.className = 'badge err';
-          levelEl.textContent = '-';
-          fake5gEl.textContent = '-';
-          return;
-        }
-
-        exec('kill -0 ' + pid + ' 2>/dev/null && echo ALIVE || echo DEAD', function (e2, out2) {
-          var alive = (out2 || '').indexOf('ALIVE') >= 0;
-
-          if (!alive) {
+          if (!pid || !/^[0-9]+$/.test(pid)) {
             badge.textContent = '未运行';
             badge.className = 'badge err';
             levelEl.textContent = '-';
@@ -1184,43 +1246,55 @@
             return;
           }
 
-          badge.textContent = '运行中';
-          badge.className = 'badge ok';
+          exec('kill -0 ' + pid + ' 2>/dev/null && echo ALIVE || echo DEAD', function (e2, out2) {
+            var alive = (out2 || '').indexOf('ALIVE') >= 0;
 
-          exec('cat ' + stateFile + ' 2>/dev/null', function (e3, stateText) {
-            var text = stateText || '';
-
-            if (text.indexOf('PID=') < 0) {
-              levelEl.textContent = '启动中';
+            if (!alive) {
+              badge.textContent = '未运行';
+              badge.className = 'badge err';
+              levelEl.textContent = '-';
               fake5gEl.textContent = '-';
               return;
             }
 
-            var lines = text.split('\n');
-            var fields = {};
-            for (var i = 0; i < lines.length; i++) {
-              var idx = lines[i].indexOf('=');
-              if (idx > 0) {
-                fields[lines[i].substring(0, idx)] = lines[i].substring(idx + 1);
+            badge.textContent = '运行中';
+            badge.className = 'badge ok';
+
+            exec('cat ' + stateFile + ' 2>/dev/null', function (e3, stateText) {
+              var text = stateText || '';
+
+              if (text.indexOf('PID=') < 0) {
+                levelEl.textContent = '启动中';
+                fake5gEl.textContent = '-';
+                return;
               }
-            }
 
-            if (fields.LEVEL && fields.LEVEL !== 'init') {
-              levelEl.textContent = fields.LEVEL;
-            } else if (fields.LEVEL === 'init') {
-              levelEl.textContent = '初始化中';
-            } else {
-              levelEl.textContent = '运行中';
-            }
+              var lines = text.split('\n');
+              var fields = {};
+              for (var i = 0; i < lines.length; i++) {
+                var idx = lines[i].indexOf('=');
+                if (idx > 0) {
+                  fields[lines[i].substring(0, idx)] = lines[i].substring(idx + 1);
+                }
+              }
 
-            // 5G 降级状态
-            if (fields.FAKE_5G_ACTIVE === '1') {
-              fake5gEl.textContent = '⚠ 已降级4G';
-              fake5gEl.className = 'stat-value small warn';
-            } else {
-              fake5gEl.textContent = '正常';
-              fake5gEl.className = 'stat-value small good';
-            }
+              if (fields.LEVEL && fields.LEVEL !== 'init') {
+                levelEl.textContent = fields.LEVEL;
+              } else if (fields.LEVEL === 'init') {
+                levelEl.textContent = '初始化中';
+              } else {
+                levelEl.textContent = '运行中';
+              }
+
+              // 5G 降级状态
+              if (fields.FAKE_5G_ACTIVE === '1') {
+                fake5gEl.textContent = '⚠ 已降级4G';
+                fake5gEl.className = 'stat-value small warn';
+              } else {
+                fake5gEl.textContent = '正常';
+                fake5gEl.className = 'stat-value small good';
+              }
+            });
           });
         });
       });
@@ -1228,43 +1302,49 @@
 
     function loadDnsStatus() {
       if (!MODDIR || !API_READY) return;
-      exec('sh ' + MODDIR + '/scripts/dns.sh status', function (errno, stdout) {
-        var text = stdout || '';
-        var modeMatch = text.match(/模式:\s*(\S+)/);
-        var specMatch = text.match(/主机:\s*(\S+)/);
-        document.getElementById('dns-mode').textContent = modeMatch ? modeMatch[1] : '-';
-        document.getElementById('dns-spec').textContent = specMatch ? specMatch[1] : '-';
-        var mode = modeMatch ? modeMatch[1] : '-';
-        var badge = document.getElementById('dns-badge');
-        if (mode === 'hostname') { badge.textContent = 'DoT'; badge.className = 'badge ok'; }
-        else if (mode === 'off') { badge.textContent = '关闭'; badge.className = 'badge err'; }
-        else { badge.textContent = mode; badge.className = 'badge'; }
+      throttledLoad('dnsStatus', 500, function () {
+        exec('sh ' + MODDIR + '/scripts/dns.sh status', function (errno, stdout) {
+          var text = stdout || '';
+          var modeMatch = text.match(/模式:\s*(\S+)/);
+          var specMatch = text.match(/主机:\s*(\S+)/);
+          document.getElementById('dns-mode').textContent = modeMatch ? modeMatch[1] : '-';
+          document.getElementById('dns-spec').textContent = specMatch ? specMatch[1] : '-';
+          var mode = modeMatch ? modeMatch[1] : '-';
+          var badge = document.getElementById('dns-badge');
+          if (mode === 'hostname') { badge.textContent = 'DoT'; badge.className = 'badge ok'; }
+          else if (mode === 'off') { badge.textContent = '关闭'; badge.className = 'badge err'; }
+          else { badge.textContent = mode; badge.className = 'badge'; }
+        });
       });
     }
 
     // weaknet 标志路径
     function loadWeaknetStatus() {
       if (!API_READY) return;
-      exec('test -f /data/local/tmp/network_enhance_weaknet_active && echo ACTIVE || echo STANDARD', function (errno, stdout) {
-        var text = (stdout || '').trim();
-        var badge = document.getElementById('weaknet-badge');
-        if (text === 'ACTIVE') { badge.textContent = 'weaknet激活'; badge.className = 'badge warn'; }
-        else { badge.textContent = '标准'; badge.className = 'badge'; }
+      throttledLoad('weaknetStatus', 500, function () {
+        exec('test -f /data/local/tmp/network_enhance_weaknet_active && echo ACTIVE || echo STANDARD', function (errno, stdout) {
+          var text = (stdout || '').trim();
+          var badge = document.getElementById('weaknet-badge');
+          if (text === 'ACTIVE') { badge.textContent = 'weaknet激活'; badge.className = 'badge warn'; }
+          else { badge.textContent = '标准'; badge.className = 'badge'; }
+        });
       });
     }
 
     // 日志路径
     function loadLog() {
       if (!API_READY) return;
-      exec('tail -50 /data/local/tmp/network_enhance.log 2>/dev/null || echo "(日志不存在)"', function (errno, stdout) {
-        var text = (stdout || '').trim() || '(空)';
-        var html = text.split('\n').map(function (line) {
-          var cls = '';
-          if (/\[WARN\]|\[FAIL\]|\[warn\]/.test(line)) cls = 'log-warn';
-          else if (/\[ERR\]|\[ERROR\]/.test(line)) cls = 'log-err';
-          return '<div class="' + cls + '">' + escapeHtml(line) + '</div>';
-        }).join('');
-        document.getElementById('log-view').innerHTML = html;
+      throttledLoad('logLoad', 0, function () {
+        exec('tail -50 /data/local/tmp/network_enhance.log 2>/dev/null || echo "(日志不存在)"', function (errno, stdout) {
+          var text = (stdout || '').trim() || '(空)';
+          var html = text.split('\n').map(function (line) {
+            var cls = '';
+            if (/\[WARN\]|\[FAIL\]|\[warn\]/.test(line)) cls = 'log-warn';
+            else if (/\[ERR\]|\[ERROR\]/.test(line)) cls = 'log-err';
+            return '<div class="' + cls + '">' + escapeHtml(line) + '</div>';
+          }).join('');
+          document.getElementById('log-view').innerHTML = html;
+        });
       });
     }
 
@@ -1286,15 +1366,24 @@
       });
     }
 
-    function refreshAll() {
+    // 实际刷新逻辑（被 throttledLoad 调度）
+    function doRefreshAll() {
       if (!API_READY || !MODDIR) {
-        diag('refreshAll 跳过: API=' + API_READY + ' MODDIR=' + MODDIR, 'err');
+        diag('doRefreshAll 跳过: API=' + API_READY + ' MODDIR=' + MODDIR, 'err');
         return;
       }
       loadNetworkInfo();
       loadMonitorStatus();
       loadDnsStatus();
       loadWeaknetStatus();
+    }
+
+    function refreshAll() {
+      // refreshAll 节流 — 2s 内只生效一次
+      var now = Date.now();
+      if (now - lastRefreshAll < REFRESH_THROTTLE_MS) return;
+      lastRefreshAll = now;
+      throttledLoad('refreshAll', 0, doRefreshAll);
     }
 
     window.addEventListener('DOMContentLoaded', function () {

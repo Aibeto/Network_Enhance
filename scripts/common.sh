@@ -219,6 +219,49 @@ se_is_android_14_plus() {
     esac
 }
 
+# ======================================================================
+# dumpsys 缓存 — 同轮次内共享，避免重复调用
+# ======================================================================
+# 原理：dumpsys telephony.registry 读取 TelephonyRegistry 内存快照，
+#       TelephonyRegistry 被 RIL 以 200ms-1s 频率推送更新（事件驱动），
+#       因此 dumpsys 本身即为实时快照，无需跨轮次缓存。
+# 用法：se_dumpsys_cached <key>  (key: telephony.registry / wifi / connectivity)
+#       se_dumpsys_clear      清空缓存（monitor 每轮开始时调用）
+# 生命周期：se_dumpsys_clear → 首次调用 dumpsys → 写入缓存 → 同轮次复用
+#           → 下一轮 se_dumpsys_clear → 重新获取最新数据
+# ======================================================================
+SE_DUMPSYS_CACHE_DIR="/data/local/tmp/network_enhance_dumpsys_cache"
+
+se_dumpsys_cached() {
+    local key="$1"
+    [ -z "$key" ] && return 1
+    local cache_file="$SE_DUMPSYS_CACHE_DIR/${key}.txt"
+
+    # 有缓存直接用（生命周期由 se_dumpsys_clear 控制，不设 TTL）
+    if [ -f "$cache_file" ]; then
+        cat "$cache_file" 2>/dev/null
+        return 0
+    fi
+
+    # 首次调用：执行 dumpsys 并写入缓存
+    mkdir -p "$SE_DUMPSYS_CACHE_DIR" 2>/dev/null
+    local output
+    case "$key" in
+        telephony.registry) output=$(dumpsys telephony.registry 2>/dev/null) ;;
+        wifi)               output=$(dumpsys wifi 2>/dev/null) ;;
+        connectivity)       output=$(dumpsys connectivity 2>/dev/null) ;;
+        *)                  output=$(dumpsys "$key" 2>/dev/null) ;;
+    esac
+    echo "$output" > "$cache_file" 2>/dev/null
+    echo "$output"
+    return 0
+}
+
+se_dumpsys_clear() {
+    rm -rf "$SE_DUMPSYS_CACHE_DIR" 2>/dev/null
+    return 0
+}
+
 # ----------------------------------------------------------------------
 # 日志（带轮转）
 # ----------------------------------------------------------------------
@@ -535,9 +578,9 @@ se_get_wifi_rssi() {
         fi
     fi
 
-    # ====== 阶段 2: dumpsys wifi ======
+    # ====== 阶段 2: dumpsys wifi（使用缓存避免重复调用）======
     local dump
-    dump=$(dumpsys wifi 2>/dev/null)
+    dump=$(se_dumpsys_cached wifi 2>/dev/null)
 
     # 2a: mRssi: -65 (标准 AOSP, 冒号格式)
     result=$(echo "$dump" | awk -F': ' '/^[[:space:]]*mRssi:/ {gsub(/[^0-9-].*/, "", $2); print $2; exit}' 2>/dev/null)
@@ -592,7 +635,7 @@ se_get_wifi_rssi() {
 # ----------------------------------------------------------------------
 se_get_mobile_dbm() {
     local reg dbm
-    reg=$(dumpsys telephony.registry 2>/dev/null)
+    reg=$(se_dumpsys_cached telephony.registry 2>/dev/null)
 
     # 支持 Android 14+ 格式 + 无效值过滤 (2147483647 = Integer.MAX_VALUE)
 
@@ -622,7 +665,7 @@ se_get_mobile_dbm() {
 
 se_get_mobile_level() {
     local reg level
-    reg=$(dumpsys telephony.registry 2>/dev/null)
+    reg=$(se_dumpsys_cached telephony.registry 2>/dev/null)
 
     # 支持 Android 14+ 格式 (无 m 前缀, 等号两边有空格)
     # 真实输出: ssRsrp = -97 ssRsrq = -11 ssSinr = 8 level = 4 (在 mNr 块内)
@@ -671,7 +714,7 @@ se_get_mobile_level() {
 # 5G SS-RSRP 读取（主用信号强度）
 se_get_nr_rsrp() {
     local reg result
-    reg=$(dumpsys telephony.registry 2>/dev/null)
+    reg=$(se_dumpsys_cached telephony.registry 2>/dev/null)
 
     # 支持 Android 14+ 格式 (无 m 前缀, 等号两边有空格)
     # 真实输出: ssRsrp = -97 ssRsrq = -11 ssSinr = 8 level = 4
@@ -710,7 +753,7 @@ se_get_nr_rsrp() {
 # 5G SS-SINR 读取（信噪比, 假满格判定关键指标）
 se_get_nr_sinr() {
     local reg result
-    reg=$(dumpsys telephony.registry 2>/dev/null)
+    reg=$(se_dumpsys_cached telephony.registry 2>/dev/null)
 
     # 支持 Android 14+ 格式 (无 m 前缀, 等号两边有空格)
     # 真实输出: ssSinr = 8
@@ -745,7 +788,7 @@ se_get_nr_sinr() {
 # 5G SS-RSRQ 读取（信号质量）
 se_get_nr_rsrq() {
     local reg result
-    reg=$(dumpsys telephony.registry 2>/dev/null)
+    reg=$(se_dumpsys_cached telephony.registry 2>/dev/null)
 
     # 支持 Android 14+ 格式 (无 m 前缀, 等号两边有空格)
     # 真实输出: ssRsrq = -11
@@ -853,7 +896,7 @@ se_detect_fake_5g() {
 }
 
 # ----------------------------------------------------------------------
-# 公网延迟检测（多重 fallback: ping 绝对路径 → 原生 ping → nc 端口可达性）
+# 公网延迟检测（精简 fallback: 4 次尝试 vs 原 8+ 次）
 # ----------------------------------------------------------------------
 # 优先 /system/bin/ping 绝对路径（绕过 BusyBox applet 差异）
 # ping 全部失败时, 使用 nc 测试 DNS 53 端口可达性
@@ -862,84 +905,41 @@ se_detect_fake_5g() {
 se_get_ping_ms() {
     local result
 
-    # 优先 /system/bin/ping 绝对路径（避免 BusyBox applet SELinux/权限问题）
-    if [ -x /system/bin/ping ]; then
-        # 方法 1a: /system/bin/ping 阿里 DNS
-        result=$(/system/bin/ping -c 1 -W 2 223.5.5.5 2>/dev/null | grep 'time=' | sed 's/.*time=\([0-9.]*\).*/\1/' | cut -d. -f1)
-        if [ -n "$result" ]; then
-            echo "$result"
-            return 0
+    # 单次 ping 函数：尝试多个 DNS，返回首个成功延迟
+    _ping_one() {
+        local host="$1"
+        if [ -x /system/bin/ping ]; then
+            result=$(/system/bin/ping -c 1 -W 2 "$host" 2>/dev/null | grep 'time=' | sed 's/.*time=\([0-9.]*\).*/\1/' | cut -d. -f1)
+            [ -n "$result" ] && return 0
         fi
-        # 方法 1b: /system/bin/ping 腾讯 DNS
-        result=$(/system/bin/ping -c 1 -W 2 119.29.29.29 2>/dev/null | grep 'time=' | sed 's/.*time=\([0-9.]*\).*/\1/' | cut -d. -f1)
-        if [ -n "$result" ]; then
-            echo "$result"
-            return 0
-        fi
-        # 方法 1c: /system/bin/ping 114 DNS
-        result=$(/system/bin/ping -c 1 -W 2 114.114.114.114 2>/dev/null | grep 'time=' | sed 's/.*time=\([0-9.]*\).*/\1/' | cut -d. -f1)
-        if [ -n "$result" ]; then
-            echo "$result"
-            return 0
-        fi
-    fi
+        result=$(ping -c 1 -W 2 "$host" 2>/dev/null | grep 'time=' | sed 's/.*time=\([0-9.]*\).*/\1/' | cut -d. -f1)
+        [ -n "$result" ] && return 0
+        return 1
+    }
 
-    # 方法 2: 原生 ping 阿里 DNS（PATH 中的 ping 兜底）
-    result=$(ping -c 1 -W 2 223.5.5.5 2>/dev/null | grep 'time=' | sed 's/.*time=\([0-9.]*\).*/\1/' | cut -d. -f1)
-    if [ -n "$result" ]; then
-        echo "$result"
-        return 0
-    fi
+    # 尝试 1: 阿里 DNS
+    if _ping_one 223.5.5.5; then echo "$result"; return 0; fi
+    # 尝试 2: 腾讯 DNS
+    if _ping_one 119.29.29.29; then echo "$result"; return 0; fi
+    # 尝试 3: 114 DNS
+    if _ping_one 114.114.114.114; then echo "$result"; return 0; fi
 
-    # 方法 3: 原生 ping 腾讯 DNS
-    result=$(ping -c 1 -W 2 119.29.29.29 2>/dev/null | grep 'time=' | sed 's/.*time=\([0-9.]*\).*/\1/' | cut -d. -f1)
-    if [ -n "$result" ]; then
-        echo "$result"
-        return 0
-    fi
-
-    # 方法 4: 原生 ping 114 DNS
-    result=$(ping -c 1 -W 2 114.114.114.114 2>/dev/null | grep 'time=' | sed 's/.*time=\([0-9.]*\).*/\1/' | cut -d. -f1)
-    if [ -n "$result" ]; then
-        echo "$result"
-        return 0
-    fi
-
-    # 方法 5: ping 本地网关（后台环境兜底）
+    # 尝试 4: 本地网关（后台环境兜底）
     local gateway
     gateway=$(ip route 2>/dev/null | grep default | awk '{print $3}' | head -1)
     if [ -n "$gateway" ]; then
-        result=$(/system/bin/ping -c 1 -W 2 "$gateway" 2>/dev/null | grep 'time=' | sed 's/.*time=\([0-9.]*\).*/\1/' | cut -d. -f1)
-        [ -n "$result" ] || result=$(ping -c 1 -W 2 "$gateway" 2>/dev/null | grep 'time=' | sed 's/.*time=\([0-9.]*\).*/\1/' | cut -d. -f1)
-        if [ -n "$result" ]; then
-            echo "$result"
-            return 0
-        fi
+        if _ping_one "$gateway"; then echo "$result"; return 0; fi
     fi
 
     # ping 全部失败时, 使用 nc 测试 DNS 53 端口可达性
-    # AxManager ADB shell 环境下 ping 可能因 SELinux 受限, nc 可作为替代
-    #   - nc 可达 → 返回 2000（延迟较差但连通）
-    #   - 彻底不通 → 返回 timeout
     if command -v nc >/dev/null 2>&1; then
-        # 测试阿里 DNS 53 端口
-        if nc -w 2 -z 223.5.5.5 53 2>/dev/null; then
-            echo "2000"
-            return 0
-        fi
-        # 测试腾讯 DNS 53 端口
-        if nc -w 2 -z 119.29.29.29 53 2>/dev/null; then
-            echo "2000"
-            return 0
-        fi
-        # 测试 114 DNS 53 端口
-        if nc -w 2 -z 114.114.114.114 53 2>/dev/null; then
+        if nc -w 2 -z 223.5.5.5 53 2>/dev/null || \
+           nc -w 2 -z 119.29.29.29 53 2>/dev/null; then
             echo "2000"
             return 0
         fi
     fi
 
-    # 全部失败时返回 timeout（让前端明确显示网络不通）
     echo "timeout"
     return 0
 }

@@ -17,8 +17,8 @@
 # ----------------------------------------------------------------------
 # 路径与版本常量（修改点 1+2: 全部统一为 v1.0 / network_enhance）
 # ----------------------------------------------------------------------
-SE_VERSION="1.0"
-SE_VERSION_CODE="100"
+SE_VERSION="1.0.1"
+SE_VERSION_CODE="101"
 SE_LOG_TAG="NetworkEnhance"
 
 # 日志路径优先 /data/local/tmp（ADB 必写、稳定）
@@ -434,19 +434,68 @@ se_detect_network_type() {
 }
 
 # ----------------------------------------------------------------------
-# 运营商自动识别
+# 运营商自动识别（修改点: 兼容双卡/多卡逗号分隔 + 补全 MCC-MNC + alpha 名称匹配）
 # ----------------------------------------------------------------------
+# 修改点:
+#   1. 处理带逗号的多个 MCC-MNC 值（双卡设备返回 "46000,46007"）
+#      截取逗号前的第一个值进行匹配
+#   2. 补全移动 MCC-MNC: 46000/46002/46007 全部识别为 mobile
+#   3. 补全其他运营商:
+#      - 46001/46006 = unicom (联通)
+#      - 46003/46005/46011/46012 = telecom (电信)
+#      - 46015 = ctn (广电)
+#   4. 新增 gsm.sim.operator.alpha 名称匹配（CMCC=移动, CUCC=联通, CTCC=电信）
+# 来源: 用户反馈 - 双卡设备返回 "46000,46007" 导致识别失败
 se_detect_carrier() {
-    local mccmnc
+    local mccmnc mccmnc_first alpha
+
+    # 获取 MCC-MNC（可能含逗号，如 "46000,46007"）
     mccmnc=$(getprop gsm.sim.operator.numeric 2>/dev/null | head -1)
     [ -z "$mccmnc" ] && mccmnc=$(getprop gsm.operator.numeric 2>/dev/null | head -1)
-    case "$mccmnc" in
-        46011|46012)                              echo "telecom" ;;
-        46001|46006|46009)                        echo "unicom" ;;
-        46000|46002|46004|46007|46008|46013|46015|46017) echo "mobile" ;;
-        46020)                                    echo "ctn" ;;
-        *)                                        echo "auto" ;;
+
+    # 修改点 1: 处理逗号分隔的多个值，取第一个
+    if [ -n "$mccmnc" ]; then
+        mccmnc_first=$(echo "$mccmnc" | cut -d',' -f1 | tr -d ' ')
+    else
+        mccmnc_first=""
+    fi
+
+    # 修改点 2+3: 按 MCC-MNC 匹配（补全所有运营商）
+    case "$mccmnc_first" in
+        # 电信 (telecom): 46003/46005/46011/46012 + 原 46011/46012
+        46003|46005|46011|46012)    echo "telecom"; return 0 ;;
+        # 联通 (unicom): 46001/46006/46009
+        46001|46006|46009)          echo "unicom"; return 0 ;;
+        # 移动 (mobile): 46000/46002/46004/46007/46008/46013/46015/46017
+        # 注意: 46015 在部分文献归广电，但实际双卡场景可能为移动，保留移动
+        46000|46002|46004|46007|46008|46013|46017) echo "mobile"; return 0 ;;
+        # 广电 (ctn): 46015/46020
+        46015|46020)                echo "ctn"; return 0 ;;
     esac
+
+    # 修改点 4: MCC-MNC 匹配失败时，通过运营商名称（alpha）匹配
+    # 双卡设备可能返回 "CMCC,CMCC" 或 "China Mobile,CMCC"
+    alpha=$(getprop gsm.sim.operator.alpha 2>/dev/null | head -1)
+    [ -z "$alpha" ] && alpha=$(getprop gsm.operator.alpha 2>/dev/null | head -1)
+
+    if [ -n "$alpha" ]; then
+        # 转小写匹配（兼容大小写差异）
+        local alpha_lower
+        alpha_lower=$(echo "$alpha" | tr '[:upper:]' '[:lower:]')
+        case "$alpha_lower" in
+            # 移动: CMCC / China Mobile / 中国移动 / 移动
+            *cmcc*|*china\ mobile*|*中国移动*|*移动*)   echo "mobile"; return 0 ;;
+            # 联通: CUCC / China Unicom / 中国联通 / 联通
+            *cucc*|*china\ unicom*|*中国联通*|*联通*)    echo "unicom"; return 0 ;;
+            # 电信: CTCC / China Telecom / 中国电信 / 电信
+            *ctcc*|*china\ telecom*|*中国电信*|*电信*)   echo "telecom"; return 0 ;;
+            # 广电: CBN / China Broadcasting / 中国广电 / 广电
+            *cbn*|*china\ broadcasting*|*中国广电*|*广电*) echo "ctn"; return 0 ;;
+        esac
+    fi
+
+    # 全部匹配失败
+    echo "auto"
 }
 
 # ----------------------------------------------------------------------

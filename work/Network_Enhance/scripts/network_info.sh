@@ -115,41 +115,39 @@ get_wifi_rssi() {
 # 来源: v1.1.3 用户反馈 - 旧正则匹配到 Tx Link speed / score 等字段中的数字碎片
 # 真实输出: "Link speed: 1297Mbps", "Tx Link speed: 1297Mbps", "Max Supported Tx Link speed: 2401Mbps"
 # 修复策略:
-#   1. 优先精确匹配 "Link speed: 1297" (排除 Tx/Rx/Max 前缀)
+#   1. 优先精确匹配 "Link speed: 1297Mbps" (排除 Tx/Rx/Max 前缀)
 #   2. 降级匹配 mLinkSpeed= 等旧格式
+# v1.1.4 修复: 严禁先匹配整行再 grep 数字(会抓到 MAC 地址碎片)
+#   必须先限定包含 Mbps 的精确片段, 再提取数字
 get_wifi_link_speed() {
     local speed=""
 
-    # 阶段 1: dumpsys wifi 精确匹配 "Link speed: 1297Mbps"
+    # 阶段 1: cmd wifi status 精确截取 "Link speed: 1297Mbps"
+    # 先用 grep -oE 限定完整片段(含 Mbps), 再提取纯数字
+    speed=$(cmd wifi status 2>/dev/null | grep -oE 'Link speed: [0-9]+Mbps' 2>/dev/null | head -1 | grep -oE '[0-9]+')
+    [ -n "$speed" ] && { echo "$speed"; return 0; }
+
+    # 阶段 2: dumpsys wifi 精确截取 "Link speed: 1297Mbps"
     local dump
     dump=$(dumpsys wifi 2>/dev/null)
-
-    # 1a: "Link speed: 1297Mbps" (排除 Tx/Rx/Max 前缀, 用 grep -P 负向先行或 sed 过滤)
-    # 只匹配行首或空格后紧跟 "Link speed:" (前面没有 Tx/Rx/Max)
-    speed=$(echo "$dump" | grep -E '(^|[^a-zA-Z])Link speed: [0-9]+' 2>/dev/null | grep -v 'Tx Link\|Rx Link\|Max' | head -1 | grep -oE '[0-9]+' | head -1)
+    speed=$(echo "$dump" | grep -oE 'Link speed: [0-9]+Mbps' 2>/dev/null | head -1 | grep -oE '[0-9]+')
     [ -n "$speed" ] && { echo "$speed"; return 0; }
 
-    # 1b: "Link speed: 1297" (无 Mbps 后缀)
-    speed=$(echo "$dump" | grep -E '(^|[^a-zA-Z])Link speed: [0-9]+' 2>/dev/null | grep -v 'Tx Link\|Rx Link\|Max' | head -1 | grep -oE '[0-9]+' | head -1)
+    # 阶段 3: 无 Mbps 后缀的 "Link speed: 1297"
+    speed=$(echo "$dump" | grep -oE 'Link speed: [0-9]+' 2>/dev/null | head -1 | grep -oE '[0-9]+')
     [ -n "$speed" ] && { echo "$speed"; return 0; }
 
-    # 阶段 2: cmd wifi status 中精确匹配
-    if se_is_android_14_plus; then
-        speed=$(cmd wifi status 2>/dev/null | grep -E '(^|[^a-zA-Z])Link speed: [0-9]+' 2>/dev/null | grep -v 'Tx Link\|Rx Link\|Max' | head -1 | grep -oE '[0-9]+' | head -1)
-        [ -n "$speed" ] && { echo "$speed"; return 0; }
-    fi
-
-    # 阶段 3: 旧 AOSP 格式降级
-    # 3a: mLinkSpeed: 433 (旧 AOSP)
-    speed=$(echo "$dump" | grep 'mLinkSpeed' 2>/dev/null | head -1 | grep -oE '[0-9]+' 2>/dev/null | head -1)
+    # 阶段 4: 旧 AOSP 格式降级
+    # 4a: mLinkSpeed: 433 (旧 AOSP)
+    speed=$(echo "$dump" | grep -oE 'mLinkSpeed: [0-9]+' 2>/dev/null | head -1 | grep -oE '[0-9]+')
     [ -n "$speed" ] && { echo "$speed"; return 0; }
 
-    # 3b: linkSpeed=433
-    speed=$(echo "$dump" | grep -oE 'linkSpeed=[0-9]+' 2>/dev/null | head -1 | cut -d= -f2)
+    # 4b: linkSpeed=433
+    speed=$(echo "$dump" | grep -oE 'linkSpeed=[0-9]+' 2>/dev/null | head -1 | grep -oE '[0-9]+')
     [ -n "$speed" ] && { echo "$speed"; return 0; }
 
-    # 阶段 4: 兜底 - Tx Link speed (虽然有 Tx 前缀, 但聊胜于无)
-    speed=$(echo "$dump" | grep -oE 'Tx Link speed: [0-9]+' 2>/dev/null | head -1 | grep -oE '[0-9]+' | head -1)
+    # 阶段 5: 兜底 - Tx Link speed (有 Tx 前缀但聊胜于无)
+    speed=$(echo "$dump" | grep -oE 'Tx Link speed: [0-9]+Mbps' 2>/dev/null | head -1 | grep -oE '[0-9]+')
     [ -n "$speed" ] && { echo "$speed"; return 0; }
 
     echo "?"

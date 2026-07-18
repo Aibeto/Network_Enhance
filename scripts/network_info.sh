@@ -110,66 +110,65 @@ get_wifi_rssi() {
 # ----------------------------------------------------------------------
 # 修改点 1: WiFi 链路速率读取（cmd wifi status 优先 + dumpsys fallback）
 # ----------------------------------------------------------------------
-# 来源: S1 v6.3.1 + S3 cmd wifi status
+# 修改点: WiFi 链路速率读取（v1.1.3 精确锁定 "Link speed:" 字段）
+# ----------------------------------------------------------------------
+# 来源: v1.1.3 用户反馈 - 旧正则匹配到 Tx Link speed / score 等字段中的数字碎片
+# 真实输出: "Link speed: 1297Mbps", "Tx Link speed: 1297Mbps", "Max Supported Tx Link speed: 2401Mbps"
+# 修复策略:
+#   1. 优先精确匹配 "Link speed: 1297Mbps" (排除 Tx/Rx/Max 前缀)
+#   2. 降级匹配 mLinkSpeed= 等旧格式
+# v1.1.4 修复: 严禁先匹配整行再 grep 数字(会抓到 MAC 地址碎片)
+#   必须先限定包含 Mbps 的精确片段, 再提取数字
 get_wifi_link_speed() {
     local speed=""
 
-    # 优先 cmd wifi status (S3 推荐)
-    if se_is_android_14_plus; then
-        speed=$(cmd wifi status 2>/dev/null | grep -i 'speed' 2>/dev/null | grep -oE '[0-9]+' | head -1)
-        [ -n "$speed" ] && { echo "$speed"; return 0; }
-    fi
+    # 阶段 1: cmd wifi status 精确截取 "Link speed: 1297Mbps"
+    # 先用 grep -oE 限定完整片段(含 Mbps), 再提取纯数字
+    speed=$(cmd wifi status 2>/dev/null | grep -oE 'Link speed: [0-9]+Mbps' 2>/dev/null | head -1 | grep -oE '[0-9]+')
+    [ -n "$speed" ] && { echo "$speed"; return 0; }
 
-    # Fallback: dumpsys wifi 6 种模式 (S1 v6.3.1)
+    # 阶段 2: dumpsys wifi 精确截取 "Link speed: 1297Mbps"
     local dump
     dump=$(dumpsys wifi 2>/dev/null)
-
-    # 模式 1: mLinkSpeed: 433 (旧 AOSP)
-    speed=$(echo "$dump" | grep 'mLinkSpeed' 2>/dev/null | head -1 | grep -oE '[0-9]+' 2>/dev/null | head -1)
+    speed=$(echo "$dump" | grep -oE 'Link speed: [0-9]+Mbps' 2>/dev/null | head -1 | grep -oE '[0-9]+')
     [ -n "$speed" ] && { echo "$speed"; return 0; }
 
-    # 模式 2: linkSpeed=433
-    speed=$(echo "$dump" | grep -oE 'linkSpeed=[0-9]+' 2>/dev/null | head -1 | cut -d= -f2)
+    # 阶段 3: 无 Mbps 后缀的 "Link speed: 1297"
+    speed=$(echo "$dump" | grep -oE 'Link speed: [0-9]+' 2>/dev/null | head -1 | grep -oE '[0-9]+')
     [ -n "$speed" ] && { echo "$speed"; return 0; }
 
-    # 模式 3: Link speed: 1297Mbps (Android 14/15 真实格式)
-    speed=$(echo "$dump" | grep -oE 'Link speed: [0-9]+Mbps' 2>/dev/null | head -1 | grep -oE '[0-9]+' | head -1)
+    # 阶段 4: 旧 AOSP 格式降级
+    # 4a: mLinkSpeed: 433 (旧 AOSP)
+    speed=$(echo "$dump" | grep -oE 'mLinkSpeed: [0-9]+' 2>/dev/null | head -1 | grep -oE '[0-9]+')
     [ -n "$speed" ] && { echo "$speed"; return 0; }
 
-    # 模式 4: Link speed: 1297 (无 Mbps 后缀)
-    speed=$(echo "$dump" | grep -oE 'Link speed: [0-9]+' 2>/dev/null | head -1 | grep -oE '[0-9]+' | head -1)
+    # 4b: linkSpeed=433
+    speed=$(echo "$dump" | grep -oE 'linkSpeed=[0-9]+' 2>/dev/null | head -1 | grep -oE '[0-9]+')
     [ -n "$speed" ] && { echo "$speed"; return 0; }
 
-    # 模式 5: Tx Link speed: 1297Mbps
-    speed=$(echo "$dump" | grep -oE 'Tx Link speed: [0-9]+Mbps' 2>/dev/null | head -1 | grep -oE '[0-9]+' | head -1)
-    [ -n "$speed" ] && { echo "$speed"; return 0; }
-
-    # 模式 6: cmd wifi status (兜底)
-    speed=$(cmd wifi status 2>/dev/null | grep -i 'speed' 2>/dev/null | grep -oE '[0-9]+' | head -1)
+    # 阶段 5: 兜底 - Tx Link speed (有 Tx 前缀但聊胜于无)
+    speed=$(echo "$dump" | grep -oE 'Tx Link speed: [0-9]+Mbps' 2>/dev/null | head -1 | grep -oE '[0-9]+')
     [ -n "$speed" ] && { echo "$speed"; return 0; }
 
     echo "?"
 }
 
 # ----------------------------------------------------------------------
-# 修改点 1: WiFi 频段读取（v1.1.1 重构: 提取频率数值统一判定, 不依赖 "5G" 字样）
+# 修改点: WiFi 频段读取（v1.1.3 精确锁定 "Frequency:" 字段）
 # ----------------------------------------------------------------------
-# 来源: S1 v6.3.1 + S3 cmd wifi status + v1.1.1 用户反馈
-#   问题: 部分 ROM 的 cmd wifi status / dumpsys wifi 输出含 "5G" 字样但频段误判为 2.4G
-#         原因: 原逻辑提取的 frequency 数值可能是 RSSI 等级或其他字段
-#   修复:
-#     1. 提取频率数值后统一判定: >4000 = 5G, 2000-3000 = 2.4G
-#     2. 只匹配 frequency 关键字后的 4 位数 (频率范围 2412-5825)
-#     3. 过滤掉 0-1000 的异常值 (可能是等级或信号强度)
+# 来源: v1.1.1 用户反馈 + v1.1.3 用户反馈
+# 真实输出: "Frequency: 5180MHz"
+# 修复策略:
+#   1. 精确匹配 "Frequency:" 后的 4 位数 (不匹配 mFrequency 旧格式也兼容)
+#   2. 调用 _judge_freq() 判定 >4000=5G, 2000-3000=2.4G
+#   3. 不匹配 Net ID 等无关数字
 get_wifi_frequency() {
     local freq=""
+    local result=""
 
-    # 修改点: 提取频率值的辅助函数
-    # 判定: >4000 = 5G, 2000-3000 = 2.4G, 其他返回空
     _judge_freq() {
         local f="$1"
         [ -z "$f" ] && return 1
-        # 必须是 4 位数 (频率范围 2412-5825)
         case "$f" in
             [0-9][0-9][0-9][0-9]) ;;
             *) return 1 ;;
@@ -182,46 +181,39 @@ get_wifi_frequency() {
         return 1
     }
 
-    # 优先 cmd wifi status (S3 推荐)
-    if se_is_android_14_plus; then
-        # 模式 1a: frequency: 5180 (冒号格式)
-        freq=$(cmd wifi status 2>/dev/null | grep -iE 'frequency' | grep -oE '[0-9]{4}' | head -1)
-        local result
-        result=$(_judge_freq "$freq")
-        [ -n "$result" ] && { echo "$result"; return 0; }
-    fi
-
-    # Fallback: dumpsys wifi 多种模式 (S1 v6.3.1)
     local dump
     dump=$(dumpsys wifi 2>/dev/null)
 
-    # 模式 2: mFrequency: 5180 或 mFrequency=5180 (旧 AOSP)
-    freq=$(echo "$dump" | grep -oE 'mFrequency[=:]\s*[0-9]{4}' 2>/dev/null | head -1 | grep -oE '[0-9]{4}')
-    result=$(_judge_freq "$freq")
-    [ -n "$result" ] && { echo "$result"; return 0; }
-
-    # 模式 3: frequency=5180 (小写等号)
-    freq=$(echo "$dump" | grep -oE 'frequency=[0-9]{4}' 2>/dev/null | head -1 | grep -oE '[0-9]{4}')
-    result=$(_judge_freq "$freq")
-    [ -n "$result" ] && { echo "$result"; return 0; }
-
-    # 模式 4: Frequency: 5180MHz (Android 14/15 真实格式)
+    # 阶段 1: dumpsys wifi 精确匹配 "Frequency: 5180MHz" (v1.1.3 用户真实格式)
     freq=$(echo "$dump" | grep -oE 'Frequency:\s*[0-9]{4}MHz' 2>/dev/null | head -1 | grep -oE '[0-9]{4}')
     result=$(_judge_freq "$freq")
     [ -n "$result" ] && { echo "$result"; return 0; }
 
-    # 模式 5: Frequency: 5180 (无 MHz 后缀)
+    # 阶段 1b: "Frequency: 5180" (无 MHz 后缀)
     freq=$(echo "$dump" | grep -oE 'Frequency:\s*[0-9]{4}' 2>/dev/null | head -1 | grep -oE '[0-9]{4}')
     result=$(_judge_freq "$freq")
     [ -n "$result" ] && { echo "$result"; return 0; }
 
-    # 模式 6: WifiInfo 行内 frequency=5180
-    freq=$(echo "$dump" | grep 'WifiInfo' 2>/dev/null | grep -oE 'frequency=[0-9]{4}' 2>/dev/null | head -1 | grep -oE '[0-9]{4}')
+    # 阶段 2: cmd wifi status 匹配 frequency
+    if se_is_android_14_plus; then
+        freq=$(cmd wifi status 2>/dev/null | grep -iE 'frequency' | grep -oE '[0-9]{4}' | head -1)
+        result=$(_judge_freq "$freq")
+        [ -n "$result" ] && { echo "$result"; return 0; }
+    fi
+
+    # 阶段 3: 旧 AOSP 格式降级
+    # 3a: mFrequency: 5180 或 mFrequency=5180
+    freq=$(echo "$dump" | grep -oE 'mFrequency[=:]\s*[0-9]{4}' 2>/dev/null | head -1 | grep -oE '[0-9]{4}')
     result=$(_judge_freq "$freq")
     [ -n "$result" ] && { echo "$result"; return 0; }
 
-    # 模式 7: cmd wifi status 兜底 (任意 4 位数)
-    freq=$(cmd wifi status 2>/dev/null | grep -iE 'freq' | grep -oE '[0-9]{4}' | head -1)
+    # 3b: frequency=5180 (小写等号)
+    freq=$(echo "$dump" | grep -oE 'frequency=[0-9]{4}' 2>/dev/null | head -1 | grep -oE '[0-9]{4}')
+    result=$(_judge_freq "$freq")
+    [ -n "$result" ] && { echo "$result"; return 0; }
+
+    # 阶段 4: WifiInfo 行内 frequency=5180
+    freq=$(echo "$dump" | grep 'WifiInfo' 2>/dev/null | grep -oE 'frequency=[0-9]{4}' 2>/dev/null | head -1 | grep -oE '[0-9]{4}')
     result=$(_judge_freq "$freq")
     [ -n "$result" ] && { echo "$result"; return 0; }
 

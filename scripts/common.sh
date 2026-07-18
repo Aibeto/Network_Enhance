@@ -667,11 +667,18 @@ se_get_mobile_level() {
     local reg level
     reg=$(se_dumpsys_cached telephony.registry 2>/dev/null)
 
-    # 优先采用父级 mSignalStrength.mLevel（系统信号栏显示值，0-4）
-    # 不再优先取 mNr 子块 level，因为 NR 子信号等级与整体 mLevel 可能不一致，
-    # 会造成"信号越强等级越低"的视觉错乱
+    # 支持 Android 14+ 格式 (无 m 前缀, 等号两边有空格)
+    # 真实输出: ssRsrp = -97 ssRsrq = -11 ssSinr = 8 level = 4 (在 mNr 块内)
+    # 模式 0: mNr 块内的 level = 4 (Android 14+ 5G 等级, 优先)
+    #   通过 sed 提取 mNr 块到下一个 m 开头字段之间, 再 grep level
+    local nr_block
+    nr_block=$(echo "$reg" | sed -n '/mNr/,/^  m[A-Z]/p' 2>/dev/null)
+    if [ -n "$nr_block" ]; then
+        level=$(echo "$nr_block" | grep -oE 'level = [0-9]+' 2>/dev/null | head -1 | sed 's/.*= *//')
+        [ -n "$level" ] && [ "$level" != "2147483647" ] && { echo "$level"; return 0; }
+    fi
 
-    # 模式 1: mLevel=3 (旧 AOSP 格式，父级 mSignalStrength 块第一个 mLevel=)
+    # 模式 1: mLevel=3 (旧 AOSP 格式)
     level=$(echo "$reg" | grep -oE 'mLevel=[0-9]+' 2>/dev/null | head -1 | cut -d= -f2)
     [ -n "$level" ] && [ "$level" != "2147483647" ] && { echo "$level"; return 0; }
 
@@ -679,12 +686,11 @@ se_get_mobile_level() {
     level=$(echo "$reg" | grep -oE 'mLevel: [0-9]+' 2>/dev/null | head -1 | awk '{print $2}')
     [ -n "$level" ] && [ "$level" != "2147483647" ] && { echo "$level"; return 0; }
 
-    # 模式 2: level = 3 (Android 14+ 父级 mSignalStrength 块第一个 level =)
-    # 注意: level = N 在父级和子块都可能出现，head -1 取第一个通常是父级
+    # 模式 2: level = 3 (Android 14+ 全局 level, 可能是 4G/3G)
     level=$(echo "$reg" | grep -oE 'level = [0-9]+' 2>/dev/null | head -1 | sed 's/.*= *//')
     [ -n "$level" ] && [ "$level" != "2147483647" ] && { echo "$level"; return 0; }
 
-    # 模式 3: grep -A 20 mSignalStrength 后找 mLevel
+    # 模式 3: grep -A 20 mSignalStrength
     level=$(echo "$reg" | grep -A 20 'mSignalStrength' 2>/dev/null | grep -E 'mLevel|level =' | head -1 | grep -oE '[0-9]+' | head -1)
     [ -n "$level" ] && [ "$level" != "2147483647" ] && { echo "$level"; return 0; }
 

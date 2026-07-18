@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>网络增强 Network_Enhance</title>
   <style>
     * {
@@ -24,6 +24,7 @@
 
     body {
       padding: 12px;
+      padding-top: max(12px, env(safe-area-inset-top, 0px));
       padding-bottom: 80px;
       max-width: 600px;
       margin: 0 auto
@@ -362,6 +363,48 @@
     .fake5g-warn.show {
       display: block
     }
+
+    /* 异步执行浮窗指示器 — 固定定位，不阻塞页面滚动 */
+    .exec-indicator {
+      position: fixed;
+      left: 50%;
+      bottom: 80px;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(30, 38, 56, 0.95);
+      color: #7ab8ff;
+      padding: 8px 14px;
+      border-radius: 20px;
+      border: 1px solid #2a3458;
+      font-size: 12px;
+      font-weight: 500;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 999;
+      transition: opacity .2s;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, .4)
+    }
+
+    .exec-indicator.show {
+      opacity: 1
+    }
+
+    .exec-spinner {
+      width: 14px;
+      height: 14px;
+      border: 2px solid #2a3458;
+      border-top-color: #7ab8ff;
+      border-radius: 50%;
+      animation: execSpin .6s linear infinite
+    }
+
+    @keyframes execSpin {
+      to {
+        transform: rotate(360deg)
+      }
+    }
   </style>
 </head>
 
@@ -592,6 +635,8 @@
   </details>
 
   <div class="footer">网络增强 v1.1.4 · MIT License · AxManager 免Root · 5G假满格自救版</div>
+  <div class="exec-indicator" id="exec-indicator"><span class="exec-spinner"></span><span
+      id="exec-indicator-text">执行中</span></div>
   <div class="toast" id="toast"></div>
   <div class="alert-box" id="alert-box"><span class="close" onclick="hideAlert()">×</span>
     <div id="alert-content"></div>
@@ -620,6 +665,8 @@
     var pendingLoadTimers = {};    // key → 延迟执行的 timer
     var lastBtnClick = 0;          // 按钮节流时间戳
     var lastRefreshAll = 0;        // refreshAll 节流时间戳
+    var cmdRunning = false;        // 异步执行互斥锁：true 表示有操作正在执行
+    var cmdRunningName = '';       // 当前正在执行的操作名
     var BTN_THROTTLE_MS = 500;
     var REFRESH_THROTTLE_MS = 2000;
 
@@ -953,11 +1000,25 @@
       });
     }
 
-    function toast(msg) {
+    function showExecIndicator(name) {
+      var el = document.getElementById('exec-indicator');
+      var txt = document.getElementById('exec-indicator-text');
+      if (txt) txt.textContent = (name || '执行中');
+      if (el) el.className = 'exec-indicator show';
+    }
+
+    function hideExecIndicator() {
+      var el = document.getElementById('exec-indicator');
+      if (el) el.className = 'exec-indicator';
+    }
+
+    function toast(msg, duration) {
       var el = document.getElementById('toast');
       el.textContent = msg;
       el.className = 'toast show';
-      setTimeout(function () { el.className = 'toast'; }, 2500);
+      // 清除之前的定时器，避免旧 toast 提前关闭新 toast
+      if (toast._timer) { clearTimeout(toast._timer); toast._timer = null; }
+      toast._timer = setTimeout(function () { el.className = 'toast'; toast._timer = null; }, duration || 3000);
     }
 
     function showAlert(content) {
@@ -970,6 +1031,11 @@
     }
 
     function runCmd(cmd, name, after) {
+      // 互斥锁：不支持同时执行两个操作
+      if (cmdRunning) {
+        toast('正在执行 ' + cmdRunningName + '，请等待');
+        return;
+      }
       // 按钮节流防连点
       var now = Date.now();
       if (now - lastBtnClick < BTN_THROTTLE_MS) {
@@ -977,10 +1043,15 @@
         return;
       }
       lastBtnClick = now;
-      toast(name + ' 执行中...');
+      cmdRunning = true;
+      cmdRunningName = name;
+      showExecIndicator(name);
       diag('runCmd: ' + name + ' | ' + cmd.substring(0, 80));
       exec(cmd, function (errno, stdout, stderr) {
         var ok = (errno === 0 || errno === '0' || errno === 0);
+        hideExecIndicator();
+        cmdRunning = false;
+        cmdRunningName = '';
         if (ok) {
           toast(name + ' 完成');
           if (stdout && stdout.trim()) {

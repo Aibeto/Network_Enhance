@@ -21,11 +21,12 @@ jobs:
 
       - name: Package artifact
         run: |
-          zip -r "../Network_Enhance_ci_${{ steps.timestamp.outputs.value }}.zip" \
+          mkdir -p artifact
+          zip -r "artifact/Network_Enhance_ci_${{ steps.timestamp.outputs.value }}.zip" \
             . -x ".git/*" ".github/*" ".gitignore" "*.zip" "*.tar.gz" "*.7z"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: Network_Enhance_ci_${{ steps.timestamp.outputs.value }}
-          path: ../Network_Enhance_ci_${{ steps.timestamp.outputs.value }}.zip
+          path: artifact/Network_Enhance_ci_${{ steps.timestamp.outputs.value }}.zip

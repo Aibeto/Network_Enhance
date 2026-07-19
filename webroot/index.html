@@ -849,14 +849,14 @@
           // 卡1
           document.getElementById('mobile-carrier-1').textContent = mobile1.carrier || '-';
           document.getElementById('mobile-rat-1').textContent = mobile1.rat || '-';
-          var lvl1El = document.getElementById('mobile-level-1');
-          var lvl1Val = mobile1.level || '?';
-          lvl1El.textContent = lvl1Val + '/4';
-          lvl1El.className = 'stat-value ' + levelClass(lvl1Val);
           var dbm1El = document.getElementById('mobile-dbm-1');
           var dbm1Val = mobile1.dbm || '?';
           dbm1El.textContent = dbm1Val + ' dBm';
           dbm1El.className = 'stat-value ' + dbmClass(dbm1Val);
+          var lvl1El = document.getElementById('mobile-level-1');
+          var lvl1FromDbm = dbmToLevel(dbm1Val);
+          lvl1El.textContent = lvl1FromDbm + '/4';
+          lvl1El.className = 'stat-value ' + levelClass(lvl1FromDbm);
 
           // 卡2
           var m2Carrier = mobile2.carrier || '';
@@ -880,12 +880,12 @@
           } else {
             rat2El.textContent = m2Rat || '-';
             rat2El.className = 'stat-value';
-            var lvl2Val = m2Level || '?';
-            lvl2El.textContent = lvl2Val + '/4';
-            lvl2El.className = 'stat-value ' + levelClass(lvl2Val);
             var dbm2Val = m2Dbm || '?';
             dbm2El.textContent = dbm2Val + ' dBm';
             dbm2El.className = 'stat-value ' + dbmClass(dbm2Val);
+            var lvl2FromDbm = dbmToLevel(dbm2Val);
+            lvl2El.textContent = lvl2FromDbm + '/4';
+            lvl2El.className = 'stat-value ' + levelClass(lvl2FromDbm);
           }
 
           var pingEl = document.getElementById('net-ping');
@@ -990,16 +990,24 @@
       if (n >= -100) return 'poor';
       return 'bad';
     }
+    // 将 dBm 数值映射为前端显示等级 0-4，与新阈值对齐
+    function dbmToLevel(dbm) {
+      if (dbm === '?' || dbm === '' || dbm === '无') return '?';
+      var n = parseInt(dbm); if (isNaN(n)) return '?';
+      if (n >= -50) return '4';
+      if (n >= -67) return '3';
+      if (n >= -85) return '2';
+      if (n >= -100) return '1';
+      return '0';
+    }
     function levelClass(lvl) {
-      // Android SignalStrength 5级: 0=NONE 1=POOR 2=MODERATE 3=GOOD 4=GREAT
-      // 降级映射以匹配新 dBm 阈值 (Level 4 ≈ -85dBm+ 对应 warn~good, 非 excellent)
-
-      if (lvl === '?' || lvl === '') return '';
+      // 由 dbmToLevel 计算前端等级，levelClass 仅做 CSS 映射
+      if (lvl === '?' || lvl === '' || lvl === '无') return '';
       var n = parseInt(lvl); if (isNaN(n)) return '';
-      if (n >= 4) return 'good';
-      if (n >= 3) return 'warn';
-      if (n >= 2) return 'poor';
-      if (n >= 1) return 'bad';
+      if (n >= 4) return 'excellent';
+      if (n >= 3) return 'good';
+      if (n >= 2) return 'warn';
+      if (n >= 1) return 'poor';
       return 'bad';
     }
     function dbmClass(dbm) {

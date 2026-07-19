@@ -184,7 +184,7 @@ WebUI 信号等级遵循 3GPP TS 36.133/38.133 + Android `SignalStrength` 标准
 
 `webroot/index.html` 中 `rsrpClass`/`sinrClass`/`rssiClass`/`levelClass`/`dbmClass`/`pingClass` 函数实现该分类。
 
-注意：`levelClass` 对 Android Level (0-4) 使用降级映射，以匹配新 dBm 阈值：Level 4→`good`、Level 3→`warn`、Level 2→`poor`、Level 1/0→`bad`。因为系统 Level 4 (≈ -85dBm+) 在新阈值下对应 warn~good 范围，不应显示为 `excellent`。
+注意：前端 level 显示（如 "3/4"）由 `dbmToLevel()` 函数根据 dBm 值实时计算，不再依赖后端 Android Level 原始值。
 
 ---
 

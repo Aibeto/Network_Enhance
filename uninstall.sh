@@ -41,6 +41,8 @@ if [ -n "$_se_common" ]; then
 fi
 unset _se_common _se_find_common
 
+se_ci_log "uninstall.sh" "uninstall.sh 启动"
+
 # 卸载时日志可能无法写入（模块目录可能已移除），用临时函数兜底
 _uninstall_log() {
     local msg="$1"
@@ -55,6 +57,8 @@ _uninstall_log() {
 }
 
 _uninstall_log "开始卸载清理..."
+
+se_ci_log "uninstall.sh" "停止调度器"
 
 # ===============================
 # 停止调度器进程
@@ -82,6 +86,7 @@ sleep 0.5
 if command -v cmd >/dev/null 2>&1; then
     if cmd netpolicy set restrict-background false 2>/dev/null; then
         _uninstall_log "Data Saver 已关闭 (restrict-background=false)"
+        se_ci_log "uninstall.sh" "关闭 Data Saver"
     else
         _uninstall_log "WARN: cmd netpolicy 关闭 Data Saver 失败 (部分 ROM 不支持)"
     fi
@@ -95,9 +100,11 @@ fi
 if [ -n "${MODDIR:-}" ] && [ -f "$MODDIR/scripts/carrier.sh" ]; then
     sh "$MODDIR/scripts/carrier.sh" unlock-lte >/dev/null 2>&1
     _uninstall_log "已调用 carrier.sh unlock-lte 恢复网络制式"
+    se_ci_log "uninstall.sh" "恢复网络制式"
 elif [ -n "${MODPATH:-}" ] && [ -f "$MODPATH/scripts/carrier.sh" ]; then
     sh "$MODPATH/scripts/carrier.sh" unlock-lte >/dev/null 2>&1
     _uninstall_log "已调用 carrier.sh unlock-lte 恢复网络制式"
+    se_ci_log "uninstall.sh" "恢复网络制式"
 else
     # 模块目录已移除，手动恢复 PNM
     # 使用各运营商默认值（手动恢复 PNM=26）
@@ -134,6 +141,8 @@ settings delete global wifi_persistent_group_remove_delay_ms 2>/dev/null
 settings delete global wifi_batched_scan_results_ms 2>/dev/null
 settings delete global wifi_recovery_state 2>/dev/null
 _uninstall_log "WiFi 设置已还原"
+
+se_ci_log "uninstall.sh" "WiFi/移动网络/Private DNS 还原完成"
 
 # ===============================
 # 移动网络设置还原
@@ -193,7 +202,11 @@ for _f in /data/local/tmp/network_enhance*; do
     [ -f "$_f" ] 2>/dev/null && rm -f "$_f" 2>/dev/null
 done
 
+# 清理 CI 调试日志（大写 N，与 network_enhance* 不同前缀）
+rm -f "/data/local/tmp/Network_Enhance.log" 2>/dev/null
+
 _uninstall_log "运行时残留文件已清理"
+se_ci_log "uninstall.sh" "运行时文件清理"
 
 # ===============================
 # 撤销所有通知

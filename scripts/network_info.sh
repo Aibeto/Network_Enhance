@@ -33,10 +33,13 @@ _se_common=$(_se_find_common) || { echo "[NE] common.sh 未找到" >&2; exit 0; 
 . "$_se_common"
 unset _se_common _se_find_common
 
+se_ci_log "network_info.sh" "network_info.sh 启动 | cmd=$1"
+
 # ----------------------------------------------------------------------
 # WiFi SSID: cmd wifi status 优先 (Android 14+), 失败时降级 dumpsys wifi 多模式解析
 # ----------------------------------------------------------------------
 get_wifi_ssid() {
+    se_ci_log "network_info.sh" "get_wifi_ssid: entry"
     local ssid=""
 
     # 优先使用 cmd wifi status (Android 14+)
@@ -89,6 +92,7 @@ get_wifi_ssid() {
 # WiFi RSSI: 包装 common.sh 的 se_get_wifi_rssi
 # ----------------------------------------------------------------------
 get_wifi_rssi() {
+    se_ci_log "network_info.sh" "get_wifi_rssi: entry"
     local rssi
     rssi=$(se_get_wifi_rssi)
     [ -z "$rssi" ] && rssi="?"
@@ -139,6 +143,7 @@ get_wifi_link_speed() {
 # 降级支持 mFrequency/frequency= 等旧格式
 # ----------------------------------------------------------------------
 get_wifi_frequency() {
+    se_ci_log "network_info.sh" "get_wifi_freq: entry"
     local freq=""
     local result=""
 
@@ -197,6 +202,7 @@ get_wifi_frequency() {
 # 卡1 取第一段，卡2 取第二段（或 .2 后缀属性）
 # ----------------------------------------------------------------------
 get_carrier_name() {
+    se_ci_log "network_info.sh" "get_carrier_name: entry"
     local name
     name=$(getprop gsm.sim.operator.alpha 2>/dev/null | head -1)
     # 双卡设备返回逗号分隔，取第一段作为卡1
@@ -319,6 +325,7 @@ _get_rat_number() {
 }
 
 get_network_type_name() {
+    se_ci_log "network_info.sh" "get_mobile_rat: entry"
     local rat_num name
     rat_num=$(_get_rat_number)
     name=$(_rat_number_to_name "$rat_num")
@@ -350,6 +357,7 @@ get_network_type_name() {
 }
 
 get_mobile_level() {
+    se_ci_log "network_info.sh" "get_mobile_level: entry"
     local level
     level=$(se_get_mobile_level)
     [ -z "$level" ] && level="无"
@@ -357,6 +365,7 @@ get_mobile_level() {
 }
 
 get_mobile_dbm() {
+    se_ci_log "network_info.sh" "get_mobile_dbm: entry"
     local dbm
     dbm=$(se_get_mobile_dbm)
     [ -z "$dbm" ] && dbm="无"
@@ -815,6 +824,7 @@ json_escape() {
 # JSON 输出（含 nr / preferred_network_mode / fake_5g 等字段供 WebUI 使用）
 # ----------------------------------------------------------------------
 show_json() {
+    se_ci_log "network_info.sh" "JSON 输出开始"
     local net_type ssid rssi speed freq
     local carrier1 rat1 level1 dbm1
     local carrier2 rat2 level2 dbm2
@@ -925,16 +935,18 @@ show_json() {
 }
 
 case "$1" in
-    brief)     show_brief ;;
-    multiline) show_multiline ;;
-    full|"")   show_full_status ;;
+    brief)     se_ci_log "network_info.sh" "cmd=brief"; show_brief ;;
+    multiline) se_ci_log "network_info.sh" "cmd=multiline"; show_multiline ;;
+    full|"")   se_ci_log "network_info.sh" "cmd=full"; show_full_status ;;
     wifi)
+        se_ci_log "network_info.sh" "cmd=wifi"
         echo "SSID: $(get_wifi_ssid)"
         echo "RSSI: $(get_wifi_rssi) dBm"
         echo "LinkSpeed: $(get_wifi_link_speed) Mbps"
         echo "Freq: $(get_wifi_frequency)"
         ;;
     mobile)
+        se_ci_log "network_info.sh" "cmd=mobile"
         echo "卡1"
         echo "  Carrier: $(get_carrier_name)"
         echo "  RAT: $(get_network_type_name)"
@@ -951,12 +963,14 @@ case "$1" in
         fi
         ;;
     nr)
+        se_ci_log "network_info.sh" "cmd=nr"
         echo "NR RSRP: $(get_nr_rsrp) dBm"
         echo "NR RSRQ: $(get_nr_rsrq) dB"
         echo "NR SINR: $(get_nr_sinr) dB"
         echo "Fake5G: $(get_fake_5g_status)"
         ;;
     speed)
+        se_ci_log "network_info.sh" "cmd=speed"
         local_speed=$(get_realtime_speed "$2")
         rx_kbps=$(echo "$local_speed" | awk '{print $1}')
         tx_kbps=$(echo "$local_speed" | awk '{print $2}')
@@ -965,10 +979,11 @@ case "$1" in
         echo "下行: $(format_speed "$rx_kbps")"
         echo "上行: $(format_speed "$tx_kbps")"
         ;;
-    json)  show_json ;;
-    type)  se_detect_network_type ;;
-    ping)  echo "$(se_get_ping_ms) ms" ;;
+    json)  se_ci_log "network_info.sh" "cmd=json"; show_json ;;
+    type)  se_ci_log "network_info.sh" "cmd=type"; se_detect_network_type ;;
+    ping)  se_ci_log "network_info.sh" "cmd=ping"; echo "$(se_get_ping_ms) ms" ;;
     dynamic)
+        se_ci_log "network_info.sh" "cmd=dynamic"
         net_type=$(se_detect_network_type)
         rssi=$(se_get_wifi_rssi)
         dbm=$(se_get_mobile_dbm)
@@ -999,6 +1014,7 @@ case "$1" in
         echo "PARAMS=$params"
         ;;
     quality)
+        se_ci_log "network_info.sh" "cmd=quality"
         net_type=$(se_detect_network_type)
         rssi=$(se_get_wifi_rssi)
         dbm=$(se_get_mobile_dbm)

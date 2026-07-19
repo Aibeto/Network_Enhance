@@ -273,6 +273,17 @@
     var BTN_THROTTLE_MS = 500;
     var REFRESH_THROTTLE_MS = 2000;
 
+    // CI 调试模式
+    var SE_CI_LOGON = false;
+
+    function ciLog(src, msg) {
+      if (!SE_CI_LOGON) return;
+      try {
+        var ts = new Date().toISOString().replace('T', ' ').substring(0, 19);
+        execSync('echo "' + ts + ' [' + src + '] INFO ' + msg.replace(/"/g, '\\"') + '" >> /data/local/tmp/Network_Enhance.log 2>/dev/null');
+      } catch (e) { }
+    }
+
     function diag(msg, level) {
       var ts = new Date().toLocaleTimeString();
       var line = '[' + ts + '] ' + msg;
@@ -329,6 +340,7 @@
         API_TYPE = apiType;
         diag('✓ API 就绪: ' + apiType, 'ok');
         setApiBanner('ok', '✓ API 就绪: ' + apiType);
+        ciLog('index.html', 'API 就绪 | type=' + apiType);
         callback(true);
         return;
       }
@@ -345,6 +357,7 @@
     }
 
     function execSync(cmd) {
+      ciLog('index.html', 'execSync: ' + cmd.substring(0, 80));
       if (typeof Axeron !== 'undefined' && typeof Axeron.exec === 'function') {
         try {
           var json = Axeron.exec(cmd, '{}');
@@ -523,6 +536,7 @@
     }
 
     function testExec() {
+      ciLog('index.html', 'testExec');
       diag('=== 测试 exec ===');
       var apiType = detectApi();
       diag('API 类型: ' + apiType);
@@ -560,6 +574,7 @@
     }
 
     function runDiagnostics() {
+      ciLog('index.html', 'runDiagnostics');
       diagLog = [];
       diag('=== 开始完整诊断 ===');
       diag('typeof Axeron: ' + (typeof Axeron));
@@ -575,6 +590,18 @@
           return;
         }
         initModDir();
+
+        // CI 调试模式检测
+        (function detectCiMode() {
+          try {
+            if (!MODDIR) return;
+            var ver = execSync('grep "^version=" ' + MODDIR + '/module.prop 2>/dev/null | cut -d= -f2').trim();
+            if (ver.indexOf('ci') === 0) {
+              SE_CI_LOGON = true;
+              ciLog('index.html', 'CI 调试模式已启用 | version=' + ver);
+            }
+          } catch (e) { }
+        })();
 
         diag('测试 exec (echo hello)...');
         exec('echo hello', function (errno, stdout) {
@@ -648,6 +675,7 @@
     }
 
     function runCmd(cmd, name, after) {
+      ciLog('index.html', 'runCmd: ' + name);
       // 互斥锁：不支持同时执行两个操作
       if (cmdRunning) {
         toast('正在执行 ' + cmdRunningName + '，请等待');
@@ -701,11 +729,13 @@
 
     // 清空日志
     function clearLog() {
+      ciLog('index.html', 'clearLog');
       if (!confirm('确定清空日志?')) return;
       runCmd('rm -f /data/local/tmp/network_enhance.log', '清空日志', loadLog);
     }
 
     function confirmReset() {
+      ciLog('index.html', 'confirmReset');
       if (!confirm('确定一键还原所有设置?\n\n将关闭 Data Saver + 恢复 5G + 还原 WiFi/DNS 设置')) return;
       runCmd('sh ' + MODDIR + '/action.sh 27', '一键还原');
     }
@@ -717,6 +747,7 @@
     }
 
     function addVpnWhitelist() {
+      ciLog('index.html', 'addVpnWhitelist');
       var pkg = document.getElementById('vpn-pkg-input').value.trim();
       if (!pkg) {
         showAlert('请输入代理软件包名\n\n示例: com.v2ray.ang');
@@ -731,6 +762,7 @@
     }
 
     function removeVpnWhitelist() {
+      ciLog('index.html', 'removeVpnWhitelist');
       var pkg = document.getElementById('vpn-pkg-input').value.trim();
       if (!pkg) {
         showAlert('请输入代理软件包名\n\n示例: com.v2ray.ang');
@@ -751,6 +783,7 @@
     // loadNetworkInfo 解析 network_info.sh JSON 并更新各区块
     // 使用 throttledLoad 防止重复调用堆积
     function loadNetworkInfo() {
+      ciLog('index.html', 'loadNetworkInfo');
       if (!MODDIR || !API_READY) return;
       throttledLoad('networkInfo', 0, function (done) {
         exec('sh ' + MODDIR + '/scripts/network_info.sh json', function (errno, stdout) {
@@ -966,6 +999,7 @@
 
     // 状态文件路径 + 5G 降级状态显示
     function loadMonitorStatus() {
+      ciLog('index.html', 'loadMonitorStatus');
       if (!MODDIR || !API_READY) return;
       throttledLoad('monitorStatus', 0, function (done) {
         var pidFile = '/data/local/tmp/network_enhance_monitor.pid';
@@ -1044,6 +1078,7 @@
     }
 
     function loadDnsStatus() {
+      ciLog('index.html', 'loadDnsStatus');
       if (!MODDIR || !API_READY) return;
       throttledLoad('dnsStatus', 500, function (done) {
         exec('sh ' + MODDIR + '/scripts/dns.sh status', function (errno, stdout) {
@@ -1064,6 +1099,7 @@
 
     // weaknet 标志路径
     function loadWeaknetStatus() {
+      ciLog('index.html', 'loadWeaknetStatus');
       if (!API_READY) return;
       throttledLoad('weaknetStatus', 500, function (done) {
         exec('test -f /data/local/tmp/network_enhance_weaknet_active && echo ACTIVE || echo STANDARD', function (errno, stdout) {
@@ -1078,6 +1114,7 @@
 
     // 日志路径
     function loadLog() {
+      ciLog('index.html', 'loadLog');
       if (!API_READY) return;
       throttledLoad('logLoad', 0, function (done) {
         exec('tail -50 /data/local/tmp/network_enhance.log 2>/dev/null || echo "(日志不存在)"', function (errno, stdout) {
@@ -1114,6 +1151,7 @@
 
     // 实际刷新逻辑（被 throttledLoad 调度）
     function doRefreshAll(done) {
+      ciLog('index.html', 'refreshAll');
       if (!API_READY || !MODDIR) {
         diag('doRefreshAll 跳过: API=' + API_READY + ' MODDIR=' + MODDIR, 'err');
         if (done) done();

@@ -47,6 +47,9 @@ fi
 . "$_se_common"
 unset _se_common _se_find_common
 
+# CI 日志入口
+se_ci_log "action.sh" "action.sh 启动 | choice=${1:-交互菜单}"
+
 # ui_print 兼容
 if command -v ui_print >/dev/null 2>&1; then
     HAS_UI=1
@@ -269,40 +272,41 @@ cd "$MODDIR" 2>/dev/null
 
 case "$choice" in
     # 弱网自救
-    1|video)        sh "$MODDIR/scripts/weaknet.sh" video ;;
-    2|game)         sh "$MODDIR/scripts/weaknet.sh" game ;;
-    3|social)       sh "$MODDIR/scripts/weaknet.sh" social ;;
-    4|download)     sh "$MODDIR/scripts/weaknet.sh" download ;;
-    5|normal)       sh "$MODDIR/scripts/weaknet.sh" normal ;;
+    1|video)        se_ci_log "action.sh" "menu: video mode"; sh "$MODDIR/scripts/weaknet.sh" video ;;
+    2|game)         se_ci_log "action.sh" "menu: game mode"; sh "$MODDIR/scripts/weaknet.sh" game ;;
+    3|social)       se_ci_log "action.sh" "menu: social mode"; sh "$MODDIR/scripts/weaknet.sh" social ;;
+    4|download)     se_ci_log "action.sh" "menu: download mode"; sh "$MODDIR/scripts/weaknet.sh" download ;;
+    5|normal)       se_ci_log "action.sh" "menu: normal mode"; sh "$MODDIR/scripts/weaknet.sh" normal ;;
     # 代理稳定模式与白名单管理
-    33|vpn-mode)    sh "$MODDIR/scripts/weaknet.sh" vpn ;;
-    34|add-vpn-wl)  sh "$MODDIR/scripts/weaknet.sh" add-wl "$2" ;;
-    35|rm-vpn-wl)   sh "$MODDIR/scripts/weaknet.sh" rm-wl "$2" ;;
+    33|vpn-mode)    se_ci_log "action.sh" "menu: vpn mode"; sh "$MODDIR/scripts/weaknet.sh" vpn ;;
+    34|add-vpn-wl)  se_ci_log "action.sh" "menu: add vpn wl | pkg=$2"; sh "$MODDIR/scripts/weaknet.sh" add-wl "$2" ;;
+    35|rm-vpn-wl)   se_ci_log "action.sh" "menu: rm vpn wl | pkg=$2"; sh "$MODDIR/scripts/weaknet.sh" rm-wl "$2" ;;
     # Private DNS
-    6)  sh "$MODDIR/scripts/dns.sh" status ;;
-    7)  sh "$MODDIR/scripts/dns.sh" list ;;
-    8)  sh "$MODDIR/scripts/dns.sh" check ;;
-    9)  sh "$MODDIR/scripts/dns.sh" on ali ;;
-    10) sh "$MODDIR/scripts/dns.sh" on tencent ;;
-    11) sh "$MODDIR/scripts/dns.sh" on adguard ;;
-    12) sh "$MODDIR/scripts/dns.sh" off ;;
-    13) sh "$MODDIR/scripts/dns.sh" reset ;;
+    6)  se_ci_log "action.sh" "menu: dns status"; sh "$MODDIR/scripts/dns.sh" status ;;
+    7)  se_ci_log "action.sh" "menu: dns list"; sh "$MODDIR/scripts/dns.sh" list ;;
+    8)  se_ci_log "action.sh" "menu: dns check"; sh "$MODDIR/scripts/dns.sh" check ;;
+    9)  se_ci_log "action.sh" "menu: dns on ali"; sh "$MODDIR/scripts/dns.sh" on ali ;;
+    10) se_ci_log "action.sh" "menu: dns on tencent"; sh "$MODDIR/scripts/dns.sh" on tencent ;;
+    11) se_ci_log "action.sh" "menu: dns on adguard"; sh "$MODDIR/scripts/dns.sh" on adguard ;;
+    12) se_ci_log "action.sh" "menu: dns off"; sh "$MODDIR/scripts/dns.sh" off ;;
+    13) se_ci_log "action.sh" "menu: dns reset"; sh "$MODDIR/scripts/dns.sh" reset ;;
     # WiFi / 运营商
-    14) sh "$MODDIR/scripts/wifi.sh" apply ;;
-    15) sh "$MODDIR/scripts/wifi.sh" status ;;
-    16) sh "$MODDIR/scripts/wifi.sh" reset ;;
-    17) sh "$MODDIR/scripts/carrier.sh" apply ;;
-    18) sh "$MODDIR/scripts/carrier.sh" status ;;
+    14) se_ci_log "action.sh" "menu: wifi apply"; sh "$MODDIR/scripts/wifi.sh" apply ;;
+    15) se_ci_log "action.sh" "menu: wifi status"; sh "$MODDIR/scripts/wifi.sh" status ;;
+    16) se_ci_log "action.sh" "menu: wifi reset"; sh "$MODDIR/scripts/wifi.sh" reset ;;
+    17) se_ci_log "action.sh" "menu: carrier apply"; sh "$MODDIR/scripts/carrier.sh" apply ;;
+    18) se_ci_log "action.sh" "menu: carrier status"; sh "$MODDIR/scripts/carrier.sh" status ;;
     # 智能调度器
-    19) sh "$MODDIR/scripts/monitor.sh" start ;;
-    20) sh "$MODDIR/scripts/monitor.sh" stop ;;
-    21) sh "$MODDIR/scripts/monitor.sh" restart ;;
-    22) sh "$MODDIR/scripts/monitor.sh" status ;;
-    23) sh "$MODDIR/scripts/monitor.sh" detect ;;
-    24) sh "$MODDIR/scripts/monitor.sh" notify "$2" ;;
-    25) sh "$MODDIR/scripts/monitor.sh" cancel ;;
+    19) se_ci_log "action.sh" "menu: monitor start"; sh "$MODDIR/scripts/monitor.sh" start ;;
+    20) se_ci_log "action.sh" "menu: monitor stop"; sh "$MODDIR/scripts/monitor.sh" stop ;;
+    21) se_ci_log "action.sh" "menu: monitor restart"; sh "$MODDIR/scripts/monitor.sh" restart ;;
+    22) se_ci_log "action.sh" "menu: monitor status"; sh "$MODDIR/scripts/monitor.sh" status ;;
+    23) se_ci_log "action.sh" "menu: monitor detect"; sh "$MODDIR/scripts/monitor.sh" detect ;;
+    24) se_ci_log "action.sh" "menu: monitor notify"; sh "$MODDIR/scripts/monitor.sh" notify "$2" ;;
+    25) se_ci_log "action.sh" "menu: monitor cancel"; sh "$MODDIR/scripts/monitor.sh" cancel ;;
     # 5G/LTE 制式管理
     30|fake5g-check)
+        se_ci_log "action.sh" "menu: fake5g check"
         echo "=== 5G 假满格自检 ==="
         echo ""
         echo "[5G 信号质量]"
@@ -332,6 +336,7 @@ case "$choice" in
         ;;
     31|lock-lte)
         # 锁定 LTE 并发送语音副作用提醒
+        se_ci_log "action.sh" "menu: lock-lte"
         echo "=== 手动锁定 LTE Only ==="
         echo ""
         sh "$MODDIR/scripts/carrier.sh" lock-lte
@@ -346,6 +351,7 @@ case "$choice" in
         ;;
     32|unlock-lte)
         # 解锁 LTE，恢复 5G
+        se_ci_log "action.sh" "menu: unlock-lte"
         echo "=== 手动解锁 LTE, 恢复 5G ==="
         echo ""
         sh "$MODDIR/scripts/carrier.sh" unlock-lte
@@ -353,9 +359,11 @@ case "$choice" in
         ;;
     # 维护
     26|check)
+        se_ci_log "action.sh" "menu: self-check"
         se_self_check
         ;;
     27|reset-all)
+        se_ci_log "action.sh" "menu: reset-all"
         echo "=== 一键还原所有设置 ==="
         rm -f "$WEAKNET_ACTIVE_FLAG" 2>/dev/null
         rm -f "$DNS_PREFETCH_PID" 2>/dev/null
@@ -387,13 +395,16 @@ case "$choice" in
         fi
         ;;
     28)
+        se_ci_log "action.sh" "menu: view log"
         [ -f "$SE_LOG_FILE" ] && tail -50 "$SE_LOG_FILE" || echo "日志不存在: $SE_LOG_FILE"
         ;;
     29)
+        se_ci_log "action.sh" "menu: clear log"
         rm -f "$SE_LOG_FILE" "${SE_LOG_FILE}".* 2>/dev/null
         echo "日志已清空"
         ;;
     *)
+        se_ci_log "action.sh" "menu: cancelled (choice=$choice)"
         echo "已取消"
         ;;
 esac

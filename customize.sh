@@ -39,8 +39,13 @@ ui_print "  5G假满格自救 + 4G防跳频 + 多品牌兼容"
 ui_print "***************************************"
 ui_print ""
 ui_print "  作者 : 寒碑听风"
-ui_print "  协议 : MIT"
+ui_print "  → 协议 : MIT"
 ui_print ""
+
+# 加载 common.sh（自动执行 CI 调试模式检测 + config/oem 初始化）
+_se_ci_ver=$(grep '^version=' "$MODPATH/module.prop" 2>/dev/null | cut -d= -f2)
+. "$MODPATH/scripts/common.sh"
+se_ci_log "customize.sh" "customize.sh 启动 | version=$_se_ci_ver"
 
 ui_print "---------------------------------------"
 ui_print "  运行环境与厂商探测"
@@ -72,6 +77,7 @@ case "$_brand" in
     *)                  _brand_norm="$_brand" ;;
 esac
 ui_print "  → 品牌归一化: $_brand_norm"
+se_ci_log "customize.sh" "OEM 预检 | brand=$_brand_norm soc=$_soc"
 
 _hw=$(getprop ro.hardware 2>/dev/null | head -1 | tr '[:upper:]' '[:lower:]')
 case "$_hw" in
@@ -86,6 +92,7 @@ ui_print "  → 芯片平台  : $_soc"
 mccmnc=$(getprop gsm.sim.operator.numeric 2>/dev/null | head -1)
 carrier_name=$(getprop gsm.sim.operator.alpha 2>/dev/null)
 ui_print "  → SIM 运营商: ${carrier_name:-无} (${mccmnc:-未知})"
+se_ci_log "customize.sh" "运营商预检 | mccmnc=$mccmnc carrier=$carrier_name"
 ui_print ""
 
 ui_print "---------------------------------------"
@@ -201,6 +208,7 @@ fi
 ui_print "  [OK] system.prop 已移除（persist.* 免Root不生效）"
 
 ui_print "  [OK] 权限已设置"
+se_ci_log "customize.sh" "权限设置完成"
 ui_print ""
 
 ui_print "***************************************"
@@ -216,3 +224,5 @@ ui_print "  注意: 重启后 AxManager 需重新激活"
 ui_print "  注意: 完全禁用 4G+ 载波聚合需 Root"
 ui_print "        本模块通过锁定 LTE 间接降低跳频概率"
 ui_print ""
+
+se_ci_log "customize.sh" "安装完成"

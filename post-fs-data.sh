@@ -33,6 +33,7 @@ _se_common=$(_se_find_common) || { echo "[NE] common.sh 未找到" >&2; exit 0; 
 . "$_se_common"
 unset _se_common _se_find_common
 
+se_ci_log "post-fs-data.sh" "post-fs-data.sh 启动"
 log_msg "网络增强 v${SE_VERSION} 启动 (post-fs-data)" "[boot]"
 log_msg "环境=$(detect_env) brand=${SE_BRAND:-?} api=${SE_API:-?} pwd=$(pwd)" "[boot]"
 
@@ -58,6 +59,7 @@ log_msg "已迁移 system.prop 功能到 settings global" "[boot]"
 # WiFi 优化
 # ===============================
 apply_wifi_optimize() {
+    se_ci_log "post-fs-data.sh" "apply_wifi_optimize: entry"
     [ "$ENABLE_WIFI_OPTIMIZE" = "true" ] || { log_msg "WiFi 优化已禁用" "[wifi]"; return 0; }
 
     se_put global wifi_scan_throttle_enabled 0
@@ -85,6 +87,7 @@ apply_wifi_optimize() {
 #   联通: 26   (原模块正确, NR/LTE/GSM/WCDMA)
 #   广电: 26 → 33 (NR/LTE/TD-SCDMA/CDMA/EvDo/GSM/WCDMA, 全制式)
 apply_mobile_optimize() {
+    se_ci_log "post-fs-data.sh" "apply_mobile_optimize: entry"
     [ "$ENABLE_MOBILE_OPTIMIZE" = "true" ] || { log_msg "移动网络优化已禁用" "[mobile]"; return 0; }
 
     se_put global mobile_data_always_on 1
@@ -148,9 +151,13 @@ apply_persistent_group() {
 # ===============================
 # 此阶段仅执行一次性静态 settings 写入
 # monitor.sh 主循环在 service.sh (late_start 阶段) 启动
+se_ci_log "post-fs-data.sh" "主流程: apply_wifi_optimize"
 apply_wifi_optimize
+se_ci_log "post-fs-data.sh" "主流程: apply_mobile_optimize"
 apply_mobile_optimize
+se_ci_log "post-fs-data.sh" "主流程: apply_persistent_group"
 apply_persistent_group
 
+se_ci_log "post-fs-data.sh" "post-fs-data.sh 完成"
 log_msg "post-fs-data 阶段优化完成 (monitor.sh 不在此启动)" "[boot]"
 exit 0

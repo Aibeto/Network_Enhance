@@ -11,6 +11,10 @@ SE_VERSION="1.1.4"
 SE_VERSION_CODE="114"
 SE_LOG_TAG="NetworkEnhance"
 
+# CI 调试模式 — 当 module.prop version 以 ci 开头时自动启用
+SE_CI_LOG_FILE="/data/local/tmp/Network_Enhance.log"
+SE_CI_LOGON=0
+
 # 日志路径优先 /data/local/tmp（ADB 必写、稳定）
 SE_LOG_FILE="/data/local/tmp/network_enhance.log"
 if [ ! -w "$(dirname "$SE_LOG_FILE")" ] 2>/dev/null; then
@@ -52,6 +56,7 @@ SE_MOD_ID="Network_Enhance"
 #   5. readlink -f 推导
 #   6. 已知安装路径硬探测
 se_resolve_moddir() {
+    se_ci_log "common.sh" "se_resolve_moddir: entry"
     local candidate=""
 
     # 策略 0: 环境变量 MODDIR
@@ -150,6 +155,11 @@ if [ -z "${SE_CONFIG_LOADED:-}" ]; then
             se_probe_oem_env 2>/dev/null
         fi
     fi
+
+    # CI 调试模式检测（config + OEM 加载后尽早执行）
+    if [ -n "$MODDIR_ROOT" ]; then
+        se_ci_detect 2>/dev/null
+    fi
 fi
 
 # ----------------------------------------------------------------------
@@ -233,6 +243,7 @@ se_is_android_14_plus() {
 SE_DUMPSYS_CACHE_DIR="/data/local/tmp/network_enhance_dumpsys_cache"
 
 se_dumpsys_cached() {
+    se_ci_log "common.sh" "se_dumpsys_cached: entry | key=$1"
     local key="$1"
     [ -z "$key" ] && return 1
     local cache_file="$SE_DUMPSYS_CACHE_DIR/${key}.txt"
@@ -258,6 +269,7 @@ se_dumpsys_cached() {
 }
 
 se_dumpsys_clear() {
+    se_ci_log "common.sh" "se_dumpsys_clear: clearing dumpsys cache"
     rm -rf "$SE_DUMPSYS_CACHE_DIR" 2>/dev/null
     return 0
 }
@@ -270,6 +282,8 @@ log_msg() {
     local tag="${2:-[core]}"
     local ts
     ts=$(date '+%Y-%m-%d %H:%M:%S' 2>/dev/null || echo "?")
+    # CI 模式下同时写入 CI 日志
+    se_ci_log "common.sh" "log_msg: $tag $msg"
     if [ -f "$SE_LOG_FILE" ]; then
         local size
         size=$(wc -c < "$SE_LOG_FILE" 2>/dev/null)
@@ -284,12 +298,39 @@ log_msg() {
 }
 
 # ----------------------------------------------------------------------
+# CI 调试模式检测 — 读取 module.prop version 字段，ci 开头则启用
+# ----------------------------------------------------------------------
+se_ci_detect() {
+    local ver
+    ver=$(grep '^version=' "$MODDIR_ROOT/module.prop" 2>/dev/null | cut -d= -f2)
+    if [ -n "$ver" ] && echo "$ver" | grep -q '^ci'; then
+        SE_CI_LOGON=1
+        export SE_CI_LOGON
+        se_ci_log "common.sh" "CI 调试模式已启用 | version=$ver | logon=$SE_CI_LOGON"
+    fi
+    return 0
+}
+
+# CI 日志写入 — 仅当 SE_CI_LOGON=1 时写入
+# 格式: YYYY-MM-DD HH:MM:SS [FILENAME] INFO message
+se_ci_log() {
+    [ "$SE_CI_LOGON" = "1" ] || return 0
+    local src="${1:-?}"
+    local msg="${2:-}"
+    local ts
+    ts=$(date '+%Y-%m-%d %H:%M:%S' 2>/dev/null || echo "?")
+    echo "$ts [$src] INFO $msg" >> "$SE_CI_LOG_FILE" 2>/dev/null
+    return 0
+}
+
+# ----------------------------------------------------------------------
 # settings 安全写入/读取/删除
 # ----------------------------------------------------------------------
 se_put() {
     local namespace="$1"
     local key="$2"
     local value="$3"
+    se_ci_log "common.sh" "se_put: $namespace.$key=$value"
 
     if [ "${ENABLE_OEM_COMPAT:-true}" = "true" ] && [ "$(type -t se_put_safe 2>/dev/null)" = "function" ]; then
         se_put_safe "$namespace" "$key" "$value" 2>/dev/null
@@ -322,6 +363,7 @@ se_put_verify() {
     local namespace="$1"
     local key="$2"
     local value="$3"
+    se_ci_log "common.sh" "se_put_verify: $namespace.$key=$value"
 
     se_put "$namespace" "$key" "$value"
 
@@ -343,6 +385,7 @@ se_put_verify() {
 # 网络就绪检测
 # ----------------------------------------------------------------------
 wait_network_ready() {
+    se_ci_log "common.sh" "wait_network_ready: entry | max_wait=${1:-$NETWORK_READY_TIMEOUT}"
     local max_wait="${1:-$NETWORK_READY_TIMEOUT}"
     case "$max_wait" in
         ''|*[!0-9]*) max_wait=10 ;;
@@ -374,6 +417,7 @@ wait_network_ready() {
 # 运行环境检测
 # ----------------------------------------------------------------------
 detect_env() {
+    se_ci_log "common.sh" "detect_env: entry"
     if [ "${AXERON:-}" = "true" ]; then
         echo "axeron"
     elif [ -d "/data/adb/ksu" ] 2>/dev/null; then
@@ -397,6 +441,7 @@ is_axeron_env() {
 # dumpsys connectivity 解析失败时 fallback 到 getprop gsm.network.type
 # 双连接时优先返回移动网络制式，前端可直接显示
 se_detect_network_type() {
+    se_ci_log "common.sh" "se_detect_network_type: entry"
     local dump
     dump=$(dumpsys connectivity 2>/dev/null)
 
@@ -465,6 +510,7 @@ se_detect_network_type() {
 # 双卡设备可能返回 "46000,46007"，截取第一个值匹配
 # 补全 MCC-MNC 范围 + gsm.sim.operator.alpha 名称匹配（CMCC/CUCC/CTCC）
 se_detect_carrier() {
+    se_ci_log "common.sh" "se_detect_carrier: entry"
     local mccmnc mccmnc_first alpha
 
     # 获取 MCC-MNC（可能含逗号，如 "46000,46007"）
@@ -558,6 +604,7 @@ se_get_lte_preferred_mode() {
 #   3. dumpsys wifi 提取: grep -iE 'mRssi|rssi', 兼容多种格式
 #   4. 兜底: dumpsys wifi 抓取第一个两位数负数作为估算值
 se_get_wifi_rssi() {
+    se_ci_log "common.sh" "se_get_wifi_rssi: entry"
     local result raw_val
 
     # ====== 阶段 1: cmd wifi status ======
@@ -634,6 +681,7 @@ se_get_wifi_rssi() {
 # 移动信号 dBm 读取（多格式兼容）
 # ----------------------------------------------------------------------
 se_get_mobile_dbm() {
+    se_ci_log "common.sh" "se_get_mobile_dbm: entry"
     local reg block dbm
     reg=$(se_dumpsys_cached telephony.registry 2>/dev/null)
     [ -z "$reg" ] && { echo ""; return 0; }
@@ -687,6 +735,7 @@ se_get_mobile_dbm() {
 }
 
 se_get_mobile_level() {
+    se_ci_log "common.sh" "se_get_mobile_level: entry"
     local reg block level
     reg=$(se_dumpsys_cached telephony.registry 2>/dev/null)
     [ -z "$reg" ] && { echo ""; return 0; }
@@ -751,6 +800,7 @@ se_get_mobile_level() {
 
 # 5G SS-RSRP 读取（主用信号强度）
 se_get_nr_rsrp() {
+    se_ci_log "common.sh" "se_get_nr_rsrp: entry"
     local reg result
     reg=$(se_dumpsys_cached telephony.registry 2>/dev/null)
 
@@ -790,6 +840,7 @@ se_get_nr_rsrp() {
 
 # 5G SS-SINR 读取（信噪比, 假满格判定关键指标）
 se_get_nr_sinr() {
+    se_ci_log "common.sh" "se_get_nr_sinr: entry"
     local reg result
     reg=$(se_dumpsys_cached telephony.registry 2>/dev/null)
 
@@ -825,6 +876,7 @@ se_get_nr_sinr() {
 
 # 5G SS-RSRQ 读取（信号质量）
 se_get_nr_rsrq() {
+    se_ci_log "common.sh" "se_get_nr_rsrq: entry"
     local reg result
     reg=$(se_dumpsys_cached telephony.registry 2>/dev/null)
 
@@ -867,6 +919,7 @@ se_get_nr_rsrq() {
 #   3. SS-RSRP ≥ -85 但 Ping 失败（丢包）
 # 返回值: 0 = 假满格, 1 = 正常
 se_detect_fake_5g() {
+    se_ci_log "common.sh" "se_detect_fake_5g: entry"
     [ "$ENABLE_FAKE_5G_DETECTION" = "true" ] || return 1
 
     local rsrp sinr ping_ms
@@ -941,6 +994,7 @@ se_detect_fake_5g() {
 #   - 可达 → 返回 2000（延迟较差但连通）
 #   - 彻底不通 → 返回 timeout
 se_get_ping_ms() {
+    se_ci_log "common.sh" "se_get_ping_ms: entry"
     local result
 
     # 单次 ping 函数：尝试单个 DNS，成功则 stdout 输出延迟，返回 0
@@ -987,6 +1041,7 @@ se_get_ping_ms() {
 # 通知发送
 # ----------------------------------------------------------------------
 se_notify() {
+    se_ci_log "common.sh" "se_notify: title=$1"
     local title="$1"
     local body="$2"
     [ -z "$title" ] && return 0
@@ -1004,6 +1059,7 @@ se_notify_cancel() {
 # 进程管理
 # ----------------------------------------------------------------------
 se_monitor_running() {
+    se_ci_log "common.sh" "se_monitor_running: check"
     [ -f "$SE_PID_FILE" ] || return 1
     local pid
     pid=$(cat "$SE_PID_FILE" 2>/dev/null)
@@ -1122,6 +1178,7 @@ se_mobile_level() {
 #   weak:    RSSI -75~-90 或 Ping 150~200ms
 #   critical: RSSI < -90 或 Ping > 200ms 或 SINR < 0
 se_overall_level() {
+    se_ci_log "common.sh" "se_overall_level: entry | net_type=$1 ping=$4"
     local net_type="$1" wifi_lvl="$2" mobile_lvl="$3" ping_ms="$4"
     local nr_sinr="${5:-}"
 
@@ -1187,6 +1244,7 @@ se_overall_level() {
 }
 
 se_compute_dynamic_params() {
+    se_ci_log "common.sh" "se_compute_dynamic_params: entry | level=$1"
     local level="$1"
     local rssi_abs="$2"
 
@@ -1247,6 +1305,7 @@ se_compute_dynamic_params() {
 # 修复: MODDIR_ROOT 未解析时 check_dir 为空导致 customize.sh 误报缺失
 # 增强: 新增 Android 版本、命令可用性、5G 信号质量检测
 se_self_check() {
+    se_ci_log "common.sh" "se_self_check: entry"
     echo "=== 网络增强 v${SE_VERSION} 自检 ==="
     echo ""
 

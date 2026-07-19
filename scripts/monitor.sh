@@ -28,6 +28,8 @@ _se_common=$(_se_find_common) || { echo "[NE] common.sh 未找到" >&2; exit 0; 
 . "$_se_common"
 unset _se_common _se_find_common
 
+se_ci_log "monitor.sh" "monitor.sh 启动 | cmd=${1:-}"
+
 # ----------------------------------------------------------------------
 # 防振荡参数默认值（从 config.sh 读取）
 # ----------------------------------------------------------------------
@@ -39,6 +41,7 @@ unset _se_common _se_find_common
 # 等级显示名
 # ----------------------------------------------------------------------
 get_level_display_name() {
+    se_ci_log "monitor.sh" "get_level_display_name: entry | level=$1"
     case "$1" in
         strong)    echo "强信号 (省电)" ;;
         normal)    echo "正常" ;;
@@ -50,6 +53,7 @@ get_level_display_name() {
 }
 
 get_level_description() {
+    se_ci_log "monitor.sh" "get_level_description: entry | level=$1"
     case "$1" in
         strong)    echo "允许休眠+扫描慢+省电" ;;
         normal)    echo "标准优化+扫描中" ;;
@@ -70,6 +74,8 @@ get_level_description() {
 compute_overall_level_v2() {
     local net_type="$1" wifi_rssi="$2" mobile_dbm="$3" ping_ms="$4"
     local nr_sinr="${5:-}"
+
+    se_ci_log "monitor.sh" "compute_overall_level_v2: entry | net=$net_type ping=$ping_ms sinr=$nr_sinr"
 
     # 无网络时直接返回
     if [ -z "$net_type" ] || [ "$net_type" = "none" ]; then
@@ -200,6 +206,7 @@ compute_overall_level_v2() {
         echo "normal"
         return 0
     fi
+    se_ci_log "monitor.sh" "compute_overall_level_v2: result=$base_level"
     echo "$base_level"
     return 0
 }
@@ -211,6 +218,7 @@ apply_dynamic_params() {
     local level="$1"
     local rssi_abs="$2"
 
+    se_ci_log "monitor.sh" "apply_dynamic_params: entry | level=$level"
     case "$level" in
         strong|normal|weak|critical|no_network) ;;
         *) level="normal" ;;
@@ -301,6 +309,7 @@ EOF
 # 状态文件写入
 # ----------------------------------------------------------------------
 write_state() {
+    se_ci_log "monitor.sh" "write_state: entry | level=$2"
     local net_type="$1"
     local level="$2"
     local rssi="$3"
@@ -331,6 +340,7 @@ EOF
 # 通知发送
 # ----------------------------------------------------------------------
 send_switch_notification() {
+    se_ci_log "monitor.sh" "send_switch_notification: entry | level=$1"
     [ "$ENABLE_SWITCH_NOTIFY" = "true" ] || return 0
     local level="$1" rssi="$2" dbm="$3" ping_ms="$4" net_type="$5"
     local display_name desc
@@ -374,10 +384,13 @@ handle_fake_5g() {
         return 0
     fi
 
+    se_ci_log "monitor.sh" "handle_fake_5g: entry | active=$FAKE_5G_ACTIVE"
+
     if se_detect_fake_5g; then
         # 检测到假满格
         if [ -z "$FAKE_5G_ACTIVE" ] || [ "$FAKE_5G_ACTIVE" = "0" ]; then
             # 首次触发，立即降级
+            se_ci_log "monitor.sh" "handle_fake_5g: 触发降级"
             log_msg "[5G降级] 触发假满格, 调用 carrier.sh degrade" "[5g]"
 
             # 调用 carrier.sh 的 degrade_5g_to_4g 函数
@@ -419,6 +432,7 @@ handle_fake_5g() {
 
             if [ "$RECOVERY_COUNT" -ge "$DEGRADE_RECOVERY_COUNT" ]; then
                 # 连续 N 次正常, 恢复 5G
+                se_ci_log "monitor.sh" "handle_fake_5g: 触发恢复 | count=$RECOVERY_COUNT"
                 log_msg "[5G恢复] 连续${DEGRADE_RECOVERY_COUNT}次正常, 调用 carrier.sh unlock-lte" "[5g]"
 
                 if [ -f "$MODDIR/scripts/carrier.sh" ]; then
@@ -450,6 +464,8 @@ handle_no_network_rollback() {
 
     # PNM 受限品牌跳过
     se_is_pnm_restricted && return 0
+
+    se_ci_log "monitor.sh" "handle_no_network_rollback: entry | ping=$1"
 
     local ping_ms="$1"
     local net_type="$2"
@@ -488,6 +504,7 @@ handle_no_network_rollback() {
 # ----------------------------------------------------------------------
 # weaknet 激活时跳过本轮; 5G 假满格降级 + 无网络回退 均在内部处理
 run_monitor_loop() {
+    se_ci_log "monitor.sh" "run_monitor_loop: entry"
     local current_level="init"
     local loop_count=0
     FAKE_5G_ACTIVE=0
@@ -629,6 +646,7 @@ run_monitor_loop() {
 # 启动/停止/状态管理
 # ----------------------------------------------------------------------
 start_monitor() {
+    se_ci_log "monitor.sh" "start_monitor: entry"
     [ "$ENABLE_MONITOR" = "true" ] || {
         echo "智能调度器已禁用 (ENABLE_MONITOR=false)"
         return 0
@@ -666,6 +684,7 @@ start_monitor() {
 }
 
 stop_monitor() {
+    se_ci_log "monitor.sh" "stop_monitor: entry"
     if ! [ -f "$SE_PID_FILE" ]; then
         echo "[INFO] 调度器未运行"
         return 0
@@ -709,6 +728,7 @@ stop_monitor() {
 }
 
 show_status() {
+    se_ci_log "monitor.sh" "show_status: entry"
     echo "=== 智能调度器状态 v${SE_VERSION} ==="
 
     if ! [ -f "$SE_PID_FILE" ]; then
@@ -755,6 +775,7 @@ show_status() {
 }
 
 detect_once() {
+    se_ci_log "monitor.sh" "detect_once: entry"
     echo "=== 单次网络检测 (v${SE_VERSION}) ==="
     local net_type wifi_rssi mobile_dbm ping_ms nr_rsrp nr_sinr nr_rsrq
     net_type=$(se_detect_network_type)
@@ -797,9 +818,10 @@ detect_once() {
 }
 
 case "$1" in
-    start)   start_monitor ;;
-    stop)    stop_monitor ;;
+    start)   se_ci_log "monitor.sh" "cmd=start"; start_monitor ;;
+    stop)    se_ci_log "monitor.sh" "cmd=stop"; stop_monitor ;;
     restart)
+        se_ci_log "monitor.sh" "cmd=restart"
         stop_monitor
         local_wait=0
         while se_monitor_running && [ "$local_wait" -lt 5 ]; do
@@ -808,18 +830,20 @@ case "$1" in
         done
         start_monitor
         ;;
-    status)  show_status ;;
-    detect)  detect_once ;;
+    status)  se_ci_log "monitor.sh" "cmd=status"; show_status ;;
+    detect)  se_ci_log "monitor.sh" "cmd=detect"; detect_once ;;
     notify)
+        se_ci_log "monitor.sh" "cmd=notify"
         arg_level="${2:-normal}"
         send_switch_notification "$arg_level" "?" "?" "?" "wifi"
         echo "[OK] 通知已发送 (等级=$arg_level)"
         ;;
     cancel)
+        se_ci_log "monitor.sh" "cmd=cancel"
         se_notify_cancel
         echo "[OK] 已撤销调度器通知"
         ;;
-    _loop)   run_monitor_loop ;;
+    _loop)   se_ci_log "monitor.sh" "cmd=_loop"; run_monitor_loop ;;
     *)
         echo "网络增强动态自适应调度器 v${SE_VERSION}"
         echo ""

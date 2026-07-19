@@ -129,3 +129,6 @@ ENABLE_LTE_LOCK_FOR_GAME=true
 # 最低 Android API 级别（34 = Android 14）
 # 低于此版本的部分功能可能受限, 但不阻止运行
 MIN_API_LEVEL=34
+
+# CI 调试模式埋点（config.sh 被 source 时记录）
+[ -n "$(command -v se_ci_log 2>/dev/null)" ] && se_ci_log "config.sh" "config.sh 加载 | CARRIER=$CARRIER MONITOR=$ENABLE_MONITOR"

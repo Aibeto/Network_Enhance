@@ -29,10 +29,13 @@ _se_common=$(_se_find_common) || { echo "[NE] common.sh 未找到" >&2; exit 0; 
 . "$_se_common"
 unset _se_common _se_find_common
 
+se_ci_log "wifi.sh" "wifi.sh 启动 | cmd=$1"
+
 # ----------------------------------------------------------------------
 # 应用 WiFi 优化（OEM 兼容性由 oem_compat.sh 过滤）
 # ----------------------------------------------------------------------
 apply_wifi() {
+    se_ci_log "wifi.sh" "apply_wifi: entry"
     [ "$ENABLE_WIFI_OPTIMIZE" = "true" ] || {
         echo "WiFi 优化已禁用 (config.sh: ENABLE_WIFI_OPTIMIZE=false)"
         return 0
@@ -88,6 +91,7 @@ apply_wifi() {
 # 状态显示（含 5G 频段识别）
 # ----------------------------------------------------------------------
 show_wifi_status() {
+    se_ci_log "wifi.sh" "show_wifi_status: entry"
     echo "=== WiFi 设置状态 v${SE_VERSION} ==="
     echo ""
     echo "[扫描与漫游]"
@@ -147,6 +151,7 @@ show_wifi_status() {
 # 还原 WiFi 设置
 # ----------------------------------------------------------------------
 reset_wifi() {
+    se_ci_log "wifi.sh" "reset_wifi: entry"
     echo "=== 还原 WiFi 设置 ==="
     se_put global wifi_scan_throttle_enabled 1
     se_put global wifi_framework_scan_interval_ms 30000
@@ -167,9 +172,9 @@ reset_wifi() {
 }
 
 case "$1" in
-    apply)   apply_wifi ;;
-    status)  show_wifi_status ;;
-    reset)   reset_wifi ;;
+    apply)   se_ci_log "wifi.sh" "cmd=apply"; apply_wifi ;;
+    status)  se_ci_log "wifi.sh" "cmd=status"; show_wifi_status ;;
+    reset)   se_ci_log "wifi.sh" "cmd=reset"; reset_wifi ;;
     *)
         echo "WiFi 优化工具 v${SE_VERSION}"
         echo "用法: sh wifi.sh <apply|status|reset>"

@@ -251,6 +251,8 @@
     // 基于 exec 容错增强框架 + 全局异步防假卡死框架构建
     // ======================================================================
 
+
+    //TODO: 按钮异步顶部浮窗不正常显示，等待refactor-ui
     var MODDIR = '';
     var diagLog = [];
     var API_READY = false;
@@ -935,13 +937,13 @@
     // 5G 信号质量等级判定函数（5级分类，依据 3GPP TS 38.133 + Android SignalStrength 标准）
     // 通用规则: excellent > good > warn > poor > bad
     function rsrpClass(rsrp) {
-      // 3GPP TS 38.133 NR RSRP 阈值: >=-85 优 / -95~-85 良 / -105~-95 中 / -115~-105 差 / <-115 无
+      // 信号强度分级: >=-50 优秀 / -67~-50 良好 / -85~-67 中等 / -100~-85 差 / <-100 极差
       if (rsrp === '无' || rsrp === '?' || rsrp === '') return '';
       var n = parseInt(rsrp); if (isNaN(n)) return '';
-      if (n >= -85) return 'excellent';
-      if (n >= -95) return 'good';
-      if (n >= -105) return 'warn';
-      if (n >= -115) return 'poor';
+      if (n >= -50) return 'excellent';
+      if (n >= -67) return 'good';
+      if (n >= -85) return 'warn';
+      if (n >= -100) return 'poor';
       return 'bad';
     }
     function sinrClass(sinr) {
@@ -956,13 +958,13 @@
     }
 
     function rssiClass(rssi) {
-      // WiFi RSSI 行业共识: >=-50 优 / -65~-50 良 / -75~-65 中 / -85~-75 差 / <-85 无
+      // 信号强度分级: >=-50 优秀 / -67~-50 良好 / -85~-67 中等 / -100~-85 差 / <-100 极差
       if (rssi === '?' || rssi === '') return '';
       var n = parseInt(rssi); if (isNaN(n)) return '';
       if (n >= -50) return 'excellent';
-      if (n >= -65) return 'good';
-      if (n >= -75) return 'warn';
-      if (n >= -85) return 'poor';
+      if (n >= -67) return 'good';
+      if (n >= -85) return 'warn';
+      if (n >= -100) return 'poor';
       return 'bad';
     }
     function levelClass(lvl) {
@@ -976,14 +978,13 @@
       return 'bad';
     }
     function dbmClass(dbm) {
-      // 3GPP TS 36.133 LTE/NR RSRP 阈值（与 rsrpClass 一致）:
-      // >=-85 优 / -95~-85 良 / -105~-95 中 / -115~-105 差 / <-115 无
+      // 信号强度分级: >=-50 优秀 / -67~-50 良好 / -85~-67 中等 / -100~-85 差 / <-100 极差
       if (dbm === '?' || dbm === '') return '';
       var n = parseInt(dbm); if (isNaN(n)) return '';
-      if (n >= -85) return 'excellent';
-      if (n >= -95) return 'good';
-      if (n >= -105) return 'warn';
-      if (n >= -115) return 'poor';
+      if (n >= -50) return 'excellent';
+      if (n >= -67) return 'good';
+      if (n >= -85) return 'warn';
+      if (n >= -100) return 'poor';
       return 'bad';
     }
     function pingClass(ms) {

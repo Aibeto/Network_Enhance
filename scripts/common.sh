@@ -157,7 +157,7 @@ if [ -z "${SE_CONFIG_LOADED:-}" ]; then
     fi
 
     # CI 调试模式检测（config + OEM 加载后尽早执行）
-    if [ -n "$MODDIR_ROOT" ]; then
+    if [ -n "$MODDIR_ROOT" ] && [ -f "$MODDIR_ROOT/module.prop" ]; then
         se_ci_detect 2>/dev/null
     fi
 fi

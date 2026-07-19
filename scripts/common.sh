@@ -208,8 +208,8 @@ fi
 # 信号阈值
 : "${WIFI_STRONG_RSSI:=60}"
 : "${WIFI_WEAK_RSSI:=75}"
-: "${MOBILE_STRONG_DBM:=85}"
-: "${MOBILE_WEAK_DBM:=105}"
+: "${MOBILE_STRONG_DBM:=67}"
+: "${MOBILE_WEAK_DBM:=100}"
 : "${PING_GOOD_MS:=80}"
 : "${PING_BAD_MS:=200}"
 

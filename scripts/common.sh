@@ -738,13 +738,11 @@ se_get_mobile_level() {
     reg=$(se_dumpsys_cached telephony.registry 2>/dev/null)
     [ -z "$reg" ] && { echo ""; return 0; }
 
-    # 优先采用父级 mSignalStrength.mLevel（系统信号栏显示值，0-4）
-    # 不再取 mNr/mLte 等子块 level，因为子信号等级与整体 mLevel 可能不一致，
-    # 会造成"信号越强等级越低"的视觉错乱
+    # 与 se_get_mobile_dbm 保持完全一致的提取策略，确保 level 和 dbm 来自同一 SIM
+    # 不再使用 mSignalStrength=SignalStrength: 仅 5 行的窄窗口，避免误取子块 level
 
-    # 方法 1: 从 mSignalStrength=SignalStrength: 行及其后 5 行取父级 mLevel（最准确）
-    # 父级 mLevel 始终是 SignalStrength 的直接字段，出现在子块信息之前
-    block=$(echo "$reg" | awk '/mSignalStrength=SignalStrength:/{found=1} found{print; if(++count>=5) exit}' 2>/dev/null)
+    # 方法 1: 从卡1 块 (mPhoneId=0) 内取 mLevel（最精确，避免取到卡2 的）
+    block=$(echo "$reg" | awk '/mPhoneId=0/{flag=1; next} /mPhoneId=/{flag=0} flag' 2>/dev/null)
     if [ -n "$block" ]; then
         level=$(echo "$block" | grep -oE 'mLevel=[0-9]+' 2>/dev/null | head -1 | cut -d= -f2)
         [ -n "$level" ] && [ "$level" != "2147483647" ] && { echo "$level"; return 0; }
@@ -756,8 +754,8 @@ se_get_mobile_level() {
         [ -n "$level" ] && [ "$level" != "2147483647" ] && { echo "$level"; return 0; }
     fi
 
-    # 方法 2: 从卡1 块 (mPhoneId=0) 内取 mLevel（兜底，避免取到卡2 的）
-    block=$(echo "$reg" | awk '/mPhoneId=0/{flag=1; next} /mPhoneId=/{flag=0} flag' 2>/dev/null)
+    # 方法 2: 从第一个 mSignalStrength 块内取（30 行，与 se_get_mobile_dbm 一致）
+    block=$(echo "$reg" | awk '/mSignalStrength/{found=1} found{print; if(++count>=30) exit}' 2>/dev/null)
     if [ -n "$block" ]; then
         level=$(echo "$block" | grep -oE 'mLevel=[0-9]+' 2>/dev/null | head -1 | cut -d= -f2)
         [ -n "$level" ] && [ "$level" != "2147483647" ] && { echo "$level"; return 0; }

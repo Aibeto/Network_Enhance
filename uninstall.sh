@@ -185,9 +185,9 @@ rm -f /data/local/tmp/network_enhance_monitor.state 2>/dev/null
 # 状态临时文件
 rm -f /data/local/tmp/network_enhance_monitor.state.tmp 2>/dev/null
 # 日志文件（含轮转临时文件）
-rm -f /data/local/tmp/network_enhance.log 2>/dev/null
-rm -f /data/local/tmp/network_enhance.log.tmp 2>/dev/null
-rm -f /data/local/tmp/network_enhance.log.* 2>/dev/null
+rm -f /data/local/tmp/Network_Enhance/network_enhance.log 2>/dev/null
+rm -f /data/local/tmp/Network_Enhance/network_enhance.log.tmp 2>/dev/null
+rm -f /data/local/tmp/Network_Enhance/network_enhance.log.* 2>/dev/null
 # 5G 备份文件（carrier.sh lock-lte 保存的 PNM 备份）
 rm -f /data/local/tmp/network_enhance_5g_backup 2>/dev/null
 # PNM 受限标记文件（所有品牌）
@@ -204,7 +204,7 @@ for _f in /data/local/tmp/network_enhance*; do
 done
 
 # 清理 CI 调试日志（大写 N，与 network_enhance* 不同前缀）
-rm -f "/data/local/tmp/Network_Enhance.log" 2>/dev/null
+rm -f "/data/local/tmp/Network_Enhance/ci.log" 2>/dev/null
 
 # 清理 dumpsys 缓存目录
 rm -rf "/data/local/tmp/network_enhance_dumpsys_cache" 2>/dev/null

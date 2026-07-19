@@ -2,7 +2,7 @@
 
 ## 概要
 
-为 `module.prop` 中 `version` 字段以 `ci` 开头时的 CI 调试模式，在所有 shell 脚本和 HTML 中添加大量埋点日志。日志输出到 `/data/local/tmp/Network_Enhance.log`，格式为 `YYYY-MM-DD HH:MM:SS [FILENAME] INFO message`。
+为 `module.prop` 中 `version` 字段以 `ci` 开头时的 CI 调试模式，在所有 shell 脚本和 HTML 中添加大量埋点日志。日志输出到 `/data/local/tmp/Network_Enhance/ci.log`，格式为 `YYYY-MM-DD HH:MM:SS [FILENAME] INFO message`。
 
 ## 当前状态
 
@@ -203,7 +203,7 @@
 | 恢复网络制式后 | `se_ci_log "uninstall.sh" "恢复网络制式"` |
 | 各设置还原后 | `se_ci_log "uninstall.sh" "WiFi/移动网络/Private DNS 还原完成"` |
 | 清理运行时文件后 | `se_ci_log "uninstall.sh" "运行时文件清理"` |
-| **CI 日志清理** | 在运行时清理循环中添加 `rm -f "/data/local/tmp/Network_Enhance.log"` |
+| **CI 日志清理** | 在运行时清理循环中添加 `rm -f "/data/local/tmp/Network_Enhance/ci.log"` |
 
 ### 12. `webroot/index.html` — WebUI JavaScript 埋点
 
@@ -217,7 +217,7 @@ function ciLog(src, msg) {
   if (!SE_CI_LOGON) return;
   try {
     var ts = new Date().toISOString().replace('T', ' ').substring(0, 19);
-    execSync('echo "' + ts + ' [' + src + '] INFO ' + msg.replace(/"/g, '\\"') + '" >> /data/local/tmp/Network_Enhance.log 2>/dev/null');
+    execSync('echo "' + ts + ' [' + src + '] INFO ' + msg.replace(/"/g, '\\"') + '" >> /data/local/tmp/Network_Enhance/ci.log 2>/dev/null');
   } catch(e) {}
 }
 ```
@@ -258,6 +258,6 @@ CI 检测（在 `execSync` 可用后）：
 1. ✅ 所有 `se_ci_log` 调用以 `[ "$SE_CI_LOGON" = "1" ] || return 0` 守卫，不影响原有逻辑
 2. ✅ 日志文件名统一为脚本基名（不含路径前缀），如 `monitor.sh`、`carrier.sh`
 3. ✅ 主循环内部（`while true`）无埋点，仅函数入口有日志（每次循环约 6-7 条，720 条/天，可接受）
-4. ✅ `uninstall.sh` 包含 `Network_Enhance.log` 清理（第 206 行）
+4. ✅ `uninstall.sh` 包含 `Network_Enhance/ci.log` 清理（第 206 行）
 5. ✅ `customize.sh` 内联了 CI 检测（不依赖 common.sh）
 6. ✅ `index.html` 的 JS 日志通过 `execSync` 写入，正确转义引号

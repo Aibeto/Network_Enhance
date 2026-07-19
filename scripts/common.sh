@@ -12,7 +12,7 @@ SE_VERSION_CODE="114"
 SE_LOG_TAG="NetworkEnhance"
 
 # CI 调试模式 — 当 module.prop version 以 ci 开头时自动启用
-SE_CI_LOG_FILE="/data/local/tmp/Network_Enhance.log"
+SE_CI_LOG_FILE="/data/local/tmp/Network_Enhance/ci.log"
 SE_CI_LOGON=0
 
 # CI 日志写入 — 仅当 SE_CI_LOGON=1 时写入
@@ -40,9 +40,9 @@ se_ci_detect() {
 }
 
 # 日志路径优先 /data/local/tmp（ADB 必写、稳定）
-SE_LOG_FILE="/data/local/tmp/network_enhance.log"
+SE_LOG_FILE="/data/local/tmp/Network_Enhance/network_enhance.log"
 if [ ! -w "$(dirname "$SE_LOG_FILE")" ] 2>/dev/null; then
-    SE_LOG_FILE="/storage/emulated/0/network_enhance.log"
+    SE_LOG_FILE="/storage/emulated/0/Network_Enhance/network_enhance.log"
 fi
 
 # 运行时文件（network_enhance 前缀统一）

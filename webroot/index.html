@@ -284,7 +284,7 @@
         var ts = new Date().toISOString().replace('T', ' ').substring(0, 19);
         // 使用 printf + 单引号防 shell 注入（$() 在双引号内仍会被执行）
         var safeMsg = (ts + ' [' + src + '] INFO ' + msg).replace(/'/g, "'\\''");
-        execSync("printf '%s\\n' '" + safeMsg + "' >> /data/local/tmp/Network_Enhance.log 2>/dev/null");
+        execSync("printf '%s\\n' '" + safeMsg + "' >> /data/local/tmp/Network_Enhance/ci.log 2>/dev/null");
       } catch (e) { }
     }
 
@@ -756,7 +756,7 @@
     function clearLog() {
       ciLog('index.html', 'clearLog');
       if (!confirm('确定清空日志?')) return;
-      runCmd('rm -f /data/local/tmp/network_enhance.log', '清空日志', loadLog);
+      runCmd('rm -f /data/local/tmp/Network_Enhance/network_enhance.log', '清空日志', loadLog);
     }
 
     function confirmReset() {
@@ -1151,7 +1151,7 @@
       ciLog('index.html', 'loadLog');
       if (!API_READY) return;
       throttledLoad('logLoad', 0, function (done) {
-        exec('tail -50 /data/local/tmp/network_enhance.log 2>/dev/null || echo "(日志不存在)"', function (errno, stdout) {
+        exec('tail -50 /data/local/tmp/Network_Enhance/network_enhance.log 2>/dev/null || echo "(日志不存在)"', function (errno, stdout) {
           var text = (stdout || '').trim() || '(空)';
           var html = text.split('\n').map(function (line) {
             var cls = '';
